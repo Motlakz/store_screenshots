@@ -114,12 +114,12 @@ export function PreviewStage({
     >
       <div ref={scrollerRef} className="h-full w-full overflow-auto p-12">
         <div
+          className="canvas-shadow"
           style={{
             width: totalW * scale,
             height: cH * scale,
             position: "relative",
             flexShrink: 0,
-            filter: "drop-shadow(0 32px 42px rgba(15, 23, 42, 0.18))",
           }}
         >
           <div

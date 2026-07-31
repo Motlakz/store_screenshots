@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 2,
+  "appId": "speakdiary",
+  "appName": "SpeakDiary",
+  "themeId": "dreamy-pastel",
+  "themes": [
+    {
+      "id": "dreamy-pastel",
+      "name": "Dreamy Pastel",
+      "bg": "#DDEBFA",
+      "bgAlt": "#FBE3D7",
+      "fg": "#1B2240",
+      "fgAlt": "#1B2240",
+      "accent": "#5B3FC8",
+      "muted": "#8A8FA3"
+    }
+  ],
+  "connectedCanvas": true,
+  "locales": [
+    "en",
+    "fr-FR",
+    "es-ES",
+    "es-419"
+  ],
+  "locale": "en",
+  "device": "android",
+  "orientation": "portrait",
+  "appIcon": "/screenshots/speakdiary/app-icon.png",
+  "slidesByDevice": {
+    "iphone": [],
+    "android": [
+      {
+        "id": "01-voice",
+        "layout": "hero",
+        "label": {
+          "en": "SPEAK, DON'T TYPE",
+          "fr-FR": "PARLEZ, N'ÉCRIVEZ PLUS",
+          "es-ES": "HABLA, NO ESCRIBAS",
+          "es-419": "HABLA, NO ESCRIBAS"
+        },
+        "headline": {
+          "en": "The journal that\n*listens*.",
+          "fr-FR": "Le journal qui\nvous *écoute*.",
+          "es-ES": "El diario que\nte *escucha*.",
+          "es-419": "El diario que sí\nte *escucha*."
+        },
+        "screenshot": "/screenshots/speakdiary/uploaded/5f1dd7360260f78f.jpg"
+      },
+      {
+        "id": "02-note",
+        "layout": "device-bottom",
+        "label": {
+          "en": "QUICK NOTES",
+          "fr-FR": "NOTES RAPIDES",
+          "es-ES": "NOTAS RÁPIDAS",
+          "es-419": "NOTAS RÁPIDAS"
+        },
+        "headline": {
+          "en": "Never lose a\n*thought* again.",
+          "fr-FR": "Ne perdez plus\nune *idée*.",
+          "es-ES": "No pierdas\nninguna *idea*.",
+          "es-419": "No se te escape\nni una *idea*."
+        },
+        "screenshot": "/screenshots/speakdiary/02-note.jpg",
+        "transforms": {
+          "caption": {
+            "x": 86.4,
+            "y": 153.6,
+            "width": 907.1999999999999,
+            "height": 537.6,
+            "rotation": 0,
+            "zIndex": 4
+          },
+          "device": {
+            "x": 180.5578559423459,
+            "y": 509.2047820470172,
+            "width": 678.5844380403457,
+            "height": 1470.266282420749,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "03-mood-picker",
+        "layout": "device-top",
+        "label": {
+          "en": "DAILY CHECK-IN",
+          "fr-FR": "HUMEUR DU JOUR",
+          "es-ES": "ÁNIMO DIARIO",
+          "es-419": "ÁNIMO DEL DÍA"
+        },
+        "headline": {
+          "en": "Check in with\nyour *mood*.",
+          "fr-FR": "Un point sur\nvotre *humeur*.",
+          "es-ES": "Conecta con\ntu *ánimo*.",
+          "es-419": "Registra cómo\nte *sientes*."
+        },
+        "screenshot": "/screenshots/speakdiary/03-mood-picker.jpg"
+      },
+      {
+        "id": "04-mood-trends",
+        "layout": "hero",
+        "label": {
+          "en": "MOOD INSIGHTS",
+          "fr-FR": "TENDANCES & ÉNERGIE",
+          "es-ES": "ANÁLISIS DE ÁNIMO",
+          "es-419": "TENDENCIAS DE ÁNIMO"
+        },
+        "headline": {
+          "en": "See the *patterns*\nin your days.",
+          "fr-FR": "Voyez vos\n*tendances*.",
+          "es-ES": "Descubre tus\n*patrones*.",
+          "es-419": "Descubre tus\n*patrones*."
+        },
+        "screenshot": "/screenshots/speakdiary/04-mood-trends.jpg"
+      },
+      {
+        "id": "05-calendar",
+        "layout": "device-bottom",
+        "label": {
+          "en": "MOOD CALENDAR",
+          "fr-FR": "CALENDRIER DES HUMEURS",
+          "es-ES": "CALENDARIO DE ÁNIMO",
+          "es-419": "CALENDARIO DE ÁNIMO"
+        },
+        "headline": {
+          "en": "Your growth,\nat your *pace*.",
+          "fr-FR": "Chaque jour, son\n*humeur*.",
+          "es-ES": "Cada día, tu\n*ánimo*.",
+          "es-419": "Cada día con\ntu *ánimo*."
+        },
+        "screenshot": "/screenshots/speakdiary/05-calendar.jpg",
+        "transforms": {
+          "device": {
+            "x": 206.4649024191085,
+            "y": 480.4191748506154,
+            "width": 678.5844380403457,
+            "height": 1470.266282420749,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "06-goals",
+        "layout": "device-top",
+        "label": {
+          "en": "GENTLE GOALS",
+          "fr-FR": "OBJECTIFS EN DOUCEUR",
+          "es-ES": "METAS AMABLES",
+          "es-419": "METAS SIN PRESIÓN"
+        },
+        "headline": {
+          "en": "Gentle *goals*\nthat stick.",
+          "fr-FR": "Des *objectifs*\ntout en douceur.",
+          "es-ES": "*Metas* amables\nque cumples.",
+          "es-419": "*Metas* suaves\nque sí logras."
+        },
+        "screenshot": "/screenshots/speakdiary/06-goals.jpg"
+      },
+      {
+        "id": "07-progress",
+        "layout": "hero",
+        "label": {
+          "en": "PROGRESS & STREAKS",
+          "fr-FR": "PROGRÈS & SÉRIES",
+          "es-ES": "PROGRESO Y RACHAS",
+          "es-419": "PROGRESO Y RACHAS"
+        },
+        "headline": {
+          "en": "Every step is\n*progress*.",
+          "fr-FR": "Chaque pas, un\n*progrès*.",
+          "es-ES": "Cada paso es\n*progreso*.",
+          "es-419": "Cada paso\nsuma *progreso*."
+        },
+        "screenshot": "/screenshots/speakdiary/07-progress.jpg"
+      },
+      {
+        "id": "08-lock",
+        "layout": "device-bottom",
+        "label": {
+          "en": "PRIVATE & ENCRYPTED",
+          "fr-FR": "PRIVÉ & CHIFFRÉ",
+          "es-ES": "PRIVADO Y CIFRADO",
+          "es-419": "PRIVADO Y CIFRADO"
+        },
+        "headline": {
+          "en": "Encrypted and\ntruly *private*.",
+          "fr-FR": "Chiffré et\nvraiment *privé*.",
+          "es-ES": "Cifrado y del\ntodo *privado*.",
+          "es-419": "Cifrado y solo\n*tuyo*."
+        },
+        "screenshot": "/screenshots/speakdiary/08-lock.jpg",
+        "transforms": {
+          "device": {
+            "x": 200.70778097982748,
+            "y": 512.0833427666573,
+            "width": 678.5844380403457,
+            "height": 1470.266282420749,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
+      }
+    ],
+    "ipad": [],
+    "android-7": [],
+    "android-10": [],
+    "feature-graphic": []
+  }
+}

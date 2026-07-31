@@ -8,92 +8,78 @@ export const nid = () => `s_${Date.now().toString(36)}_${(_id++).toString(36)}`;
 
 const en = (s: string) => ({ [DEFAULT_LOCALE]: s });
 
+// Ten screens out of the box — easier to delete a couple than to build them
+// up. The layout order alternates device placement and flips `inverted` every
+// few screens so the deck already reads with rhythm before any editing. Each
+// headline carries one *asterisk-wrapped* phrase so themes with an emphasis
+// face show their script/italic treatment immediately.
 function makeStarterSlides(): Slide[] {
-  return [
-    {
-      id: nid(),
-      layout: "hero",
-      label: en("MEET YOUR APP"),
-      headline: en("Sell one\nidea per slide."),
-      screenshot: "",
-    },
-    {
-      id: nid(),
-      layout: "device-bottom",
-      label: en("FEATURE 01"),
-      headline: en("Your headline\nlives here."),
-      screenshot: "",
-    },
-    {
-      id: nid(),
-      layout: "two-devices",
-      label: en("FEATURE 02"),
-      headline: en("Show two\nscreens at once."),
-      screenshot: "",
-      screenshotSecondary: "",
-    },
-    {
-      id: nid(),
-      layout: "device-top",
-      label: en("FEATURE 03"),
-      headline: en("Flip the contrast\nfor visual rhythm."),
-      screenshot: "",
-      inverted: true,
-    },
-    {
-      id: nid(),
-      layout: "no-device",
-      label: en("MORE"),
-      headline: en("And so\nmuch more."),
-      screenshot: "",
-    },
+  const plan: Array<{
+    layout: Slide["layout"];
+    label: string;
+    headline: string;
+    inverted?: boolean;
+    secondary?: boolean;
+  }> = [
+    { layout: "hero", label: "MEET YOUR APP", headline: "Sell one *idea*\nper screen." },
+    { layout: "device-bottom", label: "FEATURE 01", headline: "Your headline\n*lives* here." },
+    { layout: "device-top", label: "FEATURE 02", headline: "Flip it for\nvisual *rhythm*.", inverted: true },
+    { layout: "two-devices", label: "FEATURE 03", headline: "Show two\n*screens* at once.", secondary: true },
+    { layout: "hero", label: "FEATURE 04", headline: "Lead with the\n*outcome*." },
+    { layout: "device-bottom", label: "FEATURE 05", headline: "One benefit,\n*one* look." },
+    { layout: "no-device", label: "WHY IT WORKS", headline: "Let the words\ncarry *this* one.", inverted: true },
+    { layout: "device-top", label: "FEATURE 06", headline: "Close the loop\non the *promise*." },
+    { layout: "two-devices", label: "FEATURE 07", headline: "Pair the\n*before* and after.", secondary: true },
+    { layout: "no-device", label: "GET STARTED", headline: "And so much\n*more*." },
   ];
+
+  return plan.map((s) => ({
+    id: nid(),
+    layout: s.layout,
+    label: en(s.label),
+    headline: en(s.headline),
+    screenshot: "",
+    ...(s.secondary ? { screenshotSecondary: "" } : {}),
+    ...(s.inverted ? { inverted: true } : {}),
+  }));
 }
 
 function ipadStarter(): Slide[] {
-  return [
-    {
-      id: nid(),
-      layout: "hero",
-      label: en("MEET YOUR APP"),
-      headline: en("Made for\nthe big screen."),
-      screenshot: "",
-    },
-    {
-      id: nid(),
-      layout: "device-bottom",
-      label: en("FEATURE 01"),
-      headline: en("Built for\nfocus."),
-      screenshot: "",
-    },
-    {
-      id: nid(),
-      layout: "device-top",
-      label: en("FEATURE 02"),
-      headline: en("Always within reach."),
-      screenshot: "",
-      inverted: true,
-    },
+  const plan: Array<{ layout: Slide["layout"]; label: string; headline: string; inverted?: boolean }> = [
+    { layout: "hero", label: "MEET YOUR APP", headline: "Made for the\n*big* screen." },
+    { layout: "device-bottom", label: "FEATURE 01", headline: "Built for\n*focus*." },
+    { layout: "device-top", label: "FEATURE 02", headline: "Always within\n*reach*.", inverted: true },
+    { layout: "hero", label: "FEATURE 03", headline: "Room to\n*think*." },
+    { layout: "device-bottom", label: "FEATURE 04", headline: "Every detail,\n*bigger*." },
+    { layout: "no-device", label: "GET STARTED", headline: "Start on\n*any* device." },
   ];
+  return plan.map((s) => ({
+    id: nid(),
+    layout: s.layout,
+    label: en(s.label),
+    headline: en(s.headline),
+    screenshot: "",
+    ...(s.inverted ? { inverted: true } : {}),
+  }));
 }
 
 function tabletStarter(kind: "7" | "10"): Slide[] {
-  return [
-    {
-      id: nid(),
-      layout: "hero",
-      label: en("MEET YOUR APP"),
-      headline: en(kind === "7" ? "Pocket-sized\npower." : "Made for\nthe big screen."),
-      screenshot: "",
-    },
-    {
-      id: nid(),
-      layout: "split-landscape",
-      label: en("FEATURE 01"),
-      headline: en("Wide canvas,\nbigger ideas."),
-      screenshot: "",
-    },
+  const opener = kind === "7" ? "Pocket-sized\n*power*." : "Made for the\n*big* screen.";
+  const plan: Array<{ layout: Slide["layout"]; label: string; headline: string; inverted?: boolean }> = [
+    { layout: "hero", label: "MEET YOUR APP", headline: opener },
+    { layout: "split-landscape", label: "FEATURE 01", headline: "Wide canvas,\nbigger *ideas*." },
+    { layout: "device-bottom", label: "FEATURE 02", headline: "See more\nat *once*." },
+    { layout: "split-landscape", label: "FEATURE 03", headline: "Built to\n*scale*.", inverted: true },
+    { layout: "no-device", label: "GET STARTED", headline: "Ready when\n*you* are." },
   ];
+  return plan.map((s) => ({
+    id: nid(),
+    layout: s.layout,
+    label: en(s.label),
+    headline: en(s.headline),
+    screenshot: "",
+    ...(s.inverted ? { inverted: true } : {}),
+  }));
 }
 
 function fgStarter(): Slide[] {

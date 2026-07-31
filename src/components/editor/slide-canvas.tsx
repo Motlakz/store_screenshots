@@ -12,6 +12,9 @@ import type {
   Slide,
   TextElement,
   Theme,
+  ThemeEmphasis,
+  ThemeFont,
+  ThemeMotif,
 } from "@/lib/types";
 import {
   CANVAS,
@@ -23,6 +26,17 @@ import {
   tabletLW,
   tabletPW,
 } from "@/lib/constants";
+import {
+  backgroundCss,
+  emphasisColorFor,
+  fontById,
+  foregroundFor,
+  grainCss,
+  readableOn,
+  resolveStyle,
+  shade,
+} from "@/lib/style";
+import { frameColorById, resolveFrame } from "@/lib/frames";
 import { toTextElementId } from "@/lib/elements";
 import { img } from "@/lib/image-cache";
 import { pickText, resolveScreenshot } from "@/lib/locale";
@@ -33,12 +47,16 @@ import {
   IPad,
   Phone,
 } from "./device-frames";
+import { Device3D } from "./device-3d";
 
 type FrameComp = React.ComponentType<{
   src: string;
   alt?: string;
   style?: React.CSSProperties;
   hideEmpty?: boolean;
+  bezel?: string;
+  bezelStroke?: string;
+  bezelStrokeWidth?: number;
 }>;
 
 export function getCanvas(device: Device, orientation: Orientation) {
@@ -218,6 +236,7 @@ function Caption({
   edit,
   align = "center",
   inverted,
+  slideIndex = 0,
   onFocus,
 }: {
   cW: number;
@@ -229,14 +248,26 @@ function Caption({
   edit?: EditHandlers;
   align?: "center" | "left";
   inverted?: boolean;
+  /** Drives per-slide solid rotation and its contrast pairing. */
+  slideIndex?: number;
   onFocus?: () => void;
 }) {
-  const fg = inverted ? theme.fgAlt : theme.fg;
-  const accent = theme.accent;
+  const style = resolveStyle(theme);
+  const fg = foregroundFor(theme, !!inverted, slideIndex, slide.background);
+  const accent = readableOn(theme, theme.accent, !!inverted, slideIndex, slide.background);
+  // Per-screen font overrides beat the theme's faces.
+  const headlineFamily = fontById(slide.headlineFont)?.family ?? style.headline.family;
+  const labelFamily = fontById(slide.labelFont)?.family ?? style.label.family;
   const headline = pickText(slide.headline, locale);
   // Scale typography off the *shorter* dimension so landscape layouts don't
   // produce headlines so tall they overlap the device frame.
   const unit = Math.min(cW, cH);
+  const headlineSize = unit * 0.092 * (style.headline.scale ?? 1);
+  // A theme with an emphasis face renders the headline as styled rich text,
+  // which can't round-trip through contentEditable — those decks are edited in
+  // the inspector instead. Plain themes stay directly editable on canvas.
+  const hasEmphasis = !!style.emphasis && /\*[^*]+\*/.test(headline);
+
   return (
     <div style={{ textAlign: align, position: "relative", width: "100%" }}>
       <EditableText
@@ -246,17 +277,26 @@ function Caption({
         onFocus={onFocus}
         placeholder="LABEL"
         style={{
-          fontSize: unit * 0.028,
-          fontWeight: 600,
+          fontFamily: labelFamily,
+          fontSize: unit * 0.028 * (style.label.scale ?? 1),
+          fontWeight: style.label.weight,
           letterSpacing: unit * 0.0015,
           color: accent,
-          textTransform: "uppercase",
+          textTransform: style.label.transform ?? "uppercase",
           marginBottom: unit * 0.018,
           minHeight: unit * 0.03,
         }}
       />
-      {theme.id === "dreamy-pastel" ? (
-        <DreamyHeadline value={headline} size={unit * 0.092} onFocus={onFocus} />
+      {hasEmphasis ? (
+        <StyledHeadline
+          value={headline}
+          size={headlineSize}
+          color={fg}
+          font={{ ...style.headline, family: headlineFamily }}
+          emphasis={style.emphasis!}
+          emphasisColor={emphasisColorFor(theme, style.emphasis!, !!inverted, slideIndex, slide.background)}
+          onFocus={onFocus}
+        />
       ) : (
         <EditableText
           value={headline}
@@ -266,10 +306,13 @@ function Caption({
           onFocus={onFocus}
           placeholder="Headline goes here"
           style={{
-            fontSize: unit * 0.092,
-            fontWeight: 700,
-            lineHeight: 0.96,
-            letterSpacing: -unit * 0.001,
+            fontFamily: headlineFamily,
+            fontSize: headlineSize,
+            fontWeight: style.headline.weight,
+            fontStyle: style.headline.italic ? "italic" : "normal",
+            lineHeight: style.headline.lineHeight,
+            letterSpacing: headlineSize * (style.headline.letterSpacing ?? -0.012),
+            textTransform: style.headline.transform ?? "none",
             color: fg,
           }}
         />
@@ -278,58 +321,71 @@ function Caption({
   );
 }
 
-function DreamyHeadline({ value, size, onFocus }: { value: string; size: number; onFocus?: () => void }) {
+// Renders `*wrapped*` phrases in the theme's emphasis face — the one script or
+// italic phrase per headline that every named style is built around.
+function StyledHeadline({
+  value,
+  size,
+  color,
+  font,
+  emphasis,
+  emphasisColor,
+  onFocus,
+}: {
+  value: string;
+  size: number;
+  color: string;
+  font: ThemeFont;
+  emphasis: ThemeEmphasis;
+  emphasisColor: string;
+  onFocus?: () => void;
+}) {
   const parts = value.split(/(\*[^*]+\*)/g);
   return (
     <div
-      onMouseDown={(event) => { event.stopPropagation(); onFocus?.(); }}
+      onMouseDown={(event) => {
+        event.stopPropagation();
+        onFocus?.();
+      }}
       style={{
-        color: "#1B2240",
-        fontFamily: "Quicksand, Inter, system-ui, sans-serif",
+        color,
+        fontFamily: font.family,
         fontSize: size,
-        fontWeight: 650,
-        lineHeight: 0.98,
-        letterSpacing: -size * 0.012,
+        fontWeight: font.weight,
+        fontStyle: font.italic ? "italic" : "normal",
+        lineHeight: font.lineHeight,
+        letterSpacing: size * (font.letterSpacing ?? -0.012),
+        textTransform: font.transform ?? "none",
         whiteSpace: "pre-wrap",
       }}
     >
       {parts.map((part, index) =>
         part.startsWith("*") && part.endsWith("*") ? (
-          <em key={index} style={{ color: "#5B3FC8", fontFamily: "Georgia, Newsreader, serif", fontSize: "1.08em", fontWeight: 400 }}>
+          <span
+            key={index}
+            style={{
+              color: emphasisColor,
+              fontFamily: emphasis.family,
+              fontSize: `${emphasis.scale ?? 1.1}em`,
+              fontWeight: emphasis.weight ?? 400,
+              fontStyle: emphasis.italic ? "italic" : "normal",
+              lineHeight: emphasis.lineHeight ?? undefined,
+              // inline-block so the tilt doesn't disturb the line box
+              display: emphasis.rotation ? "inline-block" : undefined,
+              transform: emphasis.rotation ? `rotate(${emphasis.rotation}deg)` : undefined,
+            }}
+          >
             {part.slice(1, -1)}
-          </em>
-        ) : <React.Fragment key={index}>{part}</React.Fragment>,
+          </span>
+        ) : (
+          <React.Fragment key={index}>{part}</React.Fragment>
+        ),
       )}
     </div>
   );
 }
 
 // ---------- Background ----------
-
-function backgroundFor(theme: Theme, inverted?: boolean) {
-  if (theme.id === "dreamy-pastel") {
-    return inverted
-      ? "linear-gradient(180deg, #FBE3D7 0%, #F7C9D6 50%, #F3B6CC 100%)"
-      : "linear-gradient(180deg, #DDEBFA 0%, #F5E0F0 45%, #FCEFD6 100%)";
-  }
-  if (inverted) {
-    return `linear-gradient(160deg, ${theme.bgAlt} 0%, ${shade(theme.bgAlt, -8)} 100%)`;
-  }
-  return `linear-gradient(160deg, ${theme.bg} 0%, ${shade(theme.bg, -6)} 100%)`;
-}
-
-function shade(hex: string, percent: number) {
-  const c = hex.replace("#", "");
-  const num = parseInt(c.length === 3 ? c.split("").map((x) => x + x).join("") : c, 16);
-  let r = (num >> 16) & 0xff;
-  let g = (num >> 8) & 0xff;
-  let b = num & 0xff;
-  const amt = Math.round((255 * percent) / 100);
-  r = Math.max(0, Math.min(255, r + amt));
-  g = Math.max(0, Math.min(255, g + amt));
-  b = Math.max(0, Math.min(255, b + amt));
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
-}
 
 // ---------- Decorative blob ----------
 
@@ -589,11 +645,12 @@ export function SlideCanvas({
         previewScale={previewScale}
         hideEmpty={hideEmpty}
         screenX={0}
+        slideIndex={0}
         boundsW={cW}
         boundsH={cH}
         allowCrossScreen={false}
       />
-      {theme.id === "dreamy-pastel" && <DreamyFront slideId={slide.id} cW={cW} cH={cH} />}
+      {resolveStyle(theme).decor.dreamy && <DreamyFront slideId={slide.id} cW={cW} cH={cH} />}
     </div>
   );
 }
@@ -683,7 +740,7 @@ export function DeckCanvas({
               overflow: "hidden",
             }}
           >
-            <SlideBackground slide={slide} cW={cW} cH={cH} theme={theme} />
+            <SlideBackground slide={slide} cW={cW} cH={cH} theme={theme} slideIndex={index} />
             {showGuides && <ScreenGuide cW={cW} cH={cH} index={index} active={active} />}
           </div>
         );
@@ -720,6 +777,7 @@ export function DeckCanvas({
             previewScale={previewScale}
             hideEmpty={hideEmpty}
             screenX={connectedCanvas ? index * cW : 0}
+            slideIndex={index}
             boundsW={connectedCanvas ? totalW : cW}
             boundsH={cH}
             allowCrossScreen={connectedCanvas}
@@ -743,7 +801,7 @@ export function DeckCanvas({
         );
       })}
 
-      {theme.id === "dreamy-pastel" &&
+      {resolveStyle(theme).decor.dreamy &&
         slides.map((slide, index) => {
           if (slide.layout === "feature-graphic" || device === "feature-graphic") return null;
           return (
@@ -773,33 +831,188 @@ function SlideBackground({
   cW,
   cH,
   theme,
+  slideIndex = 0,
 }: {
   slide: Slide;
   cW: number;
   cH: number;
   theme: Theme;
+  slideIndex?: number;
 }) {
   const inverted = !!slide.inverted;
+  const { decor } = resolveStyle(theme);
   return (
     <div
       style={{
         position: "absolute",
         inset: 0,
         overflow: "hidden",
-        background: backgroundFor(theme, inverted),
-        color: inverted ? theme.fgAlt : theme.fg,
+        background: backgroundCss(theme, inverted, slideIndex, slide.background),
+        color: foregroundFor(theme, inverted, slideIndex, slide.background),
       }}
     >
-      {theme.id === "dreamy-pastel" ? (
-        <DreamyDecorations slideId={slide.id} cW={cW} cH={cH} />
-      ) : (
+      {decor.dreamy && <DreamyDecorations slideId={slide.id} cW={cW} cH={cH} />}
+
+      {decor.blobs && (
         <>
           <Blob cW={cW} color={theme.accent} x={-15} y={-10} size={55} opacity={inverted ? 0.25 : 0.32} />
           <Blob cW={cW} color={theme.accent} x={70} y={75} size={45} opacity={inverted ? 0.18 : 0.25} />
         </>
       )}
+
+      {decor.motifs && decor.motifs.length > 0 && (
+        <Motifs
+          slideId={slide.id}
+          cW={cW}
+          cH={cH}
+          motifs={decor.motifs}
+          color={decor.motifColor || theme.accent}
+        />
+      )}
+
+      {/* Radial vignette — pulls the eye to the centre of a photo-led slide. */}
+      {decor.vignette ? (
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            background: `radial-gradient(ellipse at 50% 42%, transparent 38%, rgba(0,0,0,${decor.vignette}) 100%)`,
+          }}
+        />
+      ) : null}
+
+      {/* Bottom scrim so headlines stay legible over imagery. */}
+      {decor.scrim ? (
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            background: "linear-gradient(180deg, transparent 45%, rgba(0,0,0,0.62) 100%)",
+          }}
+        />
+      ) : null}
+
+      {/* Paper grain sits above everything else in the background layer. */}
+      {decor.grain ? (
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            backgroundImage: grainCss(decor.grain),
+            backgroundRepeat: "repeat",
+            mixBlendMode: "multiply",
+          }}
+        />
+      ) : null}
     </div>
   );
+}
+
+// Sparse hand-drawn marks. Placement is derived from the slide id so a given
+// screen always draws the same arrangement instead of reshuffling on rerender.
+function Motifs({
+  slideId,
+  cW,
+  cH,
+  motifs,
+  color,
+}: {
+  slideId: string;
+  cW: number;
+  cH: number;
+  motifs: ThemeMotif[];
+  color: string;
+}) {
+  let seed = 0;
+  for (let i = 0; i < slideId.length; i++) seed = (seed * 31 + slideId.charCodeAt(i)) >>> 0;
+  const rand = (n: number) => {
+    seed = (seed * 1103515245 + 12345) >>> 0;
+    return (seed >>> 8) % n;
+  };
+  const unit = Math.min(cW, cH);
+  const count = 4;
+  const nodes = Array.from({ length: count }, (_, i) => {
+    const motif = motifs[rand(motifs.length)];
+    const size = unit * (0.05 + rand(4) / 100);
+    return (
+      <div
+        key={i}
+        style={{
+          position: "absolute",
+          left: `${6 + rand(84)}%`,
+          top: `${8 + rand(80)}%`,
+          width: size,
+          height: size,
+          transform: `rotate(${rand(60) - 30}deg)`,
+          opacity: 0.75,
+        }}
+      >
+        <MotifGlyph motif={motif} color={color} />
+      </div>
+    );
+  });
+  return (
+    <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+      {nodes}
+    </div>
+  );
+}
+
+function MotifGlyph({ motif, color }: { motif: ThemeMotif; color: string }) {
+  const stroke = { fill: "none", stroke: color, strokeWidth: 6, strokeLinecap: "round" as const };
+  switch (motif) {
+    case "squiggle":
+      return (
+        <svg viewBox="0 0 100 40" width="100%" height="100%">
+          <path d="M4 26 Q 18 4, 32 22 T 62 22 T 94 16" {...stroke} />
+        </svg>
+      );
+    case "star":
+      return (
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M50 8 L58 40 L92 42 L64 60 L74 92 L50 72 L26 92 L36 60 L8 42 L42 40 Z" fill={color} />
+        </svg>
+      );
+    case "arrow":
+      return (
+        <svg viewBox="0 0 100 60" width="100%" height="100%">
+          <path d="M6 44 Q 40 -2, 88 20" {...stroke} />
+          <path d="M70 10 L90 20 L74 34" {...stroke} />
+        </svg>
+      );
+    case "heart":
+      return (
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path
+            d="M50 86 C 12 58, 6 32, 24 20 C 38 11, 50 24, 50 32 C 50 24, 62 11, 76 20 C 94 32, 88 58, 50 86 Z"
+            fill={color}
+          />
+        </svg>
+      );
+    case "paw":
+      return (
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <ellipse cx="50" cy="66" rx="26" ry="22" fill={color} />
+          <circle cx="24" cy="38" r="10" fill={color} />
+          <circle cx="42" cy="24" r="10" fill={color} />
+          <circle cx="62" cy="24" r="10" fill={color} />
+          <circle cx="78" cy="38" r="10" fill={color} />
+        </svg>
+      );
+    case "sparkle":
+    default:
+      return (
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M50 6 C 54 38, 62 46, 94 50 C 62 54, 54 62, 50 94 C 46 62, 38 54, 6 50 C 38 46, 46 38, 50 6 Z" fill={color} />
+        </svg>
+      );
+  }
 }
 
 // Per-slide floating decorations. Every frame shares a couple of soft ambient
@@ -1143,6 +1356,7 @@ function SlideElements({
   previewScale,
   hideEmpty,
   screenX,
+  slideIndex = 0,
   boundsW,
   boundsH,
   allowCrossScreen,
@@ -1158,6 +1372,8 @@ function SlideElements({
   previewScale: number;
   hideEmpty?: boolean;
   screenX: number;
+  /** Position in the deck — drives per-slide solid rotation. */
+  slideIndex?: number;
   boundsW: number;
   boundsH: number;
   allowCrossScreen: boolean;
@@ -1166,6 +1382,11 @@ function SlideElements({
   const screenshotSecondary = resolveScreenshot(slide.screenshotSecondary, locale);
   const { cW, cH, Frame, frameAspect, defaults } = getSlideGeometry(slide, device, orientation);
   const inverted = !!slide.inverted;
+  // Device chrome overrides (cream bezel, ink outline, drop shadow) come from
+  // the active theme rather than being baked into the frame components.
+  const themeDevice = resolveStyle(theme).device;
+  // Per-screen body finish, if this slide picked one.
+  const slideFinish = frameColorById(resolveFrame(slide.frame).color);
   const captionRect = rectFor("caption", slide, defaults);
   const deviceRect = rectFor("device", slide, defaults);
   const secondaryRect = rectFor("deviceSecondary", slide, defaults);
@@ -1194,6 +1415,7 @@ function SlideElements({
         edit={edit}
         align={captionRect.align || "center"}
         inverted={inverted}
+        slideIndex={slideIndex}
         onFocus={() => edit?.onSelectElement?.("caption")}
       />
     );
@@ -1255,11 +1477,21 @@ function SlideElements({
         selected={selectedElementId === id}
         onSelect={() => edit?.onSelectElement?.(id)}
       >
-        <Frame
-          src={src}
-          hideEmpty={hideEmpty}
-          style={{ width: "100%", height: "100%", ...extraStyle }}
-        />
+        <Device3D frame={slide.frame} fallbackEdge={themeDevice.bezelStroke}>
+          <Frame
+            src={src}
+            hideEmpty={hideEmpty}
+            bezel={slideFinish?.body ?? themeDevice.bezel}
+            bezelStroke={themeDevice.bezelStroke}
+            bezelStrokeWidth={themeDevice.bezelStrokeWidth}
+            style={{
+              width: "100%",
+              height: "100%",
+              ...(themeDevice.shadow ? { filter: `drop-shadow(${themeDevice.shadow.split(",")[0]})` } : {}),
+              ...extraStyle,
+            }}
+          />
+        </Device3D>
       </Movable>
     );
   }

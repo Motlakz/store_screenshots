@@ -2,8 +2,7 @@
   "schemaVersion": 2,
   "appId": "calmpedal",
   "appName": "CalmPedal",
-  "themeId": "clean-light",
-  "themes": [],
+  "themeId": "calmpedal-cyan",
   "connectedCanvas": true,
   "locales": [
     "en"
@@ -15,209 +14,424 @@
   "slidesByDevice": {
     "iphone": [
       {
-        "id": "s_ms93yahk_i",
+        "id": "s_ms98bzyg_11",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Sell one\nidea per slide."
+          "en": "Sell one *idea*\nper screen."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahk_j",
+        "id": "s_ms98bzyg_12",
         "layout": "device-bottom",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Your headline\nlives here."
+          "en": "Your headline\n*lives* here."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahk_k",
-        "layout": "two-devices",
+        "id": "s_ms98bzyg_13",
+        "layout": "device-top",
         "label": {
           "en": "FEATURE 02"
         },
         "headline": {
-          "en": "Show two\nscreens at once."
-        },
-        "screenshot": "",
-        "screenshotSecondary": ""
-      },
-      {
-        "id": "s_ms93yahk_l",
-        "layout": "device-top",
-        "label": {
-          "en": "FEATURE 03"
-        },
-        "headline": {
-          "en": "Flip the contrast\nfor visual rhythm."
+          "en": "Flip it for\nvisual *rhythm*."
         },
         "screenshot": "",
         "inverted": true
       },
       {
-        "id": "s_ms93yahk_m",
-        "layout": "no-device",
+        "id": "s_ms98bzyg_14",
+        "layout": "two-devices",
         "label": {
-          "en": "MORE"
+          "en": "FEATURE 03"
         },
         "headline": {
-          "en": "And so\nmuch more."
+          "en": "Show two\n*screens* at once."
+        },
+        "screenshot": "",
+        "screenshotSecondary": ""
+      },
+      {
+        "id": "s_ms98bzyg_15",
+        "layout": "hero",
+        "label": {
+          "en": "FEATURE 04"
+        },
+        "headline": {
+          "en": "Lead with the\n*outcome*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_16",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 05"
+        },
+        "headline": {
+          "en": "One benefit,\n*one* look."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_17",
+        "layout": "no-device",
+        "label": {
+          "en": "WHY IT WORKS"
+        },
+        "headline": {
+          "en": "Let the words\ncarry *this* one."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_ms98bzyg_18",
+        "layout": "device-top",
+        "label": {
+          "en": "FEATURE 06"
+        },
+        "headline": {
+          "en": "Close the loop\non the *promise*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_19",
+        "layout": "two-devices",
+        "label": {
+          "en": "FEATURE 07"
+        },
+        "headline": {
+          "en": "Pair the\n*before* and after."
+        },
+        "screenshot": "",
+        "screenshotSecondary": ""
+      },
+      {
+        "id": "s_ms98bzyg_1a",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "And so much\n*more*."
         },
         "screenshot": ""
       }
     ],
     "android": [
       {
-        "id": "s_ms93yahk_n",
+        "id": "s_ms98bzyg_1b",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Sell one\nidea per slide."
+          "en": "Sell one *idea*\nper screen."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahk_o",
+        "id": "s_ms98bzyg_1c",
         "layout": "device-bottom",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Your headline\nlives here."
+          "en": "Your headline\n*lives* here."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahk_p",
-        "layout": "two-devices",
+        "id": "s_ms98bzyg_1d",
+        "layout": "device-top",
         "label": {
           "en": "FEATURE 02"
         },
         "headline": {
-          "en": "Show two\nscreens at once."
-        },
-        "screenshot": "",
-        "screenshotSecondary": ""
-      },
-      {
-        "id": "s_ms93yahk_q",
-        "layout": "device-top",
-        "label": {
-          "en": "FEATURE 03"
-        },
-        "headline": {
-          "en": "Flip the contrast\nfor visual rhythm."
+          "en": "Flip it for\nvisual *rhythm*."
         },
         "screenshot": "",
         "inverted": true
       },
       {
-        "id": "s_ms93yahk_r",
-        "layout": "no-device",
+        "id": "s_ms98bzyg_1e",
+        "layout": "two-devices",
         "label": {
-          "en": "MORE"
+          "en": "FEATURE 03"
         },
         "headline": {
-          "en": "And so\nmuch more."
+          "en": "Show two\n*screens* at once."
+        },
+        "screenshot": "",
+        "screenshotSecondary": ""
+      },
+      {
+        "id": "s_ms98bzyg_1f",
+        "layout": "hero",
+        "label": {
+          "en": "FEATURE 04"
+        },
+        "headline": {
+          "en": "Lead with the\n*outcome*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_1g",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 05"
+        },
+        "headline": {
+          "en": "One benefit,\n*one* look."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_1h",
+        "layout": "no-device",
+        "label": {
+          "en": "WHY IT WORKS"
+        },
+        "headline": {
+          "en": "Let the words\ncarry *this* one."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_ms98bzyg_1i",
+        "layout": "device-top",
+        "label": {
+          "en": "FEATURE 06"
+        },
+        "headline": {
+          "en": "Close the loop\non the *promise*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_1j",
+        "layout": "two-devices",
+        "label": {
+          "en": "FEATURE 07"
+        },
+        "headline": {
+          "en": "Pair the\n*before* and after."
+        },
+        "screenshot": "",
+        "screenshotSecondary": ""
+      },
+      {
+        "id": "s_ms98bzyg_1k",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "And so much\n*more*."
         },
         "screenshot": ""
       }
     ],
     "ipad": [
       {
-        "id": "s_ms93yahk_s",
+        "id": "s_ms98bzyg_1l",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Made for\nthe big screen."
+          "en": "Made for the\n*big* screen."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahk_t",
+        "id": "s_ms98bzyg_1m",
         "layout": "device-bottom",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Built for\nfocus."
+          "en": "Built for\n*focus*."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahk_u",
+        "id": "s_ms98bzyg_1n",
         "layout": "device-top",
         "label": {
           "en": "FEATURE 02"
         },
         "headline": {
-          "en": "Always within reach."
+          "en": "Always within\n*reach*."
         },
         "screenshot": "",
         "inverted": true
+      },
+      {
+        "id": "s_ms98bzyg_1o",
+        "layout": "hero",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Room to\n*think*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_1p",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 04"
+        },
+        "headline": {
+          "en": "Every detail,\n*bigger*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_1q",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Start on\n*any* device."
+        },
+        "screenshot": ""
       }
     ],
     "android-7": [
       {
-        "id": "s_ms93yahk_v",
+        "id": "s_ms98bzyg_1r",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Pocket-sized\npower."
+          "en": "Pocket-sized\n*power*."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahk_w",
+        "id": "s_ms98bzyg_1s",
         "layout": "split-landscape",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Wide canvas,\nbigger ideas."
+          "en": "Wide canvas,\nbigger *ideas*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_1t",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 02"
+        },
+        "headline": {
+          "en": "See more\nat *once*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_1u",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Built to\n*scale*."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_ms98bzyg_1v",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Ready when\n*you* are."
         },
         "screenshot": ""
       }
     ],
     "android-10": [
       {
-        "id": "s_ms93yahk_x",
+        "id": "s_ms98bzyg_1w",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Made for\nthe big screen."
+          "en": "Made for the\n*big* screen."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahk_y",
+        "id": "s_ms98bzyg_1x",
         "layout": "split-landscape",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Wide canvas,\nbigger ideas."
+          "en": "Wide canvas,\nbigger *ideas*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_1y",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 02"
+        },
+        "headline": {
+          "en": "See more\nat *once*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_1z",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Built to\n*scale*."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_ms98bzyg_20",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Ready when\n*you* are."
         },
         "screenshot": ""
       }
     ],
     "feature-graphic": [
       {
-        "id": "s_ms93yahk_z",
+        "id": "s_ms98bzyg_21",
         "layout": "feature-graphic",
         "label": {},
         "headline": {
@@ -226,5 +440,267 @@
         "screenshot": ""
       }
     ]
-  }
+  },
+  "themes": [
+    {
+      "id": "calmpedal-cyan",
+      "name": "CalmPedal Cyan",
+      "bg": "#080C18",
+      "bgAlt": "#000000",
+      "fg": "#F1F5F9",
+      "fgAlt": "#F1F5F9",
+      "accent": "#00D4FF",
+      "muted": "#475569",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#0F1629 0%",
+          "#080C18 100%"
+        ],
+        "angle": 165
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#080808 0%",
+          "#000000 100%"
+        ],
+        "angle": 165
+      },
+      "headline": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 700,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.014
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 600,
+        "transform": "uppercase",
+        "scale": 0.88
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#00D4FF",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.06
+      },
+      "decor": {
+        "blobs": true,
+        "motifs": [
+          "sparkle"
+        ],
+        "motifColor": "#00D4FF"
+      }
+    },
+    {
+      "id": "calmpedal-periwinkle",
+      "name": "CalmPedal Periwinkle",
+      "bg": "#080C18",
+      "bgAlt": "#000000",
+      "fg": "#F1F5F9",
+      "fgAlt": "#F1F5F9",
+      "accent": "#7B9AFF",
+      "muted": "#475569",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#0F1629 0%",
+          "#080C18 100%"
+        ],
+        "angle": 165
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#080808 0%",
+          "#000000 100%"
+        ],
+        "angle": 165
+      },
+      "headline": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 700,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.014
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 600,
+        "transform": "uppercase",
+        "scale": 0.88
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#7B9AFF",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.06
+      },
+      "decor": {
+        "blobs": true,
+        "motifs": [
+          "sparkle"
+        ],
+        "motifColor": "#7B9AFF"
+      }
+    },
+    {
+      "id": "calmpedal-violet",
+      "name": "CalmPedal Violet",
+      "bg": "#080C18",
+      "bgAlt": "#000000",
+      "fg": "#F1F5F9",
+      "fgAlt": "#F1F5F9",
+      "accent": "#A78BFA",
+      "muted": "#475569",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#0F1629 0%",
+          "#080C18 100%"
+        ],
+        "angle": 165
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#080808 0%",
+          "#000000 100%"
+        ],
+        "angle": 165
+      },
+      "headline": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 700,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.014
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 600,
+        "transform": "uppercase",
+        "scale": 0.88
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#A78BFA",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.06
+      },
+      "decor": {
+        "blobs": true,
+        "motifs": [
+          "sparkle"
+        ],
+        "motifColor": "#A78BFA"
+      }
+    },
+    {
+      "id": "calmpedal-emerald",
+      "name": "CalmPedal Emerald",
+      "bg": "#080C18",
+      "bgAlt": "#000000",
+      "fg": "#F1F5F9",
+      "fgAlt": "#F1F5F9",
+      "accent": "#10B981",
+      "muted": "#475569",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#0F1629 0%",
+          "#080C18 100%"
+        ],
+        "angle": 165
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#080808 0%",
+          "#000000 100%"
+        ],
+        "angle": 165
+      },
+      "headline": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 700,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.014
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 600,
+        "transform": "uppercase",
+        "scale": 0.88
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#10B981",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.06
+      },
+      "decor": {
+        "blobs": true,
+        "motifs": [
+          "sparkle"
+        ],
+        "motifColor": "#10B981"
+      }
+    },
+    {
+      "id": "calmpedal-pink",
+      "name": "CalmPedal Pink",
+      "bg": "#080C18",
+      "bgAlt": "#000000",
+      "fg": "#F1F5F9",
+      "fgAlt": "#F1F5F9",
+      "accent": "#F472B6",
+      "muted": "#475569",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#0F1629 0%",
+          "#080C18 100%"
+        ],
+        "angle": 165
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#080808 0%",
+          "#000000 100%"
+        ],
+        "angle": 165
+      },
+      "headline": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 700,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.014
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 600,
+        "transform": "uppercase",
+        "scale": 0.88
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#F472B6",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.06
+      },
+      "decor": {
+        "blobs": true,
+        "motifs": [
+          "sparkle"
+        ],
+        "motifColor": "#F472B6"
+      }
+    }
+  ]
 }

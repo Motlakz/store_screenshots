@@ -3,6 +3,14 @@ import * as React from "react";
 import JSZip from "jszip";
 import { toPng } from "html-to-image";
 import { Toaster, toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   getExportSizes,
   hasTheme,
@@ -12,6 +20,7 @@ import {
 import { detectPlatform, nid } from "@/lib/defaults";
 import { isBuiltInElementId, isTextElementId, textElementKey } from "@/lib/elements";
 import { preloadImages } from "@/lib/image-cache";
+import { ownsTheme, patchActiveTheme } from "@/lib/theme-edit";
 import { resolveScreenshot, writeLocalized } from "@/lib/locale";
 import { useProject } from "@/lib/storage";
 import type {
@@ -40,6 +49,11 @@ export function ScreenshotEditor() {
     hydrated,
     savedAt,
     saveError,
+    saveMode,
+    setSaveMode,
+    save,
+    saving,
+    dirty,
     reset,
     resetDevice,
     undo,
@@ -52,6 +66,66 @@ export function ScreenshotEditor() {
   const [exportLocaleOverride, setExportLocaleOverride] = React.useState<string | null>(null);
   const [exportSlideIndex, setExportSlideIndex] = React.useState(0);
   const exportRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Leaving an app with unsaved edits routes through a prompt instead of a
+  // silent write, so manual mode really means "nothing moves unless I say so".
+  type PendingNav = { kind: "switch"; appId: string } | { kind: "create"; name: string };
+  const [pendingNav, setPendingNav] = React.useState<PendingNav | null>(null);
+  const createResolver = React.useRef<
+    ((r: { ok: true; id: string } | { ok: false; error: string }) => void) | null
+  >(null);
+
+  const saveNow = React.useCallback(async () => {
+    const ok = await save();
+    if (ok) toast.success("Saved");
+    return ok;
+  }, [save]);
+
+  const requestSwitch = React.useCallback(
+    (nextAppId: string) => {
+      if (dirty) setPendingNav({ kind: "switch", appId: nextAppId });
+      else void switchApp(nextAppId);
+    },
+    [dirty, switchApp],
+  );
+
+  const requestCreate = React.useCallback(
+    (name: string) => {
+      if (!dirty) return createApp(name);
+      return new Promise<{ ok: true; id: string } | { ok: false; error: string }>((resolve) => {
+        createResolver.current = resolve;
+        setPendingNav({ kind: "create", name });
+      });
+    },
+    [dirty, createApp],
+  );
+
+  const resolvePendingNav = React.useCallback(
+    async (action: "save" | "discard" | "cancel") => {
+      const nav = pendingNav;
+      setPendingNav(null);
+      if (!nav) return;
+
+      if (action === "cancel") {
+        createResolver.current?.({ ok: false, error: "Cancelled — you have unsaved changes" });
+        createResolver.current = null;
+        return;
+      }
+      if (nav.kind === "switch") {
+        await switchApp(nav.appId, { save: action === "save" });
+        return;
+      }
+      if (action === "save" && !(await save())) {
+        createResolver.current?.({ ok: false, error: "Couldn't save the current app" });
+        createResolver.current = null;
+        return;
+      }
+      const result = await createApp(nav.name);
+      createResolver.current?.(result);
+      createResolver.current = null;
+    },
+    [pendingNav, switchApp, save, createApp],
+  );
 
   const currentSlides = state.slidesByDevice[state.device] || [];
   const activeSlide =
@@ -325,6 +399,14 @@ export function ScreenshotEditor() {
           (target as HTMLElement).isContentEditable);
       if (exporting) return;
 
+      // Save works even from inside a text field — it's the one shortcut you
+      // reach for mid-edit.
+      if ((e.metaKey || e.ctrlKey) && (e.key === "s" || e.key === "S")) {
+        e.preventDefault();
+        if (dirty && !saving) void saveNow();
+        return;
+      }
+
       if (e.key === "Escape") {
         setSelectedElement(null);
         if (target && "blur" in target && typeof target.blur === "function") target.blur();
@@ -370,7 +452,18 @@ export function ScreenshotEditor() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [activeSlide, currentSlides, duplicateSlide, deleteSlide, exporting, undo, redo]);
+  }, [
+    activeSlide,
+    currentSlides,
+    duplicateSlide,
+    deleteSlide,
+    exporting,
+    undo,
+    redo,
+    dirty,
+    saving,
+    saveNow,
+  ]);
 
   // ---------- Export ----------
 
@@ -577,12 +670,15 @@ export function ScreenshotEditor() {
       <Toolbar
         apps={apps}
         appId={appId}
-        onSwitchApp={(id) => void switchApp(id)}
-        onCreateApp={createApp}
+        onSwitchApp={requestSwitch}
+        onCreateApp={requestCreate}
         switching={switching}
         themeId={state.themeId}
         setThemeId={(v) => setState((p) => ({ ...p, themeId: v }))}
         appThemes={state.themes}
+        activeTheme={theme}
+        themeOwned={ownsTheme(state, state.themeId)}
+        onPatchTheme={(patch) => setState((p) => patchActiveTheme(p, themeById(p.themeId, p.themes), patch))}
         appName={state.appName}
         setAppName={(v) => setState((p) => ({ ...p, appName: v }))}
         connectedCanvas={state.connectedCanvas}
@@ -608,6 +704,11 @@ export function ScreenshotEditor() {
         exporting={exporting}
         savedAt={savedAt}
         saveError={saveError}
+        saveMode={saveMode}
+        setSaveMode={setSaveMode}
+        onSave={() => void saveNow()}
+        saving={saving}
+        dirty={dirty}
         busy={busy}
       />
 
@@ -665,6 +766,8 @@ export function ScreenshotEditor() {
             <Inspector
               slide={activeSlide}
               appId={appId}
+              theme={theme}
+              slideIndex={Math.max(0, currentSlides.findIndex((s) => s.id === activeSlide.id))}
               device={state.device}
               orientation={state.orientation}
               locale={state.locale}
@@ -686,6 +789,37 @@ export function ScreenshotEditor() {
           )}
         </aside>
       </div>
+
+      <Dialog
+        open={!!pendingNav}
+        onOpenChange={(open) => {
+          if (!open) void resolvePendingNav("cancel");
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Save changes to {state.appName}?</DialogTitle>
+            <DialogDescription>
+              {pendingNav?.kind === "create"
+                ? `You have unsaved edits. Creating "${pendingNav.name}" will leave this app.`
+                : "You have unsaved edits. Switching apps will leave this app."}{" "}
+              Discarding keeps <span className="font-mono text-[11px]">projects/{appId}.json</span>{" "}
+              exactly as it is on disk.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={() => void resolvePendingNav("cancel")}>
+              Cancel
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => void resolvePendingNav("discard")}>
+              Discard changes
+            </Button>
+            <Button size="sm" onClick={() => void resolvePendingNav("save")}>
+              Save and continue
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Off-screen export container — full-resolution canvases for html-to-image. */}
       <div

@@ -1,6 +1,16 @@
 "use client";
 import * as React from "react";
-import { AlertTriangle, Check, Cloud, Download, UnfoldHorizontal, RotateCcw } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  Cloud,
+  Download,
+  Palette,
+  RefreshCw,
+  RotateCcw,
+  Save,
+  UnfoldHorizontal,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,7 +35,8 @@ import {
 } from "@/lib/constants";
 import { detectPlatform } from "@/lib/defaults";
 import { slugifyAppId, type AppSummary } from "@/lib/apps";
-import type { Device, Orientation, Theme } from "@/lib/types";
+import { PaletteDialog } from "./palette-dialog";
+import type { Device, Orientation, SaveMode, Theme } from "@/lib/types";
 
 // Sentinel value for the "New app…" row inside the app <Select>.
 const NEW_APP_VALUE = "__new_app__";
@@ -39,6 +50,10 @@ type Props = {
   themeId: string;
   setThemeId: (v: string) => void;
   appThemes?: Theme[];
+  /** Fully resolved active theme (shared starter merged with app overrides). */
+  activeTheme: Theme;
+  themeOwned: boolean;
+  onPatchTheme: (patch: Partial<Theme>) => void;
   appName: string;
   setAppName: (v: string) => void;
   connectedCanvas: boolean;
@@ -56,6 +71,11 @@ type Props = {
   exporting: string | null;
   savedAt: number | null;
   saveError: string | null;
+  saveMode: SaveMode;
+  setSaveMode: (mode: SaveMode) => void;
+  onSave: () => void;
+  saving: boolean;
+  dirty: boolean;
   busy: boolean;
 };
 
@@ -64,6 +84,7 @@ export function Toolbar(props: Props) {
   const hasLandscape = supportsLandscape(props.device);
   const [resetOpen, setResetOpen] = React.useState(false);
   const [newAppOpen, setNewAppOpen] = React.useState(false);
+  const [paletteOpen, setPaletteOpen] = React.useState(false);
   const [newAppName, setNewAppName] = React.useState("");
   const [creating, setCreating] = React.useState(false);
   const [createError, setCreateError] = React.useState<string | null>(null);
@@ -171,6 +192,19 @@ export function Toolbar(props: Props) {
         </SelectContent>
       </Select>
 
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        className="h-8 w-8"
+        onClick={() => setPaletteOpen(true)}
+        title="Edit this app's background and colors"
+        aria-label="Edit palette"
+        disabled={props.busy || props.switching}
+      >
+        <Palette className="h-4 w-4" />
+      </Button>
+
       <span aria-hidden className="mx-1 h-5 w-px bg-border" />
 
       <Button
@@ -268,7 +302,47 @@ export function Toolbar(props: Props) {
       )}
 
       <div className="ml-auto flex shrink-0 items-center gap-2">
-        <SaveStatus savedAt={props.savedAt} saveError={props.saveError} />
+        <SaveStatus
+          savedAt={props.savedAt}
+          saveError={props.saveError}
+          dirty={props.dirty}
+          saving={props.saving}
+          saveMode={props.saveMode}
+        />
+
+        <Button
+          type="button"
+          variant={props.saveMode === "auto" ? "secondary" : "outline"}
+          size="sm"
+          className="h-8 gap-1.5 px-2 text-xs"
+          onClick={() => props.setSaveMode(props.saveMode === "auto" ? "manual" : "auto")}
+          aria-pressed={props.saveMode === "auto"}
+          title={
+            props.saveMode === "auto"
+              ? "Auto-save on — every edit is written to the project file"
+              : "Manual save — nothing is written until you click Save"
+          }
+          disabled={props.busy}
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          {props.saveMode === "auto" ? "Auto" : "Manual"}
+        </Button>
+
+        {props.saveMode === "manual" && (
+          <Button
+            type="button"
+            variant={props.dirty ? "default" : "outline"}
+            size="sm"
+            className="h-8 gap-1.5"
+            onClick={props.onSave}
+            disabled={!props.dirty || props.saving || props.busy}
+            title="Save this app's deck to its project file (⌘/Ctrl+S)"
+          >
+            <Save className="h-3.5 w-3.5" />
+            {props.saving ? "Saving…" : "Save"}
+          </Button>
+        )}
+
         <span aria-hidden className="h-5 w-px bg-border" />
         <Button
           variant="ghost"
@@ -329,6 +403,15 @@ export function Toolbar(props: Props) {
         </DialogContent>
       </Dialog>
 
+      <PaletteDialog
+        open={paletteOpen}
+        onOpenChange={setPaletteOpen}
+        theme={props.activeTheme}
+        appId={props.appId}
+        owned={props.themeOwned}
+        onPatch={props.onPatchTheme}
+      />
+
       <Dialog
         open={newAppOpen}
         onOpenChange={(open) => {
@@ -386,7 +469,19 @@ function slugPreview(name: string): string {
   return slugifyAppId(name) || "app-id";
 }
 
-function SaveStatus({ savedAt, saveError }: { savedAt: number | null; saveError: string | null }) {
+function SaveStatus({
+  savedAt,
+  saveError,
+  dirty,
+  saving,
+  saveMode,
+}: {
+  savedAt: number | null;
+  saveError: string | null;
+  dirty: boolean;
+  saving: boolean;
+  saveMode: SaveMode;
+}) {
   const [, setTick] = React.useState(0);
   React.useEffect(() => {
     const t = setInterval(() => setTick((x) => x + 1), 60_000);
@@ -404,10 +499,34 @@ function SaveStatus({ savedAt, saveError }: { savedAt: number | null; saveError:
     );
   }
 
+  if (saving) {
+    return (
+      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+        <Cloud className="h-3.5 w-3.5" /> saving…
+      </span>
+    );
+  }
+
+  if (dirty) {
+    return (
+      <span
+        className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-500"
+        title={
+          saveMode === "manual"
+            ? "Edits are in memory only — the project file is untouched"
+            : "Auto-save is pending"
+        }
+      >
+        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-current" />
+        unsaved changes
+      </span>
+    );
+  }
+
   if (!savedAt) {
     return (
       <span className="flex items-center gap-1 text-xs text-muted-foreground">
-        <Cloud className="h-3.5 w-3.5" /> not saved yet
+        <Check className="h-3.5 w-3.5" /> up to date
       </span>
     );
   }

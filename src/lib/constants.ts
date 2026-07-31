@@ -1,3 +1,4 @@
+import { FONTS } from "./style";
 import type { Device, Orientation, SlideLayout, Theme, ThemeId } from "./types";
 
 // ---------- Canvas dimensions (design at largest required resolution) ----------
@@ -134,6 +135,112 @@ export const THEMES: Record<string, Theme> = {
     accent: "#B8794A",
     muted: "#65736B",
   },
+
+  // ---------- Named styles ----------
+  // Confidently human, slightly imperfect. One solid color block per slide,
+  // one brush-script phrase per headline, always coral.
+  "hand-drawn-editorial": {
+    id: "hand-drawn-editorial",
+    name: "Hand-Drawn Editorial",
+    bg: "#1B2336",
+    bgAlt: "#F5EFDF",
+    fg: "#F5EFDF",
+    fgAlt: "#1B2336",
+    accent: "#E55846",
+    muted: "#8B7BFF",
+    background: { kind: "solids", colors: ["#1B2336", "#F5EFDF", "#E55846", "#8B7BFF"] },
+    headline: { family: FONTS.sans, weight: 500, lineHeight: 1.02, letterSpacing: -0.015 },
+    label: { family: FONTS.sans, weight: 600, transform: "lowercase", scale: 0.95 },
+    emphasis: {
+      family: FONTS.script,
+      color: "#F26A50",
+      weight: 700,
+      scale: 1.22,
+      rotation: -3,
+      lineHeight: 0.9,
+    },
+    device: { tilt: -14, shadow: "0 42px 90px rgba(27, 35, 54, 0.38)" },
+    decor: { motifs: ["squiggle", "star", "arrow"], motifColor: "#E55846", wordmark: true },
+  },
+
+  // Cream, mustard and mint. Sticker UI with hard black ink and offset shadows.
+  "retro-rubberhose": {
+    id: "retro-rubberhose",
+    name: "Retro Rubberhose",
+    bg: "#F4E6CC",
+    bgAlt: "#1A1A1A",
+    fg: "#1A1A1A",
+    fgAlt: "#F4E6CC",
+    accent: "#F2BB46",
+    muted: "#BFD9B6",
+    background: { kind: "gradient", stops: ["#F4E6CC 0%", "#F0DEBE 100%"], angle: 165 },
+    backgroundAlt: { kind: "solid", color: "#F3A6B7" },
+    headline: { family: FONTS.slab, weight: 400, lineHeight: 1.0, letterSpacing: -0.005 },
+    label: { family: FONTS.sans, weight: 700, transform: "uppercase", scale: 0.9 },
+    emphasis: { family: FONTS.slab, color: "#F2BB46", weight: 400, scale: 1.0 },
+    device: {
+      bezel: "#F4E6CC",
+      bezelStroke: "#1A1A1A",
+      bezelStrokeWidth: 3,
+      tilt: 0,
+      shadow: "0 3px 0 #1A1A1A, 10px 12px 0 rgba(26,26,26,0.16)",
+    },
+    // Grain on every background; no pure white, no cold colors.
+    decor: { grain: 0.07, motifs: ["squiggle", "star"], motifColor: "#1A1A1A" },
+  },
+
+  // The photography IS the brand — everything here is restraint around it.
+  "moody-curated": {
+    id: "moody-curated",
+    name: "Moody Curated",
+    bg: "#1A2026",
+    bgAlt: "#0E0E10",
+    fg: "#F4EBDD",
+    fgAlt: "#F4EBDD",
+    accent: "#C99566",
+    muted: "#8A8073",
+    background: {
+      kind: "gradient",
+      stops: ["#2A2119 0%", "#1A2026 55%", "#0E0E10 100%"],
+      angle: 165,
+    },
+    headline: {
+      family: FONTS.serif,
+      weight: 400,
+      lineHeight: 1.08,
+      letterSpacing: -0.005,
+    },
+    label: { family: FONTS.sans, weight: 500, transform: "uppercase", scale: 0.85 },
+    emphasis: { family: FONTS.serif, color: "#E8B97A", weight: 400, italic: true, scale: 1.0 },
+    device: { bezel: "#0E0E10", tilt: 0, shadow: "0 50px 120px rgba(0,0,0,0.55)" },
+    decor: { vignette: 0.45, grain: 0.05, scrim: true },
+  },
+
+  // Canonical cotton-candy version of the style SpeakDiary ships.
+  "dreamy-pastel": {
+    id: "dreamy-pastel",
+    name: "Dreamy Pastel",
+    bg: "#DDEBFA",
+    bgAlt: "#FBE3D7",
+    fg: "#1B2240",
+    fgAlt: "#1B2240",
+    accent: "#5B3FC8",
+    muted: "#8A8FA3",
+    background: {
+      kind: "gradient",
+      stops: ["#DDEBFA 0%", "#F5E0F0 45%", "#FCEFD6 100%"],
+      angle: 180,
+    },
+    backgroundAlt: {
+      kind: "gradient",
+      stops: ["#FBE3D7 0%", "#F7C9D6 50%", "#F3B6CC 100%"],
+      angle: 180,
+    },
+    headline: { family: FONTS.rounded, weight: 650, lineHeight: 0.98, letterSpacing: -0.012 },
+    label: { family: FONTS.rounded, weight: 600, transform: "uppercase" },
+    emphasis: { family: FONTS.serif, color: "#B49BE6", weight: 400, italic: true, scale: 1.08 },
+    decor: { dreamy: true, motifs: ["heart", "sparkle", "paw"], motifColor: "#F39A9A" },
+  },
 };
 
 // Shared starters plus the active app's own palettes. App themes win on id
@@ -165,6 +272,10 @@ export function storageKey(appId: string): string {
 
 // Remembers which app was open so a reload lands back where you left off.
 export const ACTIVE_APP_STORAGE_KEY = "app-store-screenshots:active-app";
+
+// Manual vs auto saving is a workstyle preference, not project data, so it
+// lives per browser rather than in any app's project file.
+export const SAVE_MODE_STORAGE_KEY = "app-store-screenshots:save-mode";
 
 export const PROJECT_SCHEMA_VERSION = 2;
 

@@ -2,8 +2,7 @@
   "schemaVersion": 2,
   "appId": "gutscribe",
   "appName": "GutScribe",
-  "themeId": "clean-light",
-  "themes": [],
+  "themeId": "gutscribe",
   "connectedCanvas": true,
   "locales": [
     "en"
@@ -15,209 +14,424 @@
   "slidesByDevice": {
     "iphone": [
       {
-        "id": "s_ms93yahl_10",
+        "id": "s_ms98bzyg_22",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Sell one\nidea per slide."
+          "en": "Sell one *idea*\nper screen."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahl_11",
+        "id": "s_ms98bzyg_23",
         "layout": "device-bottom",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Your headline\nlives here."
+          "en": "Your headline\n*lives* here."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahl_12",
-        "layout": "two-devices",
+        "id": "s_ms98bzyg_24",
+        "layout": "device-top",
         "label": {
           "en": "FEATURE 02"
         },
         "headline": {
-          "en": "Show two\nscreens at once."
-        },
-        "screenshot": "",
-        "screenshotSecondary": ""
-      },
-      {
-        "id": "s_ms93yahl_13",
-        "layout": "device-top",
-        "label": {
-          "en": "FEATURE 03"
-        },
-        "headline": {
-          "en": "Flip the contrast\nfor visual rhythm."
+          "en": "Flip it for\nvisual *rhythm*."
         },
         "screenshot": "",
         "inverted": true
       },
       {
-        "id": "s_ms93yahl_14",
-        "layout": "no-device",
+        "id": "s_ms98bzyg_25",
+        "layout": "two-devices",
         "label": {
-          "en": "MORE"
+          "en": "FEATURE 03"
         },
         "headline": {
-          "en": "And so\nmuch more."
+          "en": "Show two\n*screens* at once."
+        },
+        "screenshot": "",
+        "screenshotSecondary": ""
+      },
+      {
+        "id": "s_ms98bzyg_26",
+        "layout": "hero",
+        "label": {
+          "en": "FEATURE 04"
+        },
+        "headline": {
+          "en": "Lead with the\n*outcome*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_27",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 05"
+        },
+        "headline": {
+          "en": "One benefit,\n*one* look."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_28",
+        "layout": "no-device",
+        "label": {
+          "en": "WHY IT WORKS"
+        },
+        "headline": {
+          "en": "Let the words\ncarry *this* one."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_ms98bzyg_29",
+        "layout": "device-top",
+        "label": {
+          "en": "FEATURE 06"
+        },
+        "headline": {
+          "en": "Close the loop\non the *promise*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_2a",
+        "layout": "two-devices",
+        "label": {
+          "en": "FEATURE 07"
+        },
+        "headline": {
+          "en": "Pair the\n*before* and after."
+        },
+        "screenshot": "",
+        "screenshotSecondary": ""
+      },
+      {
+        "id": "s_ms98bzyg_2b",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "And so much\n*more*."
         },
         "screenshot": ""
       }
     ],
     "android": [
       {
-        "id": "s_ms93yahl_15",
+        "id": "s_ms98bzyg_2c",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Sell one\nidea per slide."
+          "en": "Sell one *idea*\nper screen."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahl_16",
+        "id": "s_ms98bzyg_2d",
         "layout": "device-bottom",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Your headline\nlives here."
+          "en": "Your headline\n*lives* here."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahl_17",
-        "layout": "two-devices",
+        "id": "s_ms98bzyg_2e",
+        "layout": "device-top",
         "label": {
           "en": "FEATURE 02"
         },
         "headline": {
-          "en": "Show two\nscreens at once."
-        },
-        "screenshot": "",
-        "screenshotSecondary": ""
-      },
-      {
-        "id": "s_ms93yahl_18",
-        "layout": "device-top",
-        "label": {
-          "en": "FEATURE 03"
-        },
-        "headline": {
-          "en": "Flip the contrast\nfor visual rhythm."
+          "en": "Flip it for\nvisual *rhythm*."
         },
         "screenshot": "",
         "inverted": true
       },
       {
-        "id": "s_ms93yahl_19",
-        "layout": "no-device",
+        "id": "s_ms98bzyg_2f",
+        "layout": "two-devices",
         "label": {
-          "en": "MORE"
+          "en": "FEATURE 03"
         },
         "headline": {
-          "en": "And so\nmuch more."
+          "en": "Show two\n*screens* at once."
+        },
+        "screenshot": "",
+        "screenshotSecondary": ""
+      },
+      {
+        "id": "s_ms98bzyg_2g",
+        "layout": "hero",
+        "label": {
+          "en": "FEATURE 04"
+        },
+        "headline": {
+          "en": "Lead with the\n*outcome*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_2h",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 05"
+        },
+        "headline": {
+          "en": "One benefit,\n*one* look."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_2i",
+        "layout": "no-device",
+        "label": {
+          "en": "WHY IT WORKS"
+        },
+        "headline": {
+          "en": "Let the words\ncarry *this* one."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_ms98bzyg_2j",
+        "layout": "device-top",
+        "label": {
+          "en": "FEATURE 06"
+        },
+        "headline": {
+          "en": "Close the loop\non the *promise*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_2k",
+        "layout": "two-devices",
+        "label": {
+          "en": "FEATURE 07"
+        },
+        "headline": {
+          "en": "Pair the\n*before* and after."
+        },
+        "screenshot": "",
+        "screenshotSecondary": ""
+      },
+      {
+        "id": "s_ms98bzyg_2l",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "And so much\n*more*."
         },
         "screenshot": ""
       }
     ],
     "ipad": [
       {
-        "id": "s_ms93yahl_1a",
+        "id": "s_ms98bzyg_2m",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Made for\nthe big screen."
+          "en": "Made for the\n*big* screen."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahl_1b",
+        "id": "s_ms98bzyg_2n",
         "layout": "device-bottom",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Built for\nfocus."
+          "en": "Built for\n*focus*."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahl_1c",
+        "id": "s_ms98bzyg_2o",
         "layout": "device-top",
         "label": {
           "en": "FEATURE 02"
         },
         "headline": {
-          "en": "Always within reach."
+          "en": "Always within\n*reach*."
         },
         "screenshot": "",
         "inverted": true
+      },
+      {
+        "id": "s_ms98bzyg_2p",
+        "layout": "hero",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Room to\n*think*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_2q",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 04"
+        },
+        "headline": {
+          "en": "Every detail,\n*bigger*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_2r",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Start on\n*any* device."
+        },
+        "screenshot": ""
       }
     ],
     "android-7": [
       {
-        "id": "s_ms93yahl_1d",
+        "id": "s_ms98bzyg_2s",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Pocket-sized\npower."
+          "en": "Pocket-sized\n*power*."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahl_1e",
+        "id": "s_ms98bzyg_2t",
         "layout": "split-landscape",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Wide canvas,\nbigger ideas."
+          "en": "Wide canvas,\nbigger *ideas*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_2u",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 02"
+        },
+        "headline": {
+          "en": "See more\nat *once*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_2v",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Built to\n*scale*."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_ms98bzyg_2w",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Ready when\n*you* are."
         },
         "screenshot": ""
       }
     ],
     "android-10": [
       {
-        "id": "s_ms93yahl_1f",
+        "id": "s_ms98bzyg_2x",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Made for\nthe big screen."
+          "en": "Made for the\n*big* screen."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms93yahl_1g",
+        "id": "s_ms98bzyg_2y",
         "layout": "split-landscape",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Wide canvas,\nbigger ideas."
+          "en": "Wide canvas,\nbigger *ideas*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_2z",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 02"
+        },
+        "headline": {
+          "en": "See more\nat *once*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyg_30",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Built to\n*scale*."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_ms98bzyg_31",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Ready when\n*you* are."
         },
         "screenshot": ""
       }
     ],
     "feature-graphic": [
       {
-        "id": "s_ms93yahl_1h",
+        "id": "s_ms98bzyg_32",
         "layout": "feature-graphic",
         "label": {},
         "headline": {
@@ -226,5 +440,59 @@
         "screenshot": ""
       }
     ]
-  }
+  },
+  "themes": [
+    {
+      "id": "gutscribe",
+      "name": "GutScribe Calm",
+      "bg": "#FAF7F2",
+      "bgAlt": "#15130F",
+      "fg": "#2C2A28",
+      "fgAlt": "#FAF7F2",
+      "accent": "#E89070",
+      "muted": "#6B6864",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#FAF7F2 0%",
+          "#F2EDE3 100%"
+        ],
+        "angle": 165
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#1F1C17 0%",
+          "#15130F 100%"
+        ],
+        "angle": 165
+      },
+      "headline": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 650,
+        "lineHeight": 1,
+        "letterSpacing": -0.012
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 600,
+        "transform": "uppercase",
+        "scale": 0.9
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#B85D3F",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.06
+      },
+      "decor": {
+        "blobs": true,
+        "motifs": [
+          "squiggle"
+        ],
+        "motifColor": "#7FB8A8"
+      }
+    }
+  ]
 }

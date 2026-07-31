@@ -42,14 +42,20 @@ import type {
   Slide,
   SlideLayout,
   TextElement,
+  Theme,
 } from "@/lib/types";
 import { ScreenshotPicker } from "./screenshot-picker";
+import { ScreenStyle } from "./screen-style";
+import { FrameControls } from "./frame-controls";
 import { getCanvas, getElementTransform } from "./slide-canvas";
 
 type Props = {
   slide: Slide;
   // Routes uploads into public/screenshots/<appId>/uploaded/.
   appId: string;
+  theme: Theme;
+  /** Position in the deck — drives the theme's per-screen color rotation. */
+  slideIndex: number;
   device: Device;
   orientation: Orientation;
   locale: string;
@@ -67,6 +73,8 @@ const ELEMENT_LABEL: Record<BuiltInElementId, string> = {
 export function Inspector({
   slide,
   appId,
+  theme,
+  slideIndex,
   device,
   orientation,
   locale,
@@ -190,6 +198,19 @@ export function Inspector({
               onChange={(v) => onChange({ screenshotSecondary: v })}
             />
           </div>
+        )}
+
+        {!isFeatureGraphic && !isNoDevice && (
+          <FrameControls slide={slide} device={device} onChange={onChange} />
+        )}
+
+        {!isFeatureGraphic && (
+          <ScreenStyle
+            slide={slide}
+            theme={theme}
+            slideIndex={slideIndex}
+            onChange={onChange}
+          />
         )}
 
         {!isFeatureGraphic && (

@@ -1,6 +1,8 @@
 {
-  "name": "app-store-screenshots",
+  "name": "app-screenshots",
   "version": "0.1.0",
+  "license": "MIT",
+  "description": "Editor for generating Apple App Store and Google Play screenshots across many apps.",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -24,7 +26,7 @@
     "html-to-image": "^1.11.11",
     "jszip": "^3.10.1",
     "lucide-react": "^0.460.0",
-    "next": "15.0.3",
+    "next": "^16.2.12",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "react-rnd": "^10.5.3",

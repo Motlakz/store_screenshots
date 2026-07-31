@@ -2,8 +2,274 @@
   "schemaVersion": 2,
   "appId": "quizbud",
   "appName": "QuizBud",
-  "themeId": "clean-light",
-  "themes": [],
+  "themeId": "quizbud-mango",
+  "themes": [
+    {
+      "id": "quizbud-mango",
+      "name": "QuizBud Mango",
+      "bg": "#fff5e9",
+      "bgAlt": "#17131c",
+      "fg": "#2d2a33",
+      "fgAlt": "#ffffff",
+      "accent": "#d6316e",
+      "muted": "#8e8796",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#fff5e9 0%",
+          "#fb923c26 55%",
+          "#f472b633 100%"
+        ],
+        "angle": 165
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#17131c 0%",
+          "#241d2b 100%"
+        ],
+        "angle": 165
+      },
+      "headline": {
+        "family": "var(--font-quicksand), Quicksand, Inter, system-ui, sans-serif",
+        "weight": 700,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.012
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 700,
+        "transform": "uppercase",
+        "scale": 0.9
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#d6316e",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.08
+      },
+      "decor": {
+        "blobs": true,
+        "motifs": [
+          "star"
+        ],
+        "motifColor": "#f472b6"
+      }
+    },
+    {
+      "id": "quizbud-coral",
+      "name": "QuizBud Coral",
+      "bg": "#fff5f0",
+      "bgAlt": "#17131c",
+      "fg": "#2d2a33",
+      "fgAlt": "#ffffff",
+      "accent": "#e84d4d",
+      "muted": "#8e8796",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#fff5f0 0%",
+          "#ff6b6b26 55%",
+          "#ff9f4333 100%"
+        ],
+        "angle": 165
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#17131c 0%",
+          "#241d2b 100%"
+        ],
+        "angle": 165
+      },
+      "headline": {
+        "family": "var(--font-quicksand), Quicksand, Inter, system-ui, sans-serif",
+        "weight": 700,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.012
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 700,
+        "transform": "uppercase",
+        "scale": 0.9
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#e84d4d",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.08
+      },
+      "decor": {
+        "blobs": true,
+        "motifs": [
+          "star"
+        ],
+        "motifColor": "#ff9f43"
+      }
+    },
+    {
+      "id": "quizbud-purple",
+      "name": "QuizBud Purple",
+      "bg": "#faf7ff",
+      "bgAlt": "#17131c",
+      "fg": "#2d2a33",
+      "fgAlt": "#ffffff",
+      "accent": "#7c3aed",
+      "muted": "#8e8796",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#faf7ff 0%",
+          "#8b5cf626 55%",
+          "#d946ef33 100%"
+        ],
+        "angle": 165
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#17131c 0%",
+          "#241d2b 100%"
+        ],
+        "angle": 165
+      },
+      "headline": {
+        "family": "var(--font-quicksand), Quicksand, Inter, system-ui, sans-serif",
+        "weight": 700,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.012
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 700,
+        "transform": "uppercase",
+        "scale": 0.9
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#7c3aed",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.08
+      },
+      "decor": {
+        "blobs": true,
+        "motifs": [
+          "star"
+        ],
+        "motifColor": "#d946ef"
+      }
+    },
+    {
+      "id": "quizbud-teal",
+      "name": "QuizBud Teal",
+      "bg": "#f1fcfb",
+      "bgAlt": "#17131c",
+      "fg": "#2d2a33",
+      "fgAlt": "#ffffff",
+      "accent": "#0f8f86",
+      "muted": "#8e8796",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#f1fcfb 0%",
+          "#14b8a626 55%",
+          "#38bdf833 100%"
+        ],
+        "angle": 165
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#17131c 0%",
+          "#241d2b 100%"
+        ],
+        "angle": 165
+      },
+      "headline": {
+        "family": "var(--font-quicksand), Quicksand, Inter, system-ui, sans-serif",
+        "weight": 700,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.012
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 700,
+        "transform": "uppercase",
+        "scale": 0.9
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#0f8f86",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.08
+      },
+      "decor": {
+        "blobs": true,
+        "motifs": [
+          "star"
+        ],
+        "motifColor": "#38bdf8"
+      }
+    },
+    {
+      "id": "quizbud-mint",
+      "name": "QuizBud Mint",
+      "bg": "#f3fcf6",
+      "bgAlt": "#17131c",
+      "fg": "#2d2a33",
+      "fgAlt": "#ffffff",
+      "accent": "#168a4b",
+      "muted": "#8e8796",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#f3fcf6 0%",
+          "#22c55e26 55%",
+          "#2dd4bf33 100%"
+        ],
+        "angle": 165
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#17131c 0%",
+          "#241d2b 100%"
+        ],
+        "angle": 165
+      },
+      "headline": {
+        "family": "var(--font-quicksand), Quicksand, Inter, system-ui, sans-serif",
+        "weight": 700,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.012
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 700,
+        "transform": "uppercase",
+        "scale": 0.9
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#168a4b",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.08
+      },
+      "decor": {
+        "blobs": true,
+        "motifs": [
+          "star"
+        ],
+        "motifColor": "#2dd4bf"
+      }
+    }
+  ],
   "connectedCanvas": true,
   "locales": [
     "en"
@@ -15,209 +281,424 @@
   "slidesByDevice": {
     "iphone": [
       {
-        "id": "s_ms94j8xa_0",
+        "id": "s_ms98bzyi_55",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Sell one\nidea per slide."
+          "en": "Sell one *idea*\nper screen."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms94j8xa_1",
+        "id": "s_ms98bzyi_56",
         "layout": "device-bottom",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Your headline\nlives here."
+          "en": "Your headline\n*lives* here."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms94j8xa_2",
-        "layout": "two-devices",
+        "id": "s_ms98bzyi_57",
+        "layout": "device-top",
         "label": {
           "en": "FEATURE 02"
         },
         "headline": {
-          "en": "Show two\nscreens at once."
-        },
-        "screenshot": "",
-        "screenshotSecondary": ""
-      },
-      {
-        "id": "s_ms94j8xa_3",
-        "layout": "device-top",
-        "label": {
-          "en": "FEATURE 03"
-        },
-        "headline": {
-          "en": "Flip the contrast\nfor visual rhythm."
+          "en": "Flip it for\nvisual *rhythm*."
         },
         "screenshot": "",
         "inverted": true
       },
       {
-        "id": "s_ms94j8xa_4",
-        "layout": "no-device",
+        "id": "s_ms98bzyi_58",
+        "layout": "two-devices",
         "label": {
-          "en": "MORE"
+          "en": "FEATURE 03"
         },
         "headline": {
-          "en": "And so\nmuch more."
+          "en": "Show two\n*screens* at once."
+        },
+        "screenshot": "",
+        "screenshotSecondary": ""
+      },
+      {
+        "id": "s_ms98bzyi_59",
+        "layout": "hero",
+        "label": {
+          "en": "FEATURE 04"
+        },
+        "headline": {
+          "en": "Lead with the\n*outcome*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyi_5a",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 05"
+        },
+        "headline": {
+          "en": "One benefit,\n*one* look."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyi_5b",
+        "layout": "no-device",
+        "label": {
+          "en": "WHY IT WORKS"
+        },
+        "headline": {
+          "en": "Let the words\ncarry *this* one."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_ms98bzyi_5c",
+        "layout": "device-top",
+        "label": {
+          "en": "FEATURE 06"
+        },
+        "headline": {
+          "en": "Close the loop\non the *promise*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyi_5d",
+        "layout": "two-devices",
+        "label": {
+          "en": "FEATURE 07"
+        },
+        "headline": {
+          "en": "Pair the\n*before* and after."
+        },
+        "screenshot": "",
+        "screenshotSecondary": ""
+      },
+      {
+        "id": "s_ms98bzyi_5e",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "And so much\n*more*."
         },
         "screenshot": ""
       }
     ],
     "android": [
       {
-        "id": "s_ms94j8xa_5",
+        "id": "s_ms98bzyi_5f",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Sell one\nidea per slide."
+          "en": "Sell one *idea*\nper screen."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms94j8xa_6",
+        "id": "s_ms98bzyi_5g",
         "layout": "device-bottom",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Your headline\nlives here."
+          "en": "Your headline\n*lives* here."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms94j8xa_7",
-        "layout": "two-devices",
+        "id": "s_ms98bzyi_5h",
+        "layout": "device-top",
         "label": {
           "en": "FEATURE 02"
         },
         "headline": {
-          "en": "Show two\nscreens at once."
-        },
-        "screenshot": "",
-        "screenshotSecondary": ""
-      },
-      {
-        "id": "s_ms94j8xa_8",
-        "layout": "device-top",
-        "label": {
-          "en": "FEATURE 03"
-        },
-        "headline": {
-          "en": "Flip the contrast\nfor visual rhythm."
+          "en": "Flip it for\nvisual *rhythm*."
         },
         "screenshot": "",
         "inverted": true
       },
       {
-        "id": "s_ms94j8xa_9",
-        "layout": "no-device",
+        "id": "s_ms98bzyi_5i",
+        "layout": "two-devices",
         "label": {
-          "en": "MORE"
+          "en": "FEATURE 03"
         },
         "headline": {
-          "en": "And so\nmuch more."
+          "en": "Show two\n*screens* at once."
+        },
+        "screenshot": "",
+        "screenshotSecondary": ""
+      },
+      {
+        "id": "s_ms98bzyi_5j",
+        "layout": "hero",
+        "label": {
+          "en": "FEATURE 04"
+        },
+        "headline": {
+          "en": "Lead with the\n*outcome*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyi_5k",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 05"
+        },
+        "headline": {
+          "en": "One benefit,\n*one* look."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyi_5l",
+        "layout": "no-device",
+        "label": {
+          "en": "WHY IT WORKS"
+        },
+        "headline": {
+          "en": "Let the words\ncarry *this* one."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_ms98bzyi_5m",
+        "layout": "device-top",
+        "label": {
+          "en": "FEATURE 06"
+        },
+        "headline": {
+          "en": "Close the loop\non the *promise*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyi_5n",
+        "layout": "two-devices",
+        "label": {
+          "en": "FEATURE 07"
+        },
+        "headline": {
+          "en": "Pair the\n*before* and after."
+        },
+        "screenshot": "",
+        "screenshotSecondary": ""
+      },
+      {
+        "id": "s_ms98bzyi_5o",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "And so much\n*more*."
         },
         "screenshot": ""
       }
     ],
     "ipad": [
       {
-        "id": "s_ms94j8xa_a",
+        "id": "s_ms98bzyi_5p",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Made for\nthe big screen."
+          "en": "Made for the\n*big* screen."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms94j8xa_b",
+        "id": "s_ms98bzyi_5q",
         "layout": "device-bottom",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Built for\nfocus."
+          "en": "Built for\n*focus*."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms94j8xa_c",
+        "id": "s_ms98bzyi_5r",
         "layout": "device-top",
         "label": {
           "en": "FEATURE 02"
         },
         "headline": {
-          "en": "Always within reach."
+          "en": "Always within\n*reach*."
         },
         "screenshot": "",
         "inverted": true
+      },
+      {
+        "id": "s_ms98bzyi_5s",
+        "layout": "hero",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Room to\n*think*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyi_5t",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 04"
+        },
+        "headline": {
+          "en": "Every detail,\n*bigger*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyi_5u",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Start on\n*any* device."
+        },
+        "screenshot": ""
       }
     ],
     "android-7": [
       {
-        "id": "s_ms94j8xa_d",
+        "id": "s_ms98bzyi_5v",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Pocket-sized\npower."
+          "en": "Pocket-sized\n*power*."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms94j8xa_e",
+        "id": "s_ms98bzyi_5w",
         "layout": "split-landscape",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Wide canvas,\nbigger ideas."
+          "en": "Wide canvas,\nbigger *ideas*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyi_5x",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 02"
+        },
+        "headline": {
+          "en": "See more\nat *once*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyi_5y",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Built to\n*scale*."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_ms98bzyi_5z",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Ready when\n*you* are."
         },
         "screenshot": ""
       }
     ],
     "android-10": [
       {
-        "id": "s_ms94j8xa_f",
+        "id": "s_ms98bzyi_60",
         "layout": "hero",
         "label": {
           "en": "MEET YOUR APP"
         },
         "headline": {
-          "en": "Made for\nthe big screen."
+          "en": "Made for the\n*big* screen."
         },
         "screenshot": ""
       },
       {
-        "id": "s_ms94j8xa_g",
+        "id": "s_ms98bzyi_61",
         "layout": "split-landscape",
         "label": {
           "en": "FEATURE 01"
         },
         "headline": {
-          "en": "Wide canvas,\nbigger ideas."
+          "en": "Wide canvas,\nbigger *ideas*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyi_62",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 02"
+        },
+        "headline": {
+          "en": "See more\nat *once*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_ms98bzyi_63",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Built to\n*scale*."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_ms98bzyi_64",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Ready when\n*you* are."
         },
         "screenshot": ""
       }
     ],
     "feature-graphic": [
       {
-        "id": "s_ms94j8xa_h",
+        "id": "s_ms98bzyi_65",
         "layout": "feature-graphic",
         "label": {},
         "headline": {

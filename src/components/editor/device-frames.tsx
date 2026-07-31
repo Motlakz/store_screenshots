@@ -9,7 +9,28 @@ type FrameProps = {
   style?: React.CSSProperties;
   /** When true, hide EmptySlot placeholder (so it doesn't bake into exports). */
   hideEmpty?: boolean;
+  /** Theme overrides for device chrome — see ThemeDevice in lib/types.ts.
+   *  `bezel` repaints the body (e.g. cream instead of black) and `bezelStroke`
+   *  rings it in an ink outline. The iPhone frame is a fixed PNG mockup and
+   *  therefore ignores both. */
+  bezel?: string;
+  bezelStroke?: string;
+  bezelStrokeWidth?: number;
 };
+
+/** Body fill + outline for the CSS-drawn frames. */
+function bezelStyle(
+  bezel: string | undefined,
+  stroke: string | undefined,
+  width: number | undefined,
+  fallbackBg: string,
+  fallbackShadow: string,
+): React.CSSProperties {
+  const background = bezel || fallbackBg;
+  if (!stroke) return { background, boxShadow: fallbackShadow };
+  const w = width ?? 3;
+  return { background, boxShadow: `inset 0 0 0 ${w}px ${stroke}, ${fallbackShadow}` };
+}
 
 // iPhone — uses pre-measured mockup.png overlay
 export function Phone({ src, alt = "", style, hideEmpty }: FrameProps) {
@@ -50,7 +71,7 @@ export function Phone({ src, alt = "", style, hideEmpty }: FrameProps) {
   );
 }
 
-export function AndroidPhone({ src, alt = "", style, hideEmpty }: FrameProps) {
+export function AndroidPhone({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth }: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "9 / 19.5", ...style }}>
@@ -59,8 +80,9 @@ export function AndroidPhone({ src, alt = "", style, hideEmpty }: FrameProps) {
           width: "100%",
           height: "100%",
           borderRadius: "8% / 4%",
-          background: "linear-gradient(160deg, #2a2a2e 0%, #18181b 100%)",
-          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 40px rgba(0,0,0,0.55)",
+          ...bezelStyle(bezel, bezelStroke, bezelStrokeWidth,
+            "linear-gradient(160deg, #2a2a2e 0%, #18181b 100%)",
+            "inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 40px rgba(0,0,0,0.55)"),
           position: "relative",
           overflow: "hidden",
         }}
@@ -107,7 +129,7 @@ export function AndroidPhone({ src, alt = "", style, hideEmpty }: FrameProps) {
   );
 }
 
-export function AndroidTabletP({ src, alt = "", style, hideEmpty }: FrameProps) {
+export function AndroidTabletP({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth }: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "5 / 8", ...style }}>
@@ -116,8 +138,9 @@ export function AndroidTabletP({ src, alt = "", style, hideEmpty }: FrameProps) 
           width: "100%",
           height: "100%",
           borderRadius: "4.5% / 2.8%",
-          background: "linear-gradient(160deg, #2a2a2e 0%, #18181b 100%)",
-          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 48px rgba(0,0,0,0.6)",
+          ...bezelStyle(bezel, bezelStroke, bezelStrokeWidth,
+            "linear-gradient(160deg, #2a2a2e 0%, #18181b 100%)",
+            "inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 48px rgba(0,0,0,0.6)"),
           position: "relative",
           overflow: "hidden",
         }}
@@ -163,7 +186,7 @@ export function AndroidTabletP({ src, alt = "", style, hideEmpty }: FrameProps) 
   );
 }
 
-export function AndroidTabletL({ src, alt = "", style, hideEmpty }: FrameProps) {
+export function AndroidTabletL({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth }: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "8 / 5", ...style }}>
@@ -172,8 +195,9 @@ export function AndroidTabletL({ src, alt = "", style, hideEmpty }: FrameProps) 
           width: "100%",
           height: "100%",
           borderRadius: "2.8% / 4.5%",
-          background: "linear-gradient(160deg, #2a2a2e 0%, #18181b 100%)",
-          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 48px rgba(0,0,0,0.6)",
+          ...bezelStyle(bezel, bezelStroke, bezelStrokeWidth,
+            "linear-gradient(160deg, #2a2a2e 0%, #18181b 100%)",
+            "inset 0 0 0 1px rgba(255,255,255,0.08), 0 8px 48px rgba(0,0,0,0.6)"),
           position: "relative",
           overflow: "hidden",
         }}
@@ -219,7 +243,7 @@ export function AndroidTabletL({ src, alt = "", style, hideEmpty }: FrameProps) 
   );
 }
 
-export function IPad({ src, alt = "", style, hideEmpty }: FrameProps) {
+export function IPad({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth }: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "770 / 1000", ...style }}>
@@ -228,10 +252,11 @@ export function IPad({ src, alt = "", style, hideEmpty }: FrameProps) {
           width: "100%",
           height: "100%",
           borderRadius: "5% / 3.6%",
-          background: "linear-gradient(180deg, #2C2C2E 0%, #1C1C1E 100%)",
           position: "relative",
           overflow: "hidden",
-          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.1), 0 8px 40px rgba(0,0,0,0.6)",
+          ...bezelStyle(bezel, bezelStroke, bezelStrokeWidth,
+            "linear-gradient(180deg, #2C2C2E 0%, #1C1C1E 100%)",
+            "inset 0 0 0 1px rgba(255,255,255,0.1), 0 8px 40px rgba(0,0,0,0.6)"),
         }}
       >
         <div

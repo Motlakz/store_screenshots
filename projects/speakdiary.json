@@ -2,17 +2,62 @@
   "schemaVersion": 2,
   "appId": "speakdiary",
   "appName": "SpeakDiary",
-  "themeId": "dreamy-pastel",
+  "themeId": "speakdiary",
   "themes": [
     {
-      "id": "dreamy-pastel",
-      "name": "Dreamy Pastel",
+      "id": "speakdiary",
+      "name": "SpeakDiary Dreamy",
       "bg": "#DDEBFA",
       "bgAlt": "#FBE3D7",
       "fg": "#1B2240",
       "fgAlt": "#1B2240",
       "accent": "#5B3FC8",
-      "muted": "#8A8FA3"
+      "muted": "#8A8FA3",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#DDEBFA 0%",
+          "#F5E0F0 45%",
+          "#FCEFD6 100%"
+        ],
+        "angle": 180
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#FBE3D7 0%",
+          "#F7C9D6 50%",
+          "#F3B6CC 100%"
+        ],
+        "angle": 180
+      },
+      "headline": {
+        "family": "var(--font-quicksand), Quicksand, Inter, system-ui, sans-serif",
+        "weight": 650,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.012
+      },
+      "label": {
+        "family": "var(--font-quicksand), Quicksand, Inter, system-ui, sans-serif",
+        "weight": 600,
+        "transform": "uppercase"
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#B49BE6",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.08
+      },
+      "decor": {
+        "dreamy": true,
+        "motifs": [
+          "heart",
+          "sparkle",
+          "paw"
+        ],
+        "motifColor": "#F39A9A"
+      }
     }
   ],
   "connectedCanvas": true,

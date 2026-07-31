@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ACTIVE_APP_STORAGE_KEY,
   PROJECT_SCHEMA_VERSION,
+  SAVE_MODE_STORAGE_KEY,
   storageKey,
 } from "./constants";
 import { DEFAULT_APP_ID, isValidAppId, type AppSummary } from "./apps";
@@ -12,6 +13,7 @@ import type {
   Device,
   ElementTransform,
   ProjectState,
+  SaveMode,
   Slide,
   TextElement,
   Theme,
@@ -207,6 +209,24 @@ function rememberActiveApp(appId: string) {
   }
 }
 
+function readSaveMode(): SaveMode {
+  if (typeof window === "undefined") return "manual";
+  try {
+    return window.localStorage.getItem(SAVE_MODE_STORAGE_KEY) === "auto" ? "auto" : "manual";
+  } catch {
+    return "manual";
+  }
+}
+
+function rememberSaveMode(mode: SaveMode) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(SAVE_MODE_STORAGE_KEY, mode);
+  } catch {
+    /* preference is best-effort */
+  }
+}
+
 function saveToLocalStorage(state: ProjectState): { ok: true } | { ok: false; error: string } {
   if (typeof window === "undefined") return { ok: true };
   try {
@@ -253,6 +273,11 @@ export function useProject() {
   const [switching, setSwitching] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveMode, _setSaveMode] = useState<SaveMode>("manual");
+  const [saving, setSaving] = useState(false);
+  // The exact deck object last written to disk. Reference-compared against
+  // `state` to decide whether there is anything to save.
+  const [lastSaved, setLastSaved] = useState<ProjectState | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // History stacks live in refs — they don't drive any rendered UI, so
@@ -269,6 +294,38 @@ export function useProject() {
   // Guards against a slow load for app A landing after the user picked app B.
   const loadToken = useRef(0);
 
+  // Unsaved work exists only once the file has loaded — before that, `state`
+  // is a placeholder and must never be treated as an edit worth persisting.
+  const dirty = hydrated && fileReady && lastSaved !== state;
+  const dirtyRef = useRef(dirty);
+  dirtyRef.current = dirty;
+
+  const setSaveMode = useCallback((mode: SaveMode) => {
+    _setSaveMode(mode);
+    rememberSaveMode(mode);
+  }, []);
+
+  // Write the current deck to its project file (and the localStorage mirror).
+  // Resolves true only when the file write succeeded.
+  const save = useCallback(async (): Promise<boolean> => {
+    if (!fileReadyRef.current) return false;
+    const snapshot = stateRef.current;
+    setSaving(true);
+    const local = saveToLocalStorage(snapshot);
+    const file = await saveToFile(snapshot);
+    setSaving(false);
+    if (file.ok) {
+      // Compared by reference: if the user edited during the await, `state` has
+      // already moved on and the deck correctly stays dirty.
+      setLastSaved(snapshot);
+      setSavedAt(Date.now());
+      setSaveError(local.ok ? null : `Local cache failed: ${local.error}`);
+      return true;
+    }
+    setSaveError(file.error);
+    return false;
+  }, []);
+
   // Load one app's deck: localStorage first for instant paint, then the file,
   // which always wins. Returns once the file result has been applied.
   const loadApp = useCallback(async (appId: string) => {
@@ -282,10 +339,15 @@ export function useProject() {
     if (token !== loadToken.current) return;
 
     if (fromFile.ok) {
-      _setState(fromFile.state ?? makeDefaultProject(appId));
+      const next = fromFile.state ?? makeDefaultProject(appId);
+      _setState(next);
+      // A deck read from disk starts clean. A missing file leaves lastSaved
+      // null, so the blank starter shows as unsaved until you save it once.
+      setLastSaved(fromFile.state ? next : null);
       setFileReady(true);
       setSaveError(null);
     } else {
+      setLastSaved(null);
       setFileReady(false);
       setSaveError(fromFile.error);
     }
@@ -299,6 +361,7 @@ export function useProject() {
   // Hydrate: discover the apps on disk, then open the last one used.
   useEffect(() => {
     void (async () => {
+      _setSaveMode(readSaveMode());
       const list = await fetchApps();
       setApps(list);
       const remembered = readActiveApp();
@@ -312,23 +375,27 @@ export function useProject() {
   }, [loadApp]);
 
   // Keep the switcher's label in step with the toolbar's app-name field.
+  // Returns `prev` untouched when nothing moved, so typing a name doesn't
+  // re-render the switcher on every keystroke.
   useEffect(() => {
-    setApps((prev) =>
-      prev.map((a) => (a.id === state.appId ? { ...a, appName: state.appName } : a)),
-    );
+    setApps((prev) => {
+      const current = prev.find((a) => a.id === state.appId);
+      if (!current || current.appName === state.appName) return prev;
+      return prev.map((a) => (a.id === state.appId ? { ...a, appName: state.appName } : a));
+    });
   }, [state.appId, state.appName]);
 
+  // `save: true` writes the outgoing deck before leaving; `false` discards it.
+  // In manual mode the editor asks first, so this is never an implicit write.
   const switchApp = useCallback(
-    async (appId: string) => {
+    async (appId: string, opts: { save?: boolean } = {}) => {
       if (!isValidAppId(appId) || appId === stateRef.current.appId) return;
       setSwitching(true);
-      // Flush the outgoing app before loading the next one, so an edit made
-      // inside the debounce window isn't dropped by the switch.
       if (timer.current) {
         clearTimeout(timer.current);
         timer.current = null;
       }
-      if (fileReadyRef.current) {
+      if (opts.save && fileReadyRef.current && dirtyRef.current) {
         saveToLocalStorage(stateRef.current);
         await saveToFile(stateRef.current);
       }
@@ -365,32 +432,30 @@ export function useProject() {
     [switchApp],
   );
 
-  // Debounced autosave to BOTH localStorage (fast, offline) and file (git-trackable).
+  // Debounced write to BOTH localStorage and the project file — only in auto
+  // mode. In manual mode nothing reaches disk until `save()` is called, so
+  // simply opening the editor and clicking around never rewrites a file.
   useEffect(() => {
+    if (saveMode !== "auto") return;
     if (!hydrated || !fileReady || switching) return;
+    if (!dirty) return;
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
-      const localResult = saveToLocalStorage(state);
-      void saveToFile(state).then((fileResult) => {
-        if (fileResult.ok && localResult.ok) {
-          setSavedAt(Date.now());
-          setSaveError(null);
-        } else if (!fileResult.ok && !localResult.ok) {
-          setSaveError(fileResult.error);
-        } else if (!fileResult.ok) {
-          // Local cache succeeded but file save failed — work isn't git-portable yet.
-          setSavedAt(Date.now());
-          setSaveError(`File save failed: ${fileResult.error}`);
-        } else {
-          setSavedAt(Date.now());
-          setSaveError(localResult.ok ? null : localResult.error);
-        }
-      });
-    }, SAVE_DEBOUNCE_MS);
+    timer.current = setTimeout(() => void save(), SAVE_DEBOUNCE_MS);
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
-  }, [state, hydrated, fileReady, switching]);
+  }, [state, hydrated, fileReady, switching, saveMode, dirty, save]);
+
+  // Last line of defence against closing the tab on unsaved work.
+  useEffect(() => {
+    if (!dirty) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dirty]);
 
   const setState = useCallback((updater: Updater) => {
     _setState((prev) => {
@@ -462,6 +527,11 @@ export function useProject() {
     hydrated,
     savedAt,
     saveError,
+    saveMode,
+    setSaveMode,
+    save,
+    saving,
+    dirty,
     reset,
     resetDevice,
     undo,

@@ -8,6 +8,7 @@ import type {
   ElementId,
   ElementTransform,
   Orientation,
+  ScreenshotFocusElement,
   SelectedElement,
   Slide,
   TextElement,
@@ -37,7 +38,7 @@ import {
   shade,
 } from "@/lib/style";
 import { frameColorById, resolveFrame } from "@/lib/frames";
-import { toTextElementId } from "@/lib/elements";
+import { focusElementKey, isFocusElementId, toFocusElementId, toTextElementId } from "@/lib/elements";
 import { img } from "@/lib/image-cache";
 import { pickText, resolveScreenshot } from "@/lib/locale";
 import {
@@ -126,6 +127,8 @@ type Props = {
   previewScale?: number;
   /** When true, suppress the "Drop a screenshot here" placeholder. Used for export. */
   hideEmpty?: boolean;
+  /** Disable live WebGL for compact secondary previews such as sidebar thumbnails. */
+  enable3D?: boolean;
 };
 
 type DeckEditHandlers = {
@@ -153,6 +156,8 @@ type DeckCanvasProps = {
   previewScale?: number;
   hideEmpty?: boolean;
   showGuides?: boolean;
+  /** Disable live WebGL for compact secondary previews such as sidebar thumbnails. */
+  enable3D?: boolean;
 };
 
 // ---------- Editable text helpers ----------
@@ -563,6 +568,9 @@ export function getElementTransform(
     const textElement = slide.textElements?.find((element) => element.id === textId);
     return textElement?.transform;
   }
+  if (isFocusElementId(id)) {
+    return slide.focusElements?.find((element) => element.id === focusElementKey(id))?.transform;
+  }
   const { defaults } = getSlideGeometry(slide, device, orientation);
   const rect = rectFor(id as BuiltInElementId, slide, defaults);
   if (!rect) return undefined;
@@ -598,6 +606,7 @@ export function SlideCanvas({
   selectedElementId = null,
   previewScale = 1,
   hideEmpty,
+  enable3D = true,
 }: Props) {
   const { cW, cH } = getCanvas(device, orientation);
 
@@ -649,6 +658,7 @@ export function SlideCanvas({
         boundsW={cW}
         boundsH={cH}
         allowCrossScreen={false}
+        enable3D={enable3D}
       />
       {resolveStyle(theme).decor.dreamy && <DreamyFront slideId={slide.id} cW={cW} cH={cH} />}
     </div>
@@ -673,6 +683,7 @@ export function DeckCanvas({
   previewScale = 1,
   hideEmpty,
   showGuides = false,
+  enable3D = true,
 }: DeckCanvasProps) {
   const { cW, cH } = getCanvas(device, orientation);
   const totalW = Math.max(1, slides.length) * cW;
@@ -781,6 +792,7 @@ export function DeckCanvas({
             boundsW={connectedCanvas ? totalW : cW}
             boundsH={cH}
             allowCrossScreen={connectedCanvas}
+            enable3D={enable3D}
           />
         );
         if (connectedCanvas) return elements;
@@ -1276,6 +1288,10 @@ function FeatureGraphicCanvas({
   editable?: boolean;
   edit?: EditHandlers;
 }) {
+  const screenshots = [slide.screenshot, slide.screenshotSecondary, slide.screenshotTertiary]
+    .map((src) => resolveScreenshot(src, locale))
+    .filter((src): src is string => !!src && !!img(src));
+
   return (
     <div
       style={{
@@ -1283,63 +1299,94 @@ function FeatureGraphicCanvas({
         height: "100%",
         position: "relative",
         overflow: "hidden",
-        background: `linear-gradient(135deg, ${theme.bgAlt} 0%, ${shade(theme.bgAlt, -10)} 50%, ${theme.accent} 200%)`,
+        background: `linear-gradient(145deg, ${theme.bgAlt} 0%, ${shade(theme.bgAlt, -8)} 62%, ${theme.accent} 185%)`,
         display: "flex",
         alignItems: "center",
         padding: `0 ${cW * 0.06}px`,
         color: theme.fgAlt,
       }}
     >
-      <Blob cW={cW} color={theme.accent} x={70} y={20} size={50} opacity={0.45} />
-      <div style={{ display: "flex", alignItems: "center", gap: cW * 0.03, zIndex: 2 }}>
-        {appIcon && img(appIcon) ? (
-          <img
-            src={img(appIcon)}
-            alt=""
-            style={{
-              width: cW * 0.13,
-              height: cW * 0.13,
-              borderRadius: cW * 0.022,
-              boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
-            }}
-            draggable={false}
-          />
-        ) : (
-          <div
-            aria-hidden
-            style={{
-              width: cW * 0.13,
-              height: cW * 0.13,
-              borderRadius: cW * 0.022,
-              background: `linear-gradient(135deg, ${theme.accent}55, ${theme.accent})`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: theme.fgAlt,
-              fontWeight: 800,
-              fontSize: cW * 0.07,
-              boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
-            }}
-          >
-            {(appName || "A").slice(0, 1).toUpperCase()}
-          </div>
-        )}
-        <div>
-          <div style={{ fontSize: cW * 0.06, fontWeight: 800, lineHeight: 1.05 }}>{appName || "App"}</div>
-          <EditableText
-            value={pickText(slide.headline, locale)}
-            editable={editable}
-            multiline
-            onChange={edit?.onHeadlineChange}
-            style={{
-              fontSize: cW * 0.028,
-              color: "rgba(255,255,255,0.85)",
-              marginTop: cW * 0.012,
-              lineHeight: 1.25,
-            }}
-          />
+      <Blob cW={cW} color={theme.accent} x={72} y={4} size={52} opacity={0.34} />
+      <Blob cW={cW} color="#7FB8A8" x={44} y={72} size={42} opacity={0.2} />
+
+      <div style={{ position: "relative", zIndex: 4, width: "42%" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: cW * 0.016 }}>
+          {appIcon && img(appIcon) ? (
+            <img src={img(appIcon)} alt="" style={{ width: cW * 0.075, height: cW * 0.075, borderRadius: cW * 0.017 }} draggable={false} />
+          ) : (
+            <div
+              aria-hidden
+              style={{
+                width: cW * 0.065,
+                height: cW * 0.065,
+                borderRadius: cW * 0.016,
+                display: "grid",
+                placeItems: "center",
+                background: `linear-gradient(145deg, ${theme.accent}, #7FB8A8)`,
+                color: "white",
+                fontSize: cW * 0.032,
+                fontWeight: 800,
+                boxShadow: "0 12px 30px rgba(0,0,0,0.28)",
+              }}
+            >
+              {(appName || "A").slice(0, 1).toUpperCase()}
+            </div>
+          )}
+          <div style={{ fontSize: cW * 0.04, fontWeight: 760, letterSpacing: "-0.03em" }}>{appName || "App"}</div>
+        </div>
+        <EditableText
+          value={pickText(slide.headline, locale)}
+          editable={editable}
+          multiline
+          onChange={edit?.onHeadlineChange}
+          style={{
+            maxWidth: cW * 0.37,
+            fontFamily: "var(--font-instrument-serif), Georgia, serif",
+            fontSize: cW * 0.047,
+            color: theme.fgAlt,
+            marginTop: cW * 0.022,
+            lineHeight: 0.98,
+            letterSpacing: "-0.025em",
+          }}
+        />
+        <div style={{ marginTop: cW * 0.018, color: "rgba(255,255,255,0.56)", fontSize: cW * 0.014, fontWeight: 650, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+          {pickText(slide.label, locale) || "Your gut health companion"}
         </div>
       </div>
+
+      {screenshots.length > 0 ? (
+        <div style={{ position: "absolute", right: cW * 0.025, top: 0, width: cW * 0.54, height: "100%", zIndex: 3 }}>
+          {screenshots.slice(0, 3).map((src, index) => {
+            const positions = [
+              { left: 0, top: cW * 0.09, rotate: 0, z: 1 },
+              { left: cW * 0.145, top: cW * 0.025, rotate: 0, z: 3 },
+              { left: cW * 0.29, top: cW * 0.085, rotate: 0, z: 2 },
+            ];
+            const position = positions[index];
+            return (
+              <div
+                key={`${src}-${index}`}
+                style={{
+                  position: "absolute",
+                  left: position.left,
+                  top: position.top,
+                  width: cW * 0.205,
+                  height: cW * 0.44,
+                  overflow: "hidden",
+                  borderRadius: cW * 0.027,
+                  border: `${Math.max(3, cW * 0.005)}px solid rgba(255,255,255,0.2)`,
+                  background: "#FAF7F2",
+                  boxShadow: "0 24px 60px rgba(0,0,0,0.48)",
+                  transform: position.rotate ? `rotate(${position.rotate}deg)` : undefined,
+                  zIndex: position.z,
+                }}
+              >
+                <img src={img(src)} alt="" draggable={false} style={{ width: "100%", height: "100%", display: "block", objectFit: "cover", objectPosition: "top" }} />
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -1360,6 +1407,7 @@ function SlideElements({
   boundsW,
   boundsH,
   allowCrossScreen,
+  enable3D,
 }: {
   slide: Slide;
   device: Device;
@@ -1377,6 +1425,7 @@ function SlideElements({
   boundsW: number;
   boundsH: number;
   allowCrossScreen: boolean;
+  enable3D: boolean;
 }) {
   const screenshot = resolveScreenshot(slide.screenshot, locale);
   const screenshotSecondary = resolveScreenshot(slide.screenshotSecondary, locale);
@@ -1386,10 +1435,35 @@ function SlideElements({
   // the active theme rather than being baked into the frame components.
   const themeDevice = resolveStyle(theme).device;
   // Per-screen body finish, if this slide picked one.
-  const slideFinish = frameColorById(resolveFrame(slide.frame).color);
   const captionRect = rectFor("caption", slide, defaults);
   const deviceRect = rectFor("device", slide, defaults);
   const secondaryRect = rectFor("deviceSecondary", slide, defaults);
+  const focusSources = (slide.focusElements || []).map((element) =>
+    resolveScreenshot(element.source || slide.screenshot, locale),
+  );
+  const focusSourceKey = focusSources.join("\u0000");
+  const [focusSourceAspects, setFocusSourceAspects] = React.useState<Record<string, number>>({});
+
+  React.useEffect(() => {
+    let active = true;
+    for (const source of focusSources) {
+      if (!source || focusSourceAspects[source]) continue;
+      const image = new window.Image();
+      image.onload = () => {
+        if (!active || !image.naturalWidth || !image.naturalHeight) return;
+        setFocusSourceAspects((current) => ({
+          ...current,
+          [source]: image.naturalWidth / image.naturalHeight,
+        }));
+      };
+      image.src = img(source);
+    }
+    return () => {
+      active = false;
+    };
+    // The serialized source list is stable across unrelated canvas edits.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusSourceKey]);
 
   function toGlobal(rect: Rect): Rect {
     return { ...rect, x: rect.x + screenX };
@@ -1451,6 +1525,8 @@ function SlideElements({
 
   function renderDevice(id: "device" | "deviceSecondary", rect: Rect, src: string, extraStyle?: React.CSSProperties) {
     const saved = slide.transforms?.[id];
+    const deviceFrame = id === "deviceSecondary" ? slide.frameSecondary ?? slide.frame : slide.frame;
+    const deviceFinish = frameColorById(resolveFrame(deviceFrame).color);
     const rotation = saved?.rotation ?? 0;
     const zIndex = saved?.zIndex ?? (id === "deviceSecondary" ? 2 : 3);
     return (
@@ -1477,11 +1553,20 @@ function SlideElements({
         selected={selectedElementId === id}
         onSelect={() => edit?.onSelectElement?.(id)}
       >
-        <Device3D frame={slide.frame} fallbackEdge={themeDevice.bezelStroke}>
+        <Device3D
+          frame={deviceFrame}
+          device={device}
+          orientation={orientation}
+          src={src}
+          enable3D={enable3D}
+          hideEmpty={hideEmpty}
+          fallbackBody={themeDevice.bezel}
+          fallbackEdge={themeDevice.bezelStroke}
+        >
           <Frame
             src={src}
             hideEmpty={hideEmpty}
-            bezel={slideFinish?.body ?? themeDevice.bezel}
+            bezel={deviceFinish?.body ?? themeDevice.bezel}
             bezelStroke={themeDevice.bezelStroke}
             bezelStrokeWidth={themeDevice.bezelStrokeWidth}
             style={{
@@ -1563,6 +1648,97 @@ function SlideElements({
     );
   }
 
+  function renderFocusElement(element: ScreenshotFocusElement, index: number) {
+    const elementId = toFocusElementId(element.id);
+    const source = resolveScreenshot(element.source || slide.screenshot, locale);
+    const rect = element.transform;
+    const crop = element.crop;
+    const rotation = rect.rotation ?? 0;
+    const zIndex = rect.zIndex ?? 8 + index;
+    const sourceAspect = focusSourceAspects[source] || frameAspect;
+    const cropAspect = sourceAspect * (crop.width / Math.max(1, crop.height));
+    const clipRadius = element.borderRadius ?? 34;
+    const displayRect = {
+      ...rect,
+      height: rect.width / Math.max(0.01, cropAspect),
+    };
+    return (
+      <Movable
+        key={element.id}
+        rect={toGlobal(displayRect)}
+        boundsW={boundsW}
+        boundsH={boundsH}
+        editable={editable}
+        previewScale={previewScale}
+        rotation={rotation}
+        onChange={(t) =>
+          edit?.onElementChange?.(
+            elementId,
+            toLocal({ ...t, rotation: t.rotation ?? rotation, zIndex: t.zIndex ?? zIndex }),
+          )
+        }
+        lockAspectRatio={cropAspect}
+        zIndex={zIndex}
+        selected={selectedElementId === elementId}
+        onSelect={() => edit?.onSelectElement?.(elementId)}
+        allowOverflow={allowCrossScreen}
+      >
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            borderRadius: clipRadius,
+            // Clip the backing to the same curve as the image. Without this the
+            // wrapper stays a square box, so its corners (and the shadow's lit
+            // edge) peek out past the rounded crop.
+            overflow: "hidden",
+            boxShadow: "0 18px 50px rgba(0,0,0,0.24)",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              overflow: "hidden",
+              boxSizing: "border-box",
+              borderRadius: clipRadius,
+              border: `${element.borderWidth ?? 0}px solid ${element.accentColor || theme.accent}`,
+              // Any fill must stop at the padding box, or it bleeds under the
+              // border and squares off the corners.
+              background: "transparent",
+              backgroundClip: "padding-box",
+              isolation: "isolate",
+              // Chromium can skip rounded-corner clipping for a descendant that
+              // lands on its own compositing layer — and this deck sits inside
+              // transforms. An alpha-opaque mask costs nothing visually and
+              // forces the corners to be cut in every case.
+              WebkitMaskImage: "radial-gradient(#fff, #000)",
+              maskImage: "radial-gradient(#fff, #000)",
+            }}
+          >
+            {source && img(source) ? (
+              <img
+                src={img(source)}
+                alt=""
+                draggable={false}
+                style={{
+                  position: "absolute",
+                  width: `${10000 / Math.max(1, crop.width)}%`,
+                  height: "auto",
+                  left: `${(-crop.x * 100) / Math.max(1, crop.width)}%`,
+                  top: `${(-crop.y * 100) / Math.max(1, crop.height)}%`,
+                  maxWidth: "none",
+                  display: "block",
+                }}
+              />
+            ) : null}
+          </div>
+        </div>
+      </Movable>
+    );
+  }
+
   return (
     <>
       {secondaryRect &&
@@ -1575,6 +1751,7 @@ function SlideElements({
       {deviceRect && renderDevice("device", deviceRect, screenshot)}
       {renderCaption()}
       {(slide.textElements || []).map(renderTextElement)}
+      {(slide.focusElements || []).map(renderFocusElement)}
     </>
   );
 }

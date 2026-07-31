@@ -18,7 +18,7 @@ import {
   themeById,
 } from "@/lib/constants";
 import { detectPlatform, nid } from "@/lib/defaults";
-import { isBuiltInElementId, isTextElementId, textElementKey } from "@/lib/elements";
+import { focusElementKey, isBuiltInElementId, isFocusElementId, isTextElementId, textElementKey } from "@/lib/elements";
 import { preloadImages } from "@/lib/image-cache";
 import { ownsTheme, patchActiveTheme } from "@/lib/theme-edit";
 import { resolveScreenshot, writeLocalized } from "@/lib/locale";
@@ -173,7 +173,12 @@ export function ScreenshotEditor() {
     // Preload every locale variant so bulk export doesn't race image loads.
     const allSlides: Slide[] = Object.values(state.slidesByDevice).flat();
     for (const s of allSlides) {
-      for (const raw of [s.screenshot, s.screenshotSecondary]) {
+      for (const raw of [
+        s.screenshot,
+        s.screenshotSecondary,
+        s.screenshotTertiary,
+        ...(s.focusElements || []).map((element) => element.source),
+      ]) {
         if (!raw || raw.startsWith("data:")) continue;
         if (raw.includes("{locale}")) {
           for (const loc of state.locales) paths.add(resolveScreenshot(raw, loc));
@@ -311,6 +316,15 @@ export function ScreenshotEditor() {
                 ),
               };
             }
+            if (isFocusElementId(elementId)) {
+              const focusId = focusElementKey(elementId);
+              return {
+                ...slide,
+                focusElements: (slide.focusElements || []).map((element) =>
+                  element.id === focusId ? { ...element, transform } : element,
+                ),
+              };
+            }
             if (!isBuiltInElementId(elementId)) return slide;
             return {
               ...slide,
@@ -352,18 +366,19 @@ export function ScreenshotEditor() {
 
   const duplicateSlide = React.useCallback(
     (id: string) => {
-      let newId: string | null = null;
+      const newId = nid();
       setState((prev) => {
         const slides = prev.slidesByDevice[prev.device] || [];
         const idx = slides.findIndex((s) => s.id === id);
         if (idx === -1) return prev;
         const src = slides[idx];
-        newId = nid();
         const copy: Slide = {
           ...src,
           id: newId,
           label: { ...src.label },
           headline: { ...src.headline },
+          frame: src.frame ? { ...src.frame } : undefined,
+          frameSecondary: src.frameSecondary ? { ...src.frameSecondary } : undefined,
           transforms: src.transforms
             ? Object.fromEntries(
                 Object.entries(src.transforms).map(([key, value]) => [key, { ...value }]),
@@ -375,6 +390,12 @@ export function ScreenshotEditor() {
             text: { ...element.text },
             transform: { ...element.transform },
           })),
+          focusElements: src.focusElements?.map((element) => ({
+            ...element,
+            id: nid(),
+            crop: { ...element.crop },
+            transform: { ...element.transform },
+          })),
         };
         const next = [...slides.slice(0, idx + 1), copy, ...slides.slice(idx + 1)];
         return {
@@ -382,7 +403,8 @@ export function ScreenshotEditor() {
           slidesByDevice: { ...prev.slidesByDevice, [prev.device]: next },
         };
       });
-      if (newId) setActiveSlideId(newId);
+      setActiveSlideId(newId);
+      setSelectedElement(null);
     },
     [setState],
   );
@@ -831,7 +853,7 @@ export function ScreenshotEditor() {
           pointerEvents: "none",
         }}
       >
-        {currentSlides.length > 0 && (
+        {currentSlides.length > 0 && exporting && (
           <div
             ref={exportRef}
             style={{

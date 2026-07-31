@@ -11,6 +11,19 @@ bun install   # or pnpm / yarn / npm
 bun dev       # http://localhost:3000
 ```
 
+Only one dev server can run per checkout. If `bun dev` reports *"Another next dev server is already running"*, stop the existing one rather than starting a second.
+
+### Cloned before the rename?
+
+This repo was renamed from **`play_store_screenshots`** to **`store_screenshots`**. GitHub redirects the old URL, so existing clones keep working — but redirects are best-effort and stop working if another repo ever takes the old name. Point your remote at the current URL:
+
+```bash
+git remote set-url origin https://github.com/Motlakz/store_screenshots.git
+git remote -v    # should show store_screenshots
+```
+
+You'll know you're on the old URL if a push prints `remote: This repository moved.`
+
 ## One editor, many apps
 
 Each app is fully self-contained. Nothing is shared between apps except the code, so building a deck for one app can never overwrite another's screenshots, copy, or palette.
@@ -202,9 +215,9 @@ Picking colors per screen meant copying hex values between views, and font choic
 
 - **Angle presets** (Front, Turn left/right, Hero, Showcase, Lay back) plus Y-turn, X-tilt and lens-depth sliders, clamped to ±60° so the frame can't break.
 - **Body finishes** — Graphite, Midnight, Natural / White / Desert Titanium (iOS), Porcelain, Bay Blue, Hazel (Android), Cream Ink, or "Follow theme".
-- **Extruded body edge** that grows as the phone turns, so a tilted device reads as a solid object.
+- **Real Three.js device model** with a continuous metal shell, curved glass, side controls and adjustable physical depth. The Android silhouette uses softer Honor/Huawei-inspired flagship proportions instead of a generic square slab.
 
-This is CSS 3D (`perspective` + `rotateX/rotateY`), not a rendered 3D model — no licensed device meshes, and finishes stay themeable. In flat mode, or at 0°, `Device3D` renders its children untouched, so existing decks are unaffected.
+The renderer uses an original procedural mesh rather than a licensed manufacturer asset. WebGL preserves its drawing buffer so the static frame remains compatible with image export. Flat mode still renders its children untouched, so existing flat decks are unaffected.
 
 ### 7. Smaller changes
 

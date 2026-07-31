@@ -118,6 +118,7 @@ export function SlideThumb({
                 appIcon={appIcon}
                 connectedCanvas
                 editable={false}
+                enable3D={false}
               />
             ) : (
               <SlideCanvas
@@ -129,6 +130,7 @@ export function SlideThumb({
                 appName={appName}
                 appIcon={appIcon}
                 editable={false}
+                enable3D={false}
               />
             )}
           </div>

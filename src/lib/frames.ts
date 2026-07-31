@@ -51,11 +51,12 @@ export const ANGLE_PRESETS: Array<{ id: string; label: string; rotateX: number; 
   { id: "lay", label: "Lay back", rotateX: 26, rotateY: -8 },
 ];
 
-export const DEFAULT_FRAME: Required<Pick<SlideFrame, "style" | "rotateX" | "rotateY" | "depth">> = {
+export const DEFAULT_FRAME: Required<Pick<SlideFrame, "style" | "rotateX" | "rotateY" | "depth" | "thickness">> = {
   style: "flat",
   rotateX: 0,
   rotateY: 0,
   depth: 2200,
+  thickness: 34,
 };
 
 export function resolveFrame(frame: SlideFrame | undefined) {
@@ -65,6 +66,7 @@ export function resolveFrame(frame: SlideFrame | undefined) {
     rotateX: clampAngle(frame?.rotateX ?? DEFAULT_FRAME.rotateX),
     rotateY: clampAngle(frame?.rotateY ?? DEFAULT_FRAME.rotateY),
     depth: frame?.depth ?? DEFAULT_FRAME.depth,
+    thickness: clampThickness(frame?.thickness ?? DEFAULT_FRAME.thickness),
   };
 }
 
@@ -74,10 +76,7 @@ export function clampAngle(deg: number): number {
   return Math.max(-60, Math.min(60, deg));
 }
 
-/**
- * Thickness of the extruded side, as a fraction of device width. Scales with
- * how far the phone is turned, so a front-on device shows no edge at all.
- */
-export function edgeWidthFor(rotateY: number, width: number): number {
-  return Math.min(width * 0.06, (Math.abs(rotateY) / 60) * width * 0.06);
+export function clampThickness(value: number): number {
+  if (!Number.isFinite(value)) return DEFAULT_FRAME.thickness;
+  return Math.max(12, Math.min(72, value));
 }

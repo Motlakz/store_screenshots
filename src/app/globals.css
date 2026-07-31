@@ -99,16 +99,22 @@
 }
 
 /* Lift under the canvas. A slate shadow reads as mud on a dark backdrop, so
-   dark mode swaps to a deeper, softer falloff. */
+   dark mode swaps to a deeper, softer falloff.
+
+   Deliberately box-shadow, not filter: drop-shadow. A `filter` on an ancestor
+   forces the whole subtree into a rasterized layer, and the deck below is
+   CSS-scaled — that combination can bitmap-scale upscaled content (the crop
+   layer especially) instead of re-rasterizing it crisply. The deck is a plain
+   rectangle, so box-shadow is visually identical and carries no such cost. */
 .canvas-shadow {
-  filter: drop-shadow(0 32px 42px rgba(15, 23, 42, 0.18));
+  box-shadow: 0 32px 42px rgba(15, 23, 42, 0.18);
 }
 .dark .canvas-shadow {
-  filter: drop-shadow(0 32px 48px rgba(0, 0, 0, 0.62));
+  box-shadow: 0 32px 48px rgba(0, 0, 0, 0.62);
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.light) .canvas-shadow {
-    filter: drop-shadow(0 32px 48px rgba(0, 0, 0, 0.62));
+    box-shadow: 0 32px 48px rgba(0, 0, 0, 0.62);
   }
 }
 

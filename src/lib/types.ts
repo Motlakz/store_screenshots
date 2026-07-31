@@ -20,6 +20,8 @@ export type SlideFrame = {
   rotateY?: number;
   /** CSS perspective depth — larger is a flatter, longer lens. */
   depth?: number;
+  /** Extruded device-body depth in canvas pixels. */
+  thickness?: number;
 };
 
 // "manual" keeps edits in memory until an explicit Save; "auto" writes on a
@@ -50,7 +52,8 @@ export type ElementTransform = {
 
 export type BuiltInElementId = "caption" | "device" | "deviceSecondary";
 export type TextElementId = `text:${string}`;
-export type ElementId = BuiltInElementId | TextElementId;
+export type FocusElementId = `focus:${string}`;
+export type ElementId = BuiltInElementId | TextElementId | FocusElementId;
 
 export type SelectedElement = {
   slideId: string;
@@ -73,6 +76,19 @@ export type TextElement = {
   align?: "left" | "center" | "right";
 };
 
+export type ScreenshotFocusElement = {
+  id: string;
+  /** Optional alternate source; omitted uses the slide's primary screenshot. */
+  source?: string;
+  /** Percent crop within the source screenshot. */
+  crop: { x: number; y: number; width: number; height: number };
+  /** Independent position and size on the marketing canvas. */
+  transform: ElementTransform;
+  borderRadius?: number;
+  borderWidth?: number;
+  accentColor?: string;
+};
+
 export type Slide = {
   id: string;
   layout: SlideLayout;
@@ -80,6 +96,8 @@ export type Slide = {
   headline: LocalizedText;    // multi-line; newlines are intentional, per locale
   screenshot: string;         // path under /screenshots/ — may contain {locale}
   screenshotSecondary?: string; // for two-devices layout — may contain {locale}
+  screenshotTertiary?: string; // third image used by feature-graphic collages
+  focusElements?: ScreenshotFocusElement[];
   inverted?: boolean;         // dark background variant
   // Per-screen background override. Wins over the theme's background so one
   // screen can differ without forking the whole palette. Ink is re-derived
@@ -90,6 +108,8 @@ export type Slide = {
   labelFont?: string;
   // Per-screen device frame presentation. See lib/frames.ts.
   frame?: SlideFrame;
+  // Independent presentation for the back/second phone in two-device layouts.
+  frameSecondary?: SlideFrame;
   // Per-element overrides; when present, replaces layout default placement.
   transforms?: Partial<Record<BuiltInElementId, ElementTransform>>;
   textElements?: TextElement[];

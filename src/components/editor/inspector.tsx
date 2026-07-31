@@ -8,8 +8,9 @@ import {
   ArrowUpToLine,
   ChevronDown,
   ChevronUp,
-  Plus,
+  Crop,
   RotateCw,
+  Smartphone,
   Trash2,
   Type,
 } from "lucide-react";
@@ -28,17 +29,22 @@ import { LAYOUT_HINT, LAYOUT_LABEL } from "@/lib/constants";
 import { nid } from "@/lib/defaults";
 import {
   isBuiltInElementId,
+  focusElementKey,
+  isFocusElementId,
   isTextElementId,
   textElementKey,
   toTextElementId,
+  toFocusElementId,
 } from "@/lib/elements";
-import { pickText, writeLocalized } from "@/lib/locale";
+import { img } from "@/lib/image-cache";
+import { pickText, resolveScreenshot, writeLocalized } from "@/lib/locale";
 import type {
   BuiltInElementId,
   Device,
   ElementId,
   ElementTransform,
   Orientation,
+  ScreenshotFocusElement,
   Slide,
   SlideLayout,
   TextElement,
@@ -93,7 +99,11 @@ export function Inspector({
   // When the active locale is empty, surface the fallback (typically en) as
   // the placeholder so the user sees what they're translating from.
   const headlineDefault = isFeatureGraphic ? "Your tagline." : "One idea\nper slide.";
-  const labelPlaceholder = localeLabel ? "FEATURE 01" : pickText(slide.label, locale) || "FEATURE 01";
+  const labelPlaceholder = isFeatureGraphic
+    ? "Your gut health companion"
+    : localeLabel
+      ? "FEATURE 01"
+      : pickText(slide.label, locale) || "FEATURE 01";
   const headlinePlaceholder = localeHeadline
     ? headlineDefault
     : pickText(slide.headline, locale) || headlineDefault;
@@ -104,7 +114,7 @@ export function Inspector({
 
   React.useEffect(() => {
     if (device === "feature-graphic" && slide.layout !== "feature-graphic") {
-      onChange({ layout: "feature-graphic", transforms: undefined, screenshotSecondary: undefined });
+      onChange({ layout: "feature-graphic", transforms: undefined });
     }
   }, [device, onChange, slide.layout]);
 
@@ -148,16 +158,14 @@ export function Inspector({
           </Select>
         </div>
 
-        {!isFeatureGraphic && (
-          <div className="space-y-1.5">
-            <Label className="text-xs">Label</Label>
-            <Input
-              value={localeLabel}
-              onChange={(e) => setLocaleField("label", e.target.value)}
-              placeholder={labelPlaceholder}
-            />
-          </div>
-        )}
+        <div className="space-y-1.5">
+          <Label className="text-xs">{isFeatureGraphic ? "Companion line" : "Label"}</Label>
+          <Input
+            value={localeLabel}
+            onChange={(e) => setLocaleField("label", e.target.value)}
+            placeholder={labelPlaceholder}
+          />
+        </div>
 
         <div className="space-y-1.5">
           <div className="flex items-baseline justify-between">
@@ -200,8 +208,22 @@ export function Inspector({
           </div>
         )}
 
+        {isFeatureGraphic && (
+          <div className="space-y-3 rounded-md border bg-muted/20 p-3">
+            <Label className="text-xs font-semibold">Screenshot charm</Label>
+            <ScreenshotPicker label="Left screen" appId={appId} value={slide.screenshot} locale={locale} onChange={(v) => onChange({ screenshot: v })} />
+            <ScreenshotPicker label="Middle screen" appId={appId} value={slide.screenshotSecondary || ""} locale={locale} onChange={(v) => onChange({ screenshotSecondary: v })} />
+            <ScreenshotPicker label="Right screen" appId={appId} value={slide.screenshotTertiary || ""} locale={locale} onChange={(v) => onChange({ screenshotTertiary: v })} />
+          </div>
+        )}
+
         {!isFeatureGraphic && !isNoDevice && (
-          <FrameControls slide={slide} device={device} onChange={onChange} />
+          <FrameControls
+            slide={slide}
+            device={device}
+            target={selectedElementId === "deviceSecondary" ? "secondary" : "primary"}
+            onChange={onChange}
+          />
         )}
 
         {!isFeatureGraphic && (
@@ -216,6 +238,7 @@ export function Inspector({
         {!isFeatureGraphic && (
           <ElementTransformControls
             slide={slide}
+            appId={appId}
             device={device}
             orientation={orientation}
             locale={locale}
@@ -237,6 +260,7 @@ export function Inspector({
 
 function ElementTransformControls({
   slide,
+  appId,
   device,
   orientation,
   locale,
@@ -245,6 +269,7 @@ function ElementTransformControls({
   onSelectElement,
 }: {
   slide: Slide;
+  appId: string;
   device: Device;
   orientation: Orientation;
   locale: string;
@@ -256,6 +281,7 @@ function ElementTransformControls({
   if (slide.layout !== "no-device") present.push("device");
   if (slide.layout === "two-devices") present.push("deviceSecondary");
   for (const element of slide.textElements || []) present.push(toTextElementId(element.id));
+  for (const element of slide.focusElements || []) present.push(toFocusElementId(element.id));
 
   const transforms = slide.transforms || {};
   const activeId =
@@ -266,6 +292,10 @@ function ElementTransformControls({
   const activeTextElement =
     activeId && isTextElementId(activeId)
       ? slide.textElements?.find((element) => element.id === textElementKey(activeId))
+      : null;
+  const activeFocusElement =
+    activeId && isFocusElementId(activeId)
+      ? slide.focusElements?.find((element) => element.id === focusElementKey(activeId))
       : null;
 
   function getTransform(id: ElementId) {
@@ -282,6 +312,15 @@ function ElementTransformControls({
           element.id === textId
             ? { ...element, transform: { ...element.transform, ...patch } }
             : element,
+        ),
+      });
+      return;
+    }
+    if (isFocusElementId(id)) {
+      const focusId = focusElementKey(id);
+      onChange({
+        focusElements: (slide.focusElements || []).map((element) =>
+          element.id === focusId ? { ...element, transform: { ...element.transform, ...patch } } : element,
         ),
       });
       return;
@@ -339,6 +378,69 @@ function ElementTransformControls({
     onSelectElement(toTextElementId(id));
   }
 
+  function patchFocusElement(id: string, patch: Partial<ScreenshotFocusElement>) {
+    onChange({
+      focusElements: (slide.focusElements || []).map((element) =>
+        element.id === id ? { ...element, ...patch } : element,
+      ),
+    });
+  }
+
+  // A second phone is the `two-devices` layout — the deck models it as the
+  // built-in `deviceSecondary` element rather than an arbitrary list, so
+  // adding one is a layout switch that seeds the back screenshot.
+  const canAddDevice = slide.layout !== "two-devices" && slide.layout !== "no-device";
+
+  function addSecondDevice() {
+    onChange({
+      layout: "two-devices",
+      // Start it on the same capture so it's visible immediately; the back
+      // slot can be pointed elsewhere from the screenshot picker.
+      screenshotSecondary: slide.screenshotSecondary || slide.screenshot,
+      frameSecondary: slide.frame ? { ...slide.frame } : undefined,
+      transforms: undefined,
+    });
+    onSelectElement("deviceSecondary");
+  }
+
+  function removeSecondDevice() {
+    onChange({
+      layout: "device-bottom",
+      screenshotSecondary: undefined,
+      frameSecondary: undefined,
+      transforms: undefined,
+    });
+    onSelectElement(null);
+  }
+
+  function addFocusElement() {
+    const { cW, cH } = getCanvas(device, orientation);
+    const id = nid();
+    const width = cW * 0.7;
+    const element: ScreenshotFocusElement = {
+      id,
+      crop: { x: 8, y: 12, width: 84, height: 24 },
+      transform: {
+        x: cW * 0.15,
+        y: cH * 0.55,
+        width,
+        height: width * (24 / 84),
+        rotation: 0,
+        zIndex: 9,
+      },
+      borderRadius: 34,
+      borderWidth: 0,
+    };
+    onChange({ focusElements: [...(slide.focusElements || []), element] });
+    onSelectElement(toFocusElementId(id));
+  }
+
+  function deleteFocusElement(element: ScreenshotFocusElement) {
+    const next = (slide.focusElements || []).filter((item) => item.id !== element.id);
+    onChange({ focusElements: next.length ? next : undefined });
+    onSelectElement(null);
+  }
+
   // Z-order: re-rank zIndex among present elements so they remain contiguous.
   function reorder(id: ElementId, dir: "front" | "back" | "up" | "down") {
     const ranked = [...present].sort((a, b) => {
@@ -361,6 +463,10 @@ function ElementTransformControls({
       ...element,
       transform: { ...element.transform },
     }));
+    const nextFocusElements = (slide.focusElements || []).map((element) => ({
+      ...element,
+      transform: { ...element.transform },
+    }));
     ranked.forEach((eid, i) => {
       const cur = getTransform(eid);
       if (!cur) return;
@@ -368,41 +474,58 @@ function ElementTransformControls({
         const textId = textElementKey(eid);
         const textElement = nextTextElements.find((element) => element.id === textId);
         if (textElement) textElement.transform = { ...textElement.transform, zIndex: i + 1 };
+      } else if (isFocusElementId(eid)) {
+        const focusId = focusElementKey(eid);
+        const focusElement = nextFocusElements.find((element) => element.id === focusId);
+        if (focusElement) focusElement.transform = { ...focusElement.transform, zIndex: i + 1 };
       } else if (isBuiltInElementId(eid)) {
         nextTransforms[eid] = { ...cur, zIndex: i + 1 };
       }
     });
-    onChange({ transforms: nextTransforms, textElements: nextTextElements });
+    onChange({ transforms: nextTransforms, textElements: nextTextElements, focusElements: nextFocusElements });
   }
 
   return (
     <div className="space-y-3 rounded-md border bg-muted/30 p-3">
-      <div className="flex items-start justify-between gap-2">
+      <div className="space-y-2">
         <div>
           <Label className="text-xs font-semibold">Elements</Label>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-[11px] leading-relaxed text-muted-foreground">
             {activeId
-              ? "Fine-tune the selected element's rotation and stacking."
-              : "Click an element on the canvas to fine-tune its rotation and stacking."}
+              ? "Move or resize it on the canvas. Adjust the details below."
+              : "Add a layer, or select an element on the canvas."}
           </p>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-7 shrink-0 px-2 text-xs"
-          onClick={addTextElement}
-        >
-          <Plus className="h-3.5 w-3.5" />
-          Text
-        </Button>
+        <div className="grid grid-cols-2 gap-1.5">
+          {canAddDevice && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="col-span-2 h-8 w-full justify-center gap-1.5 px-2 text-xs"
+              onClick={addSecondDevice}
+              title="Put a second phone on this screen"
+            >
+              <Smartphone className="h-3.5 w-3.5 shrink-0" /> Add device
+            </Button>
+          )}
+          <Button type="button" variant="outline" size="sm" className="h-8 w-full justify-center gap-1.5 whitespace-nowrap px-2 text-xs" onClick={addFocusElement}>
+            <Crop className="h-3.5 w-3.5 shrink-0" /> Crop layer
+          </Button>
+          <Button type="button" variant="outline" size="sm" className="h-8 w-full justify-center gap-1.5 whitespace-nowrap px-2 text-xs" onClick={addTextElement}>
+            <Type className="h-3.5 w-3.5 shrink-0" /> Text
+          </Button>
+        </div>
       </div>
 
       {activeId ? (
         <ActiveElementPanel
           activeId={activeId}
+          appId={appId}
+          fallbackSource={slide.screenshot}
           transform={activeTransform}
           textElement={activeTextElement || undefined}
+          focusElement={activeFocusElement || undefined}
           locale={locale}
           onRotate={(rotation) => patchElement(activeId, { rotation })}
           onReorder={(dir) => reorder(activeId, dir)}
@@ -415,10 +538,17 @@ function ElementTransformControls({
           onDeleteText={() => {
             if (activeTextElement) deleteTextElement(activeTextElement);
           }}
+          onFocusPatch={(patch) => {
+            if (activeFocusElement) patchFocusElement(activeFocusElement.id, patch);
+          }}
+          onDeleteFocus={() => {
+            if (activeFocusElement) deleteFocusElement(activeFocusElement);
+          }}
+          onRemoveDevice={activeId === "deviceSecondary" ? removeSecondDevice : undefined}
         />
       ) : (
         <div className="rounded border border-dashed bg-background/40 p-4 text-center text-[11px] text-muted-foreground">
-          No element selected
+          Select an element to edit it.
         </div>
       )}
     </div>
@@ -427,24 +557,37 @@ function ElementTransformControls({
 
 function ActiveElementPanel({
   activeId,
+  appId,
+  fallbackSource,
   transform,
   textElement,
+  focusElement,
   locale,
   onRotate,
   onReorder,
   onTextChange,
   onTextPatch,
   onDeleteText,
+  onFocusPatch,
+  onDeleteFocus,
+  onRemoveDevice,
 }: {
   activeId: ElementId;
+  appId: string;
+  fallbackSource: string;
   transform: ElementTransform | undefined;
   textElement?: TextElement;
+  focusElement?: ScreenshotFocusElement;
   locale: string;
   onRotate: (rotation: number) => void;
   onReorder: (dir: "front" | "back" | "up" | "down") => void;
   onTextChange: (value: string) => void;
   onTextPatch: (patch: Partial<TextElement>) => void;
   onDeleteText: () => void;
+  onFocusPatch: (patch: Partial<ScreenshotFocusElement>) => void;
+  onDeleteFocus: () => void;
+  /** Present only for the back device, which can be removed. */
+  onRemoveDevice?: () => void;
 }) {
   const engaged = !!transform;
   const rotation = transform?.rotation ?? 0;
@@ -454,17 +597,22 @@ function ActiveElementPanel({
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-1 text-xs font-medium">
           {textElement && <Type className="h-3.5 w-3.5" />}
+          {focusElement && <Crop className="h-3.5 w-3.5" />}
           {label}
         </span>
-        {textElement ? (
+        {textElement || focusElement || onRemoveDevice ? (
           <Button
             type="button"
             variant="ghost"
             size="icon"
             className="h-6 w-6 hover:text-destructive"
-            onClick={onDeleteText}
-            title="Delete text element"
-            aria-label="Delete text element"
+            onClick={onRemoveDevice ? onRemoveDevice : focusElement ? onDeleteFocus : onDeleteText}
+            title={
+              onRemoveDevice
+                ? "Remove the second device"
+                : `Delete ${focusElement ? "crop layer" : "text element"}`
+            }
+            aria-label={`Delete ${focusElement ? "crop layer" : "text element"}`}
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
@@ -479,6 +627,16 @@ function ActiveElementPanel({
           locale={locale}
           onTextChange={onTextChange}
           onTextPatch={onTextPatch}
+        />
+      )}
+
+      {focusElement && (
+        <FocusElementPanel
+          element={focusElement}
+          appId={appId}
+          locale={locale}
+          fallbackSource={fallbackSource}
+          onPatch={onFocusPatch}
         />
       )}
 
@@ -525,6 +683,202 @@ function ActiveElementPanel({
   );
 }
 
+/**
+ * How many source pixels the crop actually has, versus how many it's being
+ * displayed across. Anything above ~1.3x is visibly soft, and no amount of
+ * sharpening recovers detail that was never captured — the fix is a
+ * higher-resolution source screenshot.
+ */
+function useCropResolution(
+  src: string,
+  cropWidthPct: number,
+  displayedWidthPx: number,
+): { sourcePx: number; displayedPx: number; upscale: number } | null {
+  const [naturalWidth, setNaturalWidth] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!src) {
+      setNaturalWidth(0);
+      return;
+    }
+    let cancelled = false;
+    const image = new Image();
+    image.onload = () => {
+      if (!cancelled) setNaturalWidth(image.naturalWidth);
+    };
+    image.onerror = () => {
+      if (!cancelled) setNaturalWidth(0);
+    };
+    image.src = src;
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
+
+  if (!naturalWidth) return null;
+  const sourcePx = Math.round((naturalWidth * cropWidthPct) / 100);
+  const displayedPx = Math.round(displayedWidthPx);
+  if (sourcePx <= 0 || displayedPx <= 0) return null;
+  return { sourcePx, displayedPx, upscale: displayedPx / sourcePx };
+}
+
+function FocusElementPanel({
+  element,
+  appId,
+  locale,
+  fallbackSource,
+  onPatch,
+}: {
+  element: ScreenshotFocusElement;
+  appId: string;
+  locale: string;
+  /** The slide's primary screenshot, used when the layer has no own source. */
+  fallbackSource: string;
+  onPatch: (patch: Partial<ScreenshotFocusElement>) => void;
+}) {
+  const crop = element.crop;
+  const resolvedSource = resolveScreenshot(element.source || fallbackSource, locale);
+  const resolution = useCropResolution(
+    img(resolvedSource) || resolvedSource,
+    crop.width,
+    element.transform.width,
+  );
+  function patchCrop(patch: Partial<ScreenshotFocusElement["crop"]>) {
+    const next = { ...crop, ...patch };
+    next.width = Math.max(2, Math.min(next.width, 100 - next.x));
+    next.height = Math.max(2, Math.min(next.height, 100 - next.y));
+    next.x = Math.max(0, Math.min(next.x, 100 - next.width));
+    next.y = Math.max(0, Math.min(next.y, 100 - next.height));
+    onPatch({ crop: next });
+  }
+  return (
+    <div className="space-y-2 rounded border bg-muted/30 p-2">
+      <p className="text-[10px] leading-relaxed text-muted-foreground">
+        Choose part of a screenshot, then move or resize it on the canvas.
+      </p>
+      <ScreenshotPicker
+        label="Image source"
+        appId={appId}
+        value={element.source || ""}
+        locale={locale}
+        onChange={(value) =>
+          onPatch({
+            source: value || undefined,
+            crop: value ? { x: 0, y: 0, width: 100, height: 100 } : element.crop,
+          })
+        }
+      />
+      <p className="text-[10px] text-muted-foreground">
+        Leave empty to use this screen&apos;s main screenshot.
+      </p>
+      <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+        <CropSlider label="Crop X" value={crop.x} max={98} step={0.1} onChange={(value) => patchCrop({ x: value })} />
+        <CropSlider label="Crop Y" value={crop.y} max={98} step={0.1} onChange={(value) => patchCrop({ y: value })} />
+        <CropSlider label="Width" value={crop.width} min={2} max={100 - crop.x} step={0.1} onChange={(value) => patchCrop({ width: value })} />
+        <CropSlider label="Height" value={crop.height} min={2} max={100 - crop.y} step={0.1} onChange={(value) => patchCrop({ height: value })} />
+      </div>
+
+      {resolution && (
+        <CropResolution
+          {...resolution}
+          onFitNative={() =>
+            onPatch({ transform: { ...element.transform, width: resolution.sourcePx } })
+          }
+        />
+      )}
+      <div className="grid grid-cols-[1fr_76px] gap-2">
+        <div className="space-y-1.5">
+          <CropSlider label="Corner radius" suffix="px" value={element.borderRadius ?? 34} min={0} max={120} onChange={(value) => onPatch({ borderRadius: value })} />
+          <CropSlider label="Border" suffix="px" value={element.borderWidth ?? 0} min={0} max={16} onChange={(value) => onPatch({ borderWidth: value })} />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-[11px] text-muted-foreground">Accent</Label>
+          <Input type="color" value={element.accentColor || "#E89070"} className="h-8 p-1" onChange={(event) => onPatch({ accentColor: event.target.value })} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CropResolution({
+  sourcePx,
+  displayedPx,
+  upscale,
+  onFitNative,
+}: {
+  sourcePx: number;
+  displayedPx: number;
+  upscale: number;
+  onFitNative: () => void;
+}) {
+  // 1.0x is pixel-for-pixel. Past ~1.3x softness starts showing on an export,
+  // which renders at full canvas size with none of the preview's downscaling.
+  const tone =
+    upscale <= 1.05
+      ? "text-muted-foreground"
+      : upscale <= 1.3
+        ? "text-amber-600 dark:text-amber-500"
+        : "text-destructive";
+  const verdict =
+    upscale <= 1.05 ? "sharp" : upscale <= 1.3 ? "slightly soft" : "will look soft";
+
+  return (
+    <div className="space-y-1 rounded border border-dashed bg-background/40 px-2 py-1.5">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-[10px] text-muted-foreground">Image quality</span>
+        <span className={`text-[11px] font-medium tabular-nums ${tone}`}>
+          {upscale.toFixed(2)}× · {verdict}
+        </span>
+      </div>
+      <p className="text-[10px] tabular-nums text-muted-foreground">
+        {sourcePx}px available for a {displayedPx}px layer
+      </p>
+      {upscale > 1.05 && (
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-7 w-full text-[10px]"
+            onClick={onFitNative}
+            title={`Resize the layer to ${sourcePx}px so every source pixel maps 1:1`}
+          >
+            Use original size ({sourcePx}px)
+          </Button>
+          <p className="text-[10px] leading-relaxed text-muted-foreground">
+            Larger layers may look soft. A higher-resolution upload will stay clearer.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
+function CropSlider({
+  label,
+  value,
+  min = 0,
+  max = 100,
+  step = 1,
+  suffix = "%",
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min?: number;
+  max?: number;
+  step?: number;
+  suffix?: string;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className="space-y-0.5">
+      <div className="flex justify-between text-[10px] text-muted-foreground"><span>{label}</span><span>{step < 1 ? value.toFixed(1) : Math.round(value)}{suffix}</span></div>
+      <input type="range" min={min} max={max} step={step} value={value} className="w-full" onChange={(event) => onChange(Number(event.target.value))} aria-label={label} />
+    </div>
+  );
+}
+
 function TextElementPanel({
   element,
   locale,
@@ -545,7 +899,7 @@ function TextElementPanel({
           value={text}
           rows={2}
           onChange={(event) => onTextChange(event.target.value)}
-          placeholder="Overlay text"
+          placeholder="Type your text"
         />
       </div>
       <div className="grid grid-cols-[1fr_76px] gap-2">
@@ -625,10 +979,12 @@ function LayerButton({
 
 function elementLabel(id: ElementId): string {
   if (isBuiltInElementId(id)) return ELEMENT_LABEL[id];
+  if (isFocusElementId(id)) return "Crop layer";
   return "Text";
 }
 
 function defaultZ(id: ElementId): number {
+  if (isFocusElementId(id)) return 8;
   if (isTextElementId(id)) return 5;
   if (id === "deviceSecondary") return 2;
   if (id === "device") return 3;

@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ANGLE_PRESETS, clampAngle, frameColorsFor, resolveFrame } from "@/lib/frames";
+import { ANGLE_PRESETS, clampAngle, clampThickness, frameColorsFor, resolveFrame } from "@/lib/frames";
 import type { Device, DeviceFrameStyle, Slide, SlideFrame } from "@/lib/types";
 
 const THEME_FINISH = "__theme__";
@@ -18,31 +18,46 @@ const THEME_FINISH = "__theme__";
 type Props = {
   slide: Slide;
   device: Device;
+  target?: "primary" | "secondary";
   onChange: (patch: Partial<Slide>) => void;
 };
 
 /** Flat vs 3D frame, body finish, and Figma-style angle control. */
-export function FrameControls({ slide, device, onChange }: Props) {
-  const f = resolveFrame(slide.frame);
+export function FrameControls({ slide, device, target = "primary", onChange }: Props) {
+  const sourceFrame = target === "secondary" ? slide.frameSecondary ?? slide.frame : slide.frame;
+  const f = resolveFrame(sourceFrame);
   const colors = frameColorsFor(device);
   const is3d = f.style === "3d";
 
   function patch(next: Partial<SlideFrame>) {
+    if (target === "secondary") {
+      onChange({ frameSecondary: { ...sourceFrame, ...next } });
+      return;
+    }
     onChange({ frame: { ...slide.frame, ...next } });
   }
 
   return (
     <div className="space-y-3 rounded-md border bg-muted/30 p-3">
       <div>
-        <Label className="text-xs font-semibold">Device frame</Label>
+        <Label className="text-xs font-semibold">
+          {target === "secondary" ? "Second device frame" : "Device frame"}
+        </Label>
         <p className="text-[11px] text-muted-foreground">
-          Flat keeps the original mockup. 3D tilts it in perspective.
+          Flat uses the original mockup. 3D renders a real WebGL device model.
         </p>
       </div>
 
       <Tabs
         value={f.style}
-        onValueChange={(v) => patch({ style: v as DeviceFrameStyle })}
+        onValueChange={(v) => {
+          const style = v as DeviceFrameStyle;
+          patch(
+            style === "3d" && f.rotateX === 0 && f.rotateY === 0
+              ? { style, rotateX: 8, rotateY: -18 }
+              : { style },
+          );
+        }}
       >
         <TabsList className="h-8 w-full p-0.5">
           <TabsTrigger value="flat" className="h-7 flex-1 text-xs">
@@ -114,6 +129,26 @@ export function FrameControls({ slide, device, onChange }: Props) {
             value={f.rotateX}
             onChange={(v) => patch({ rotateX: clampAngle(v) })}
           />
+
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <Label className="text-[11px] text-muted-foreground">Body thickness</Label>
+              <span className="text-[11px] tabular-nums text-muted-foreground">{f.thickness}px</span>
+            </div>
+            <input
+              type="range"
+              min={12}
+              max={72}
+              step={2}
+              value={f.thickness}
+              className="w-full"
+              onChange={(e) => patch({ thickness: clampThickness(Number(e.target.value)) })}
+              aria-label="Device body thickness"
+            />
+            <p className="text-[10px] text-muted-foreground">
+              Controls the physical depth of the metal body.
+            </p>
+          </div>
 
           <div className="space-y-1">
             <div className="flex items-center justify-between">

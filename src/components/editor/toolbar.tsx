@@ -1,15 +1,22 @@
 "use client";
 import * as React from "react";
+// Icon vocabulary is deliberately split: curved arrows (Undo2/Redo2) mean
+// history and nothing else, so save mode and "reset to defaults" — which used
+// to borrow the same circular-arrow glyph — now read as what they are.
 import {
   AlertTriangle,
   Check,
   Cloud,
   Download,
+  Eraser,
+  Hand,
   Palette,
-  RefreshCw,
-  RotateCcw,
+  Redo2,
   Save,
   UnfoldHorizontal,
+  Undo2,
+  X,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,21 +38,24 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DEVICE_LABEL,
   resolveThemes,
-  supportsLandscape,
 } from "@/lib/constants";
 import { detectPlatform } from "@/lib/defaults";
-import { slugifyAppId, type AppSummary } from "@/lib/apps";
+import { slugifyAppId, type AppSummary, type EditorMode } from "@/lib/apps";
 import { PaletteDialog } from "./palette-dialog";
-import type { Device, Orientation, SaveMode, Theme } from "@/lib/types";
+import { ThemeToggle } from "./theme-toggle";
+import type { Device, SaveMode, Theme } from "@/lib/types";
 
 // Sentinel value for the "New app…" row inside the app <Select>.
 const NEW_APP_VALUE = "__new_app__";
 
 type Props = {
   apps: AppSummary[];
+  /** Where projects live — changes what the save and reset copy can promise. */
+  mode: EditorMode;
   appId: string;
   onSwitchApp: (id: string) => void;
   onCreateApp: (name: string) => Promise<{ ok: true; id: string } | { ok: false; error: string }>;
+  onDeleteApp: (id: string) => Promise<{ ok: true } | { ok: false; error: string }>;
   switching: boolean;
   themeId: string;
   setThemeId: (v: string) => void;
@@ -63,8 +73,10 @@ type Props = {
   locales: string[];
   device: Device;
   setDevice: (v: Device) => void;
-  orientation: Orientation;
-  setOrientation: (v: Orientation) => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
   onExport: () => void;
   onResetAll: () => void;
   onResetDevice: () => void;
@@ -80,14 +92,34 @@ type Props = {
 };
 
 export function Toolbar(props: Props) {
+  const hosted = props.mode === "hosted";
+  // Where a save actually lands, for every tooltip that needs to say so.
+  const store = hosted ? "this browser" : "the project file";
   const platform = detectPlatform(props.device);
-  const hasLandscape = supportsLandscape(props.device);
   const [resetOpen, setResetOpen] = React.useState(false);
   const [newAppOpen, setNewAppOpen] = React.useState(false);
   const [paletteOpen, setPaletteOpen] = React.useState(false);
   const [newAppName, setNewAppName] = React.useState("");
   const [creating, setCreating] = React.useState(false);
   const [createError, setCreateError] = React.useState<string | null>(null);
+  const [appSelectOpen, setAppSelectOpen] = React.useState(false);
+  // The app queued for deletion — also what keeps the confirm dialog open.
+  const [pendingDelete, setPendingDelete] = React.useState<AppSummary | null>(null);
+  const [deleting, setDeleting] = React.useState(false);
+  const [deleteError, setDeleteError] = React.useState<string | null>(null);
+
+  // Nothing to fall back to if you remove the last one, so the X disappears.
+  const canRemoveApps = props.apps.length > 1;
+
+  async function confirmDelete() {
+    if (!pendingDelete || deleting) return;
+    setDeleting(true);
+    setDeleteError(null);
+    const result = await props.onDeleteApp(pendingDelete.id);
+    setDeleting(false);
+    if (result.ok) setPendingDelete(null);
+    else setDeleteError(result.error);
+  }
 
   const themeOptions = React.useMemo(
     () => Object.values(resolveThemes(props.appThemes)),
@@ -125,6 +157,8 @@ export function Toolbar(props: Props) {
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 border-b bg-card/40 px-4 py-2">
       <Select
+        open={appSelectOpen}
+        onOpenChange={setAppSelectOpen}
         value={props.appId}
         onValueChange={(v) => {
           if (props.busy || props.switching) return;
@@ -146,7 +180,47 @@ export function Toolbar(props: Props) {
         </SelectTrigger>
         <SelectContent>
           {props.apps.map((app) => (
-            <SelectItem key={app.id} value={app.id}>
+            <SelectItem
+              key={app.id}
+              value={app.id}
+              className="group/app"
+              action={
+                canRemoveApps ? (
+                  // Not a <button>: Radix commits the row on pointer-up, so
+                  // this has to swallow pointer events rather than sit inside
+                  // them. role/tabIndex/onKeyDown restore what that costs.
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Remove ${app.appName}`}
+                    title={`Remove ${app.appName}`}
+                    className="absolute right-1.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring group-hover/app:opacity-60 hover:!opacity-100"
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onPointerUp={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setAppSelectOpen(false);
+                      setDeleteError(null);
+                      setPendingDelete(app);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key !== "Enter" && e.key !== " ") return;
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setAppSelectOpen(false);
+                      setDeleteError(null);
+                      setPendingDelete(app);
+                    }}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </span>
+                ) : undefined
+              }
+            >
               {app.appName}
             </SelectItem>
           ))}
@@ -270,21 +344,8 @@ export function Toolbar(props: Props) {
         </SelectContent>
       </Select>
 
-      {hasLandscape && (
-        <Select
-          value={props.orientation}
-          onValueChange={(v) => props.setOrientation(v as Orientation)}
-          disabled={props.busy}
-        >
-          <SelectTrigger className="h-8 w-32 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="portrait">Portrait</SelectItem>
-            <SelectItem value="landscape">Landscape</SelectItem>
-          </SelectContent>
-        </Select>
-      )}
+      {/* Portrait/landscape now lives in the inspector's Device frame panel,
+          next to the other controls that change how the device is presented. */}
 
       {showLocale && (
         <Select value={props.locale} onValueChange={props.setLocale} disabled={props.busy}>
@@ -302,12 +363,42 @@ export function Toolbar(props: Props) {
       )}
 
       <div className="ml-auto flex shrink-0 items-center gap-2">
+        <div className="flex items-center">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={props.onUndo}
+            disabled={!props.canUndo || props.busy}
+            title="Undo (⌘/Ctrl+Z)"
+            aria-label="Undo"
+          >
+            <Undo2 className="h-4 w-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={props.onRedo}
+            disabled={!props.canRedo || props.busy}
+            title="Redo (⌘/Ctrl+Shift+Z)"
+            aria-label="Redo"
+          >
+            <Redo2 className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <span aria-hidden className="h-5 w-px bg-border" />
+
         <SaveStatus
           savedAt={props.savedAt}
           saveError={props.saveError}
           dirty={props.dirty}
           saving={props.saving}
           saveMode={props.saveMode}
+          store={store}
         />
 
         <Button
@@ -319,12 +410,16 @@ export function Toolbar(props: Props) {
           aria-pressed={props.saveMode === "auto"}
           title={
             props.saveMode === "auto"
-              ? "Auto-save on — every edit is written to the project file"
+              ? `Auto-save on — every edit is written to ${store}`
               : "Manual save — nothing is written until you click Save"
           }
           disabled={props.busy}
         >
-          <RefreshCw className="h-3.5 w-3.5" />
+          {props.saveMode === "auto" ? (
+            <Zap className="h-3.5 w-3.5" />
+          ) : (
+            <Hand className="h-3.5 w-3.5" />
+          )}
           {props.saveMode === "auto" ? "Auto" : "Manual"}
         </Button>
 
@@ -336,7 +431,7 @@ export function Toolbar(props: Props) {
             className="h-8 gap-1.5"
             onClick={props.onSave}
             disabled={!props.dirty || props.saving || props.busy}
-            title="Save this app's deck to its project file (⌘/Ctrl+S)"
+            title={`Save this app's deck to ${store} (⌘/Ctrl+S)`}
           >
             <Save className="h-3.5 w-3.5" />
             {props.saving ? "Saving…" : "Save"}
@@ -344,6 +439,8 @@ export function Toolbar(props: Props) {
         )}
 
         <span aria-hidden className="h-5 w-px bg-border" />
+        {/* Editor chrome only — the slide palette is the Theme select above. */}
+        <ThemeToggle />
         <Button
           variant="ghost"
           size="icon"
@@ -353,7 +450,7 @@ export function Toolbar(props: Props) {
           aria-label="Reset"
           disabled={props.busy}
         >
-          <RotateCcw className="h-4 w-4" />
+          <Eraser className="h-4 w-4" />
         </Button>
         <Button
           onClick={props.onExport}
@@ -372,7 +469,16 @@ export function Toolbar(props: Props) {
           <DialogHeader>
             <DialogTitle>Reset {props.appName} to defaults?</DialogTitle>
             <DialogDescription>
-              Choose whether to reset just <span className="font-medium">{deviceLabel}</span> or every device deck for this app. Canvas edits and copy will be lost. Other apps are untouched, and the files in <span className="font-mono text-[11px]">public/screenshots/{props.appId}/</span> stay on disk.
+              Choose whether to reset just <span className="font-medium">{deviceLabel}</span> or every device deck for this app. Canvas edits and copy will be lost. Other apps are untouched, and{" "}
+              {hosted ? (
+                <>your uploaded screenshots stay in this browser.</>
+              ) : (
+                <>
+                  the files in{" "}
+                  <span className="font-mono text-[11px]">public/screenshots/{props.appId}/</span>{" "}
+                  stay on disk.
+                </>
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-wrap justify-end gap-2">
@@ -413,6 +519,58 @@ export function Toolbar(props: Props) {
       />
 
       <Dialog
+        open={!!pendingDelete}
+        onOpenChange={(open) => {
+          if (open || deleting) return;
+          setPendingDelete(null);
+          setDeleteError(null);
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Remove {pendingDelete?.appName}?</DialogTitle>
+            <DialogDescription>
+              {hosted ? (
+                <>
+                  Deletes this app&apos;s deck from this browser — its screens, copy, and palettes.
+                  Screenshots you uploaded stay in browser storage, and other apps are untouched.
+                </>
+              ) : (
+                <>
+                  Deletes{" "}
+                  <span className="font-mono text-[11px]">projects/{pendingDelete?.id}.json</span> —
+                  this app&apos;s screens, copy, and palettes. The images in{" "}
+                  <span className="font-mono text-[11px]">
+                    public/screenshots/{pendingDelete?.id}/
+                  </span>{" "}
+                  are kept, so nothing irreplaceable is lost. Other apps are untouched.
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          {deleteError && <p className="text-[11px] text-destructive">{deleteError}</p>}
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={deleting}
+              onClick={() => setPendingDelete(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={deleting}
+              onClick={() => void confirmDelete()}
+            >
+              {deleting ? "Removing…" : "Remove app"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
         open={newAppOpen}
         onOpenChange={(open) => {
           setNewAppOpen(open);
@@ -426,8 +584,26 @@ export function Toolbar(props: Props) {
           <DialogHeader>
             <DialogTitle>New app</DialogTitle>
             <DialogDescription>
-              Creates <span className="font-mono text-[11px]">projects/{slugPreview(newAppName)}.json</span> and{" "}
-              <span className="font-mono text-[11px]">public/screenshots/{slugPreview(newAppName)}/</span> with a blank deck. Nothing from the current app carries over.
+              {hosted ? (
+                <>
+                  Creates a blank deck stored in this browser under{" "}
+                  <span className="font-mono text-[11px]">{slugPreview(newAppName)}</span>. It
+                  isn&apos;t sent anywhere, and clearing site data removes it. Nothing from the
+                  current app carries over.
+                </>
+              ) : (
+                <>
+                  Creates{" "}
+                  <span className="font-mono text-[11px]">
+                    projects/{slugPreview(newAppName)}.json
+                  </span>{" "}
+                  and{" "}
+                  <span className="font-mono text-[11px]">
+                    public/screenshots/{slugPreview(newAppName)}/
+                  </span>{" "}
+                  with a blank deck. Nothing from the current app carries over.
+                </>
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
@@ -475,12 +651,15 @@ function SaveStatus({
   dirty,
   saving,
   saveMode,
+  store,
 }: {
   savedAt: number | null;
   saveError: string | null;
   dirty: boolean;
   saving: boolean;
   saveMode: SaveMode;
+  /** Human-readable name for wherever saves land, e.g. "this browser". */
+  store: string;
 }) {
   const [, setTick] = React.useState(0);
   React.useEffect(() => {
@@ -513,7 +692,7 @@ function SaveStatus({
         className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-500"
         title={
           saveMode === "manual"
-            ? "Edits are in memory only — the project file is untouched"
+            ? `Edits are in memory only — ${store} is untouched`
             : "Auto-save is pending"
         }
       >

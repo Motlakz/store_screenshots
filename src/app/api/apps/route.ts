@@ -10,6 +10,7 @@ import {
   type AppSummary,
 } from "@/lib/apps";
 import { makeDefaultProject } from "@/lib/defaults";
+import { HOSTED_ERROR, editorMode } from "@/lib/mode";
 
 export const dynamic = "force-dynamic";
 
@@ -86,10 +87,20 @@ async function listApps(): Promise<AppSummary[]> {
   return apps.sort((a, b) => a.appName.localeCompare(b.appName));
 }
 
+// The client reads `mode` from here and configures its whole persistence layer
+// from it, so this is also the one place that tells the browser where its
+// projects live.
 export async function GET() {
   try {
+    const mode = await editorMode();
+    if (mode === "hosted") {
+      // Deliberately does not read projects/ at all. The bundle still contains
+      // whatever decks were committed; not enumerating them is what keeps them
+      // off a public deployment.
+      return NextResponse.json({ ok: true, mode, apps: [] });
+    }
     await migrateLegacyProject();
-    return NextResponse.json({ ok: true, apps: await listApps() });
+    return NextResponse.json({ ok: true, mode, apps: await listApps() });
   } catch (e) {
     return NextResponse.json(
       { ok: false, error: e instanceof Error ? e.message : String(e) },
@@ -98,7 +109,41 @@ export async function GET() {
   }
 }
 
+/**
+ * Removes an app by deleting its project file.
+ *
+ * `public/screenshots/<id>/` is deliberately left alone. The deck is a few KB
+ * of JSON that the editor can rebuild; the screenshots are the irreplaceable
+ * part, often the only copy on the machine. Deleting them behind a dropdown X
+ * is not a risk worth taking, so the confirm dialog says they stay.
+ */
+export async function DELETE(req: Request) {
+  if ((await editorMode()) === "hosted") {
+    return NextResponse.json({ ok: false, error: HOSTED_ERROR }, { status: 503 });
+  }
+  const raw = new URL(req.url).searchParams.get("app");
+  if (!isValidAppId(raw)) {
+    return NextResponse.json({ ok: false, error: "Missing or invalid app id" }, { status: 400 });
+  }
+  try {
+    await fs.unlink(projectPath(raw));
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    // Already gone is the outcome the caller wanted.
+    if ((e as NodeJS.ErrnoException).code === "ENOENT") {
+      return NextResponse.json({ ok: true });
+    }
+    return NextResponse.json(
+      { ok: false, error: e instanceof Error ? e.message : String(e) },
+      { status: 500 },
+    );
+  }
+}
+
 export async function POST(req: Request) {
+  if ((await editorMode()) === "hosted") {
+    return NextResponse.json({ ok: false, error: HOSTED_ERROR }, { status: 503 });
+  }
   let body: { id?: unknown; appName?: unknown };
   try {
     body = (await req.json()) as { id?: unknown; appName?: unknown };

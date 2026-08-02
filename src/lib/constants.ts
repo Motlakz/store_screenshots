@@ -277,6 +277,10 @@ export const ACTIVE_APP_STORAGE_KEY = "app-store-screenshots:active-app";
 // lives per browser rather than in any app's project file.
 export const SAVE_MODE_STORAGE_KEY = "app-store-screenshots:save-mode";
 
+// Hosted mode only: the list of apps this browser owns. Local mode derives the
+// same list from the filenames in projects/, so it never reads this.
+export const LOCAL_APPS_STORAGE_KEY = "app-store-screenshots:apps";
+
 export const PROJECT_SCHEMA_VERSION = 2;
 
 export const DEVICE_LABEL: Record<Device, string> = {

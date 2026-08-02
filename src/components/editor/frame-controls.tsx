@@ -10,8 +10,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supportsLandscape } from "@/lib/constants";
 import { ANGLE_PRESETS, clampAngle, clampThickness, frameColorsFor, resolveFrame } from "@/lib/frames";
-import type { Device, DeviceFrameStyle, Slide, SlideFrame } from "@/lib/types";
+import type { Device, DeviceFrameStyle, Orientation, Slide, SlideFrame } from "@/lib/types";
 
 const THEME_FINISH = "__theme__";
 
@@ -20,14 +21,31 @@ type Props = {
   device: Device;
   target?: "primary" | "secondary";
   onChange: (patch: Partial<Slide>) => void;
+  /**
+   * Portrait/landscape. Unlike everything else in this panel it is deck-wide,
+   * not per-screen — it sets the canvas and export dimensions for every screen
+   * on this device. Passed only for the primary frame, and only when the
+   * device has a landscape size to export.
+   */
+  orientation?: Orientation;
+  onOrientationChange?: (v: Orientation) => void;
 };
 
 /** Flat vs 3D frame, body finish, and Figma-style angle control. */
-export function FrameControls({ slide, device, target = "primary", onChange }: Props) {
+export function FrameControls({
+  slide,
+  device,
+  target = "primary",
+  onChange,
+  orientation,
+  onOrientationChange,
+}: Props) {
   const sourceFrame = target === "secondary" ? slide.frameSecondary ?? slide.frame : slide.frame;
   const f = resolveFrame(sourceFrame);
   const colors = frameColorsFor(device);
   const is3d = f.style === "3d";
+  const showOrientation =
+    target === "primary" && !!orientation && !!onOrientationChange && supportsLandscape(device);
 
   function patch(next: Partial<SlideFrame>) {
     if (target === "secondary") {
@@ -68,6 +86,28 @@ export function FrameControls({ slide, device, target = "primary", onChange }: P
           </TabsTrigger>
         </TabsList>
       </Tabs>
+
+      {showOrientation && (
+        <div className="space-y-1">
+          <Label className="text-[11px] text-muted-foreground">Rotation</Label>
+          <Tabs
+            value={orientation}
+            onValueChange={(v) => onOrientationChange?.(v as Orientation)}
+          >
+            <TabsList className="h-8 w-full p-0.5">
+              <TabsTrigger value="portrait" className="h-7 flex-1 text-xs">
+                Portrait
+              </TabsTrigger>
+              <TabsTrigger value="landscape" className="h-7 flex-1 text-xs">
+                Landscape
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <p className="text-[10px] text-muted-foreground">
+            Applies to every screen on this device, and to the sizes exported for it.
+          </p>
+        </div>
+      )}
 
       <div className="space-y-1">
         <Label className="text-[11px] text-muted-foreground">Finish</Label>

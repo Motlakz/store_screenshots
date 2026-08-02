@@ -1,6 +1,8 @@
 "use client";
 import * as React from "react";
-import { Check, RotateCcw } from "lucide-react";
+// Link2, not a circular arrow: this re-links the screen to the app theme it
+// inherits from. Curved arrows are reserved for undo/redo in the toolbar.
+import { Check, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -96,7 +98,7 @@ export function ScreenStyle({ slide, theme, slideIndex, onChange }: Props) {
               onClick={() => onChange({ background: undefined })}
               title="Fall back to the app's theme background"
             >
-              <RotateCcw className="h-3 w-3" />
+              <Link2 className="h-3 w-3" />
               Use theme
             </Button>
           )}

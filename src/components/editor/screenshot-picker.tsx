@@ -3,6 +3,7 @@ import * as React from "react";
 import { Image as ImageIcon, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { didFail, img, setImage } from "@/lib/image-cache";
+import { isIdbPath, putImage } from "@/lib/image-store";
 import { resolveScreenshot } from "@/lib/locale";
 
 type Props = {
@@ -67,24 +68,27 @@ export function ScreenshotPicker({ label, appId, value, locale, onChange }: Prop
       setError("Failed to read file");
       return;
     }
-    // Try to persist to disk so the screenshot survives a git clone.
-    // If the upload endpoint is unreachable (e.g. static export), fall back
-    // to the inline data URI — still works in the current session.
+    // Local mode writes the file to disk. Hosted mode has no writable
+    // filesystem, so /api/upload answers 503 and we keep the image in the
+    // browser's IndexedDB instead — the deck then stores a short `idb:` key
+    // rather than a multi-megabyte data URL that would blow the localStorage
+    // quota. Inlining the data URL is the last resort, for when IndexedDB is
+    // unavailable too (private-mode Safari); that copy is session-only.
     setUploading(true);
     const uploadedPath = await uploadDataUrl(dataUrl, appId);
+    const storedPath = uploadedPath ?? (await putImage(file));
     setUploading(false);
-    if (uploadedPath) {
-      setImage(uploadedPath, dataUrl);
-      onChange(uploadedPath);
-    } else {
-      setImage(dataUrl, dataUrl);
-      onChange(dataUrl);
-    }
+    const value = storedPath ?? dataUrl;
+    setImage(value, dataUrl);
+    onChange(value);
   }
 
   const hasValue = !!value;
   const isData = hasValue && value.startsWith("data:");
-  const resolvedValue = hasValue && !isData && locale ? resolveScreenshot(value, locale) : value;
+  const inBrowser = hasValue && isIdbPath(value);
+  // Only a real path carries a {locale} placeholder worth substituting.
+  const resolvedValue =
+    hasValue && !isData && !inBrowser && locale ? resolveScreenshot(value, locale) : value;
   const previewSrc = isData ? value : hasValue ? img(resolvedValue) : "";
   // Only flag "image not found" when the path is a real URL that we tried and failed.
   const knownMissing = hasValue && !isData && didFail(resolvedValue);
@@ -92,9 +96,11 @@ export function ScreenshotPicker({ label, appId, value, locale, onChange }: Prop
     ? "saving…"
     : !hasValue
       ? "drop image, or click Pick"
-      : isData
-        ? "uploaded image (not on disk)"
-        : value.replace(/^.*\/(?=[^/]+\/[^/]+$)/, "…/");
+      : inBrowser
+        ? "stored in this browser"
+        : isData
+          ? "uploaded image (not on disk)"
+          : value.replace(/^.*\/(?=[^/]+\/[^/]+$)/, "…/");
 
   return (
     <div className="space-y-1">

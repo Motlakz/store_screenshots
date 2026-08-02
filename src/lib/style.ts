@@ -15,6 +15,8 @@ import type {
 export const FONTS = {
   sans: "var(--font-inter), Inter, system-ui, sans-serif",
   rounded: "var(--font-quicksand), Quicksand, Inter, system-ui, sans-serif",
+  display: "var(--font-montserrat), Montserrat, Inter, system-ui, sans-serif",
+  mono: "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace",
   script: "var(--font-caveat), Caveat, 'Segoe Script', cursive",
   serif: "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
   slab: "var(--font-alfa), 'Alfa Slab One', Cooper Black, Georgia, serif",
@@ -28,12 +30,14 @@ export const FONTS = {
 export const FONT_CHOICES: Array<{ id: string; label: string; family: string; note?: string }> = [
   { id: "sans", label: "Inter", family: FONTS.sans, note: "Neutral sans" },
   { id: "rounded", label: "Quicksand", family: FONTS.rounded, note: "Soft rounded sans" },
+  { id: "display", label: "Montserrat", family: FONTS.display, note: "Confident geometric display" },
+  { id: "brand-mono", label: "JetBrains Mono", family: FONTS.mono, note: "Timers and field-note labels" },
   { id: "serif", label: "Instrument Serif", family: FONTS.serif, note: "Thin editorial serif" },
   { id: "slab", label: "Alfa Slab One", family: FONTS.slab, note: "Heavy display slab" },
   { id: "script", label: "Caveat", family: FONTS.script, note: "Brush-pen script" },
   { id: "system", label: "System UI", family: "system-ui, -apple-system, sans-serif" },
   { id: "georgia", label: "Georgia", family: "Georgia, 'Times New Roman', serif" },
-  { id: "mono", label: "Monospace", family: "ui-monospace, SFMono-Regular, Menlo, monospace" },
+  { id: "mono", label: "System monospace", family: "ui-monospace, SFMono-Regular, Menlo, monospace" },
 ];
 
 export function fontById(id: string | undefined): { id: string; label: string; family: string } | null {

@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Plus } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Device, Orientation, Slide, Theme } from "@/lib/types";
 import { newSlide } from "@/lib/defaults";
@@ -32,6 +32,8 @@ type Props = {
   appIcon?: string;
   connectedCanvas: boolean;
   disabled?: boolean;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
   onReorder: (next: Slide[]) => void;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
@@ -50,12 +52,17 @@ export function Sidebar({
   appIcon,
   connectedCanvas,
   disabled,
+  collapsed,
+  onToggleCollapse,
   onReorder,
   onSelect,
   onDelete,
   onDuplicate,
   onAdd,
 }: Props) {
+  const addSlide = () =>
+    onAdd(newSlide(device === "feature-graphic" ? "feature-graphic" : "device-bottom"));
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -70,13 +77,67 @@ export function Sidebar({
     onReorder(arrayMove(slides, oldIdx, newIdx));
   };
 
+  // Collapsed: a rail wide enough for the two things worth reaching for
+  // without the panel — bring it back, and add a screen. Horizontal on narrow
+  // screens, where the panel is a strip above the canvas rather than beside it.
+  if (collapsed) {
+    return (
+      <div className="flex h-full w-full items-center gap-1 px-1.5 py-1.5 md:flex-col md:justify-start md:px-0 md:py-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0"
+          onClick={onToggleCollapse}
+          title="Show screens (⌘/Ctrl+B)"
+          aria-label="Show screens panel"
+          aria-expanded={false}
+        >
+          <PanelLeftOpen className="h-4 w-4" />
+        </Button>
+        <span
+          className="text-[11px] font-semibold tabular-nums text-muted-foreground md:[writing-mode:vertical-rl]"
+          title={`${slides.length} screen${slides.length === 1 ? "" : "s"}`}
+        >
+          {slides.length}
+        </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0 md:mt-auto"
+          onClick={addSlide}
+          disabled={disabled}
+          title="Add screen"
+          aria-label="Add screen"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b p-3">
-        <h2 className="text-sm font-semibold">Screens</h2>
-        <p className="text-xs text-muted-foreground">
-          {slides.length} screen{slides.length === 1 ? "" : "s"} · drag to reorder
-        </p>
+      <div className="flex items-start justify-between gap-2 border-b p-3">
+        <div className="min-w-0">
+          <h2 className="text-sm font-semibold">Screens</h2>
+          <p className="text-xs text-muted-foreground">
+            {slides.length} screen{slides.length === 1 ? "" : "s"} · drag to reorder
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="-mr-1 h-7 w-7 shrink-0"
+          onClick={onToggleCollapse}
+          title="Hide screens (⌘/Ctrl+B)"
+          aria-label="Hide screens panel"
+          aria-expanded
+        >
+          <PanelLeftClose className="h-4 w-4" />
+        </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-2">
@@ -120,7 +181,7 @@ export function Sidebar({
           type="button"
           className="w-full"
           variant="default"
-          onClick={() => onAdd(newSlide(device === "feature-graphic" ? "feature-graphic" : "device-bottom"))}
+          onClick={addSlide}
           disabled={disabled}
         >
           <Plus className="h-4 w-4" /> Add screen

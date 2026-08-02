@@ -182,6 +182,8 @@ export type ThemeDecor = {
   motifColor?: string;
   /** SpeakDiary's bespoke per-slide illustration set. */
   dreamy?: boolean;
+  /** BellyClock's purposeful physiology field-note diagrams (never random doodles). */
+  bellyclock?: boolean;
   /** Lowercase corner wordmark, editorial style. */
   wordmark?: boolean;
 };

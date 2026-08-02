@@ -26,13 +26,18 @@
     --input: 240 9% 90%;
     --ring: 240 6% 62%;
     --radius: 0.625rem;
+    color-scheme: light;
   }
 
   /* Dark palette. Applied two ways:
-     - `.dark` on <html>, for an explicit in-app choice
-     - the OS preference below, when nothing has been chosen
+     - `.dark` on <html>, which is what the toolbar's theme toggle writes (see
+       lib/theme-mode.ts — even "system" resolves to an explicit class, so
+       Tailwind's class-based `dark:` variants stay in step with these tokens)
+     - the OS preference below, for the first paint before the init script runs
+       and for anyone browsing with JavaScript off
      Keep the two blocks in sync — same tokens, same values. */
   .dark {
+    color-scheme: dark;
     --background: 240 12% 5%;
     --foreground: 240 12% 96%;
     --card: 240 12% 5%;
@@ -59,6 +64,7 @@
      works before (or without) any JavaScript. */
   @media (prefers-color-scheme: dark) {
     :root:not(.light) {
+      color-scheme: dark;
       --background: 240 12% 5%;
       --foreground: 240 12% 96%;
       --card: 240 12% 5%;
@@ -96,6 +102,97 @@
     content: attr(data-placeholder);
     opacity: 0.4;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Scrollbars
+
+   The native Windows/Chrome scrollbar paints an opaque grey stripe through the
+   editor chrome and ignores the theme entirely. These rules replace it with a
+   slim, rounded thumb drawn from the same tokens as everything else, so it
+   follows the toggle in the toolbar without any extra wiring.
+
+   Two engines, two mechanisms, and they conflict: Chromium 121+ supports the
+   standard `scrollbar-width`/`scrollbar-color` properties and *ignores* the
+   ::-webkit-scrollbar pseudo-elements whenever either one is set. So the
+   standard properties are fenced behind a feature query that only Firefox
+   passes, and Chromium/Safari get the richer pseudo-element treatment.
+   --------------------------------------------------------------------------- */
+
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+/* No track, no corner block, no stepper arrows — just the thumb floating over
+   whatever is behind it. */
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-thumb {
+  /* A transparent border clipped to the content box insets the thumb inside
+     the gutter, which is what makes it read as a floating pill rather than a
+     full-width bar. Padding does nothing on this pseudo-element. */
+  background-color: hsl(var(--muted-foreground) / 0.3);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--muted-foreground) / 0.5);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: hsl(var(--muted-foreground) / 0.68);
+}
+
+/* Dark mode's --muted-foreground is a light grey, so the same alphas glare.
+   Dial them back to match the weight of the light-mode thumb. */
+.dark ::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--muted-foreground) / 0.22);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--muted-foreground) / 0.4);
+}
+.dark ::-webkit-scrollbar-thumb:active {
+  background-color: hsl(var(--muted-foreground) / 0.55);
+}
+/* Same fallback the tokens use: OS-dark before the init script stamps a class. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.22);
+  }
+  :root:not(.light) ::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.4);
+  }
+  :root:not(.light) ::-webkit-scrollbar-thumb:active {
+    background-color: hsl(var(--muted-foreground) / 0.55);
+  }
+}
+
+/* Escape hatch: hide the bar entirely where the UI already offers its own way
+   to move (drag, arrow keys, click-to-focus). */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 /* Lift under the canvas. A slate shadow reads as mud on a dark backdrop, so

@@ -49,3 +49,14 @@ export type AppSummary = {
   id: string;
   appName: string;
 };
+
+/**
+ * Where this instance keeps projects.
+ *
+ * - `local`  — `projects/<id>.json` on disk, the editor's original model.
+ * - `hosted` — the browser. Nothing is read from or written to `projects/`, so
+ *   a public deployment shows a visitor their own apps and none of yours.
+ *
+ * Decided server-side by lib/mode.ts and handed to the client by /api/apps.
+ */
+export type EditorMode = "local" | "hosted";

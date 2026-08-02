@@ -2,11 +2,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ACTIVE_APP_STORAGE_KEY,
+  LOCAL_APPS_STORAGE_KEY,
   PROJECT_SCHEMA_VERSION,
   SAVE_MODE_STORAGE_KEY,
   storageKey,
 } from "./constants";
-import { DEFAULT_APP_ID, isValidAppId, type AppSummary } from "./apps";
+import {
+  DEFAULT_APP_ID,
+  isValidAppId,
+  slugifyAppId,
+  titleFromAppId,
+  type AppSummary,
+  type EditorMode,
+} from "./apps";
 import { DEFAULT_PROJECT, makeDefaultProject } from "./defaults";
 import { coerceLocalized } from "./locale";
 import type {
@@ -20,7 +28,8 @@ import type {
 } from "./types";
 
 const HISTORY_LIMIT = 50;
-// Coalesce rapid edits (typing, slider drags) into a single undo step.
+// How long a coalescing key stays open. Two edits sharing a key inside this
+// window are the same gesture; past it, the gesture is over.
 const COALESCE_MS = 500;
 // Debounce file/localStorage writes — frequent enough to feel instant, infrequent enough not to thrash disk.
 const SAVE_DEBOUNCE_MS = 600;
@@ -179,16 +188,61 @@ async function loadFromFile(
   }
 }
 
-async function fetchApps(): Promise<AppSummary[]> {
+/**
+ * Discovers both the app list and which persistence model this instance uses.
+ * A server that can't tell us falls back to hosted: refusing to reach for
+ * endpoints that may not work beats erroring on every save.
+ */
+async function fetchAppIndex(): Promise<{ mode: EditorMode; apps: AppSummary[] }> {
   try {
     const resp = await fetch("/api/apps", { cache: "no-store" });
-    if (!resp.ok) return [];
-    const json = (await resp.json()) as { ok: boolean; apps?: AppSummary[] };
-    return json.ok && Array.isArray(json.apps) ? json.apps : [];
+    if (!resp.ok) return { mode: "hosted", apps: [] };
+    const json = (await resp.json()) as {
+      ok: boolean;
+      mode?: EditorMode;
+      apps?: AppSummary[];
+    };
+    const mode: EditorMode = json.mode === "local" ? "local" : "hosted";
+    return { mode, apps: json.ok && Array.isArray(json.apps) ? json.apps : [] };
+  } catch {
+    return { mode: "hosted", apps: [] };
+  }
+}
+
+// ---------- Hosted-mode app registry ----------
+// In local mode the apps are whatever files sit in projects/. With no server
+// writing files, the browser has to keep the list itself.
+
+function readLocalApps(): AppSummary[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(LOCAL_APPS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((a): a is AppSummary => {
+        if (!a || typeof a !== "object") return false;
+        const raw = a as Partial<AppSummary>;
+        return isValidAppId(raw.id) && typeof raw.appName === "string";
+      })
+      .map((a) => ({ id: a.id, appName: a.appName }));
   } catch {
     return [];
   }
 }
+
+function writeLocalApps(apps: AppSummary[]) {
+  try {
+    window.localStorage.setItem(LOCAL_APPS_STORAGE_KEY, JSON.stringify(apps));
+  } catch {
+    /* the deck itself matters more than the index; it can be rebuilt */
+  }
+}
+
+// A hosted visitor with no apps yet gets one blank deck rather than an editor
+// with nothing to render and no obvious way forward.
+const STARTER_APP: AppSummary = { id: "my-app", appName: "My App" };
 
 function readActiveApp(): string | null {
   if (typeof window === "undefined") return null;
@@ -224,6 +278,15 @@ function rememberSaveMode(mode: SaveMode) {
     window.localStorage.setItem(SAVE_MODE_STORAGE_KEY, mode);
   } catch {
     /* preference is best-effort */
+  }
+}
+
+function dropFromLocalStorage(appId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(storageKey(appId));
+  } catch {
+    /* a stale cache entry is harmless — the app is gone from the list */
   }
 }
 
@@ -265,9 +328,48 @@ function applyUpdater(updater: Updater, prev: ProjectState): ProjectState {
   return typeof updater === "function" ? updater(prev) : updater;
 }
 
+export type EditOptions = {
+  /**
+   * Groups a gesture into one undo step. Consecutive edits that share a key
+   * within COALESCE_MS collapse together, so a slider drag or a burst of
+   * typing is a single ⌘Z — but moving to a *different* control starts a new
+   * step immediately, even mid-flow. Omit it for discrete actions (add,
+   * delete, reorder, reset): those always get their own step.
+   */
+  coalesce?: string;
+  /**
+   * View state — which device tab, orientation, and locale you're looking at.
+   * It's persisted with the deck, but it isn't an edit: undo should rewind
+   * your content, not the tab you were on. See withView() below for the other
+   * half of this rule.
+   */
+  transient?: boolean;
+};
+
+// Fields that describe what you're looking at rather than what you made.
+const VIEW_KEYS = ["device", "orientation", "locale"] as const;
+
+/**
+ * Re-point a history snapshot at the view you're on now. Without this, undoing
+ * an edit made on the iPhone tab while you're on the iPad tab would silently
+ * yank you back to iPhone.
+ *
+ * Returns the snapshot itself when the view already matches, which keeps
+ * reference equality intact — that's what lets undoing back to the last saved
+ * state clear the dirty flag instead of leaving a phantom "unsaved changes".
+ */
+function withView(snapshot: ProjectState, view: ProjectState): ProjectState {
+  if (VIEW_KEYS.every((k) => snapshot[k] === view[k])) return snapshot;
+  return { ...snapshot, device: view.device, orientation: view.orientation, locale: view.locale };
+}
+
 export function useProject() {
   const [state, _setState] = useState<ProjectState>(DEFAULT_PROJECT);
   const [apps, setApps] = useState<AppSummary[]>([]);
+  // Assume hosted until the server says otherwise: the wrong guess in that
+  // direction costs a file write, the other way round throws errors.
+  const [mode, setMode] = useState<EditorMode>("hosted");
+  const modeRef = useRef<EditorMode>("hosted");
   const [hydrated, setHydrated] = useState(false);
   const [fileReady, setFileReady] = useState(false);
   const [switching, setSwitching] = useState(false);
@@ -280,11 +382,21 @@ export function useProject() {
   const [lastSaved, setLastSaved] = useState<ProjectState | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // History stacks live in refs — they don't drive any rendered UI, so
-  // mutating them never needs to re-render.
+  // History stacks live in refs so pushing to them doesn't re-render on every
+  // keystroke; only their emptiness is mirrored into state, because that's the
+  // part the Undo/Redo buttons actually need.
   const pastRef = useRef<ProjectState[]>([]);
   const futureRef = useRef<ProjectState[]>([]);
-  const lastPushAt = useRef(0);
+  const lastEditAt = useRef(0);
+  const lastCoalesceKey = useRef<string | null>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  const syncHistory = useCallback(() => {
+    // Same-value setState is a no-op in React, so this is cheap to over-call.
+    setCanUndo(pastRef.current.length > 0);
+    setCanRedo(futureRef.current.length > 0);
+  }, []);
 
   // Mirrors of state read by callbacks that must not re-subscribe on every edit.
   const stateRef = useRef(state);
@@ -312,6 +424,23 @@ export function useProject() {
     const snapshot = stateRef.current;
     setSaving(true);
     const local = saveToLocalStorage(snapshot);
+
+    // Hosted: localStorage is the only copy, so its result is the verdict.
+    if (modeRef.current === "hosted") {
+      setSaving(false);
+      if (local.ok) {
+        setLastSaved(snapshot);
+        setSavedAt(Date.now());
+        setSaveError(null);
+        return true;
+      }
+      setSaveError(
+        `Browser storage rejected the save (${local.error}). Export what you have — a deck this ` +
+          `large may be over the localStorage quota.`,
+      );
+      return false;
+    }
+
     const file = await saveToFile(snapshot);
     setSaving(false);
     if (file.ok) {
@@ -331,15 +460,44 @@ export function useProject() {
   const loadApp = useCallback(async (appId: string) => {
     const token = ++loadToken.current;
     setFileReady(false);
-    const cached = loadFromLocalStorage(appId);
-    if (cached) _setState(cached);
-    else _setState(makeDefaultProject(appId));
+    // stateRef is kept in step by hand here: setState() below reads it as
+    // "previous state" and can fire before React has re-rendered this load.
+    const stored = loadFromLocalStorage(appId);
+    const cached = stored ?? makeDefaultProject(appId);
+    stateRef.current = cached;
+    _setState(cached);
+
+    // Every load ends the same way, whichever store it came from.
+    const finish = () => {
+      // History is per-app: undoing across an app switch would write one app's
+      // screens into another's file.
+      pastRef.current = [];
+      futureRef.current = [];
+      lastEditAt.current = 0;
+      lastCoalesceKey.current = null;
+      syncHistory();
+      setSavedAt(null);
+      rememberActiveApp(appId);
+    };
+
+    // Hosted: what we just read *is* the canonical copy. There's no file to
+    // wait for, and no second render that could overwrite it. A deck that
+    // wasn't in storage yet stays `lastSaved: null`, so it reads as unsaved
+    // until the first write — same rule as a missing file locally.
+    if (modeRef.current === "hosted") {
+      setFileReady(true);
+      setLastSaved(stored ? cached : null);
+      setSaveError(null);
+      finish();
+      return;
+    }
 
     const fromFile = await loadFromFile(appId);
     if (token !== loadToken.current) return;
 
     if (fromFile.ok) {
       const next = fromFile.state ?? makeDefaultProject(appId);
+      stateRef.current = next;
       _setState(next);
       // A deck read from disk starts clean. A missing file leaves lastSaved
       // null, so the blank starter shows as unsaved until you save it once.
@@ -351,24 +509,34 @@ export function useProject() {
       setFileReady(false);
       setSaveError(fromFile.error);
     }
-    pastRef.current = [];
-    futureRef.current = [];
-    lastPushAt.current = 0;
-    setSavedAt(null);
-    rememberActiveApp(appId);
-  }, []);
+    finish();
+  }, [syncHistory]);
 
   // Hydrate: discover the apps on disk, then open the last one used.
   useEffect(() => {
     void (async () => {
       _setSaveMode(readSaveMode());
-      const list = await fetchApps();
+      const index = await fetchAppIndex();
+      // modeRef before any load: loadApp branches on it.
+      modeRef.current = index.mode;
+      setMode(index.mode);
+
+      let list = index.apps;
+      if (index.mode === "hosted") {
+        list = readLocalApps();
+        if (list.length === 0) {
+          list = [STARTER_APP];
+          writeLocalApps(list);
+        }
+      }
       setApps(list);
+
       const remembered = readActiveApp();
+      const fallback = index.mode === "hosted" ? STARTER_APP.id : DEFAULT_APP_ID;
       const initial =
         remembered && list.some((a) => a.id === remembered)
           ? remembered
-          : list[0]?.id || DEFAULT_APP_ID;
+          : list[0]?.id || fallback;
       await loadApp(initial);
       setHydrated(true);
     })();
@@ -381,7 +549,13 @@ export function useProject() {
     setApps((prev) => {
       const current = prev.find((a) => a.id === state.appId);
       if (!current || current.appName === state.appName) return prev;
-      return prev.map((a) => (a.id === state.appId ? { ...a, appName: state.appName } : a));
+      const next = prev.map((a) =>
+        a.id === state.appId ? { ...a, appName: state.appName } : a,
+      );
+      // Locally the name is re-derived from the file on next load; hosted, this
+      // registry is the only record of it.
+      if (modeRef.current === "hosted") writeLocalApps(next);
+      return next;
     });
   }, [state.appId, state.appName]);
 
@@ -397,7 +571,7 @@ export function useProject() {
       }
       if (opts.save && fileReadyRef.current && dirtyRef.current) {
         saveToLocalStorage(stateRef.current);
-        await saveToFile(stateRef.current);
+        if (modeRef.current === "local") await saveToFile(stateRef.current);
       }
       await loadApp(appId);
       setSwitching(false);
@@ -407,6 +581,28 @@ export function useProject() {
 
   const createApp = useCallback(
     async (appName: string): Promise<{ ok: true; id: string } | { ok: false; error: string }> => {
+      // Hosted: no endpoint to ask, so the browser mints the app itself. The
+      // deck is written immediately rather than on first edit, so the app
+      // survives a reload even if you never touch it.
+      if (modeRef.current === "hosted") {
+        const id = slugifyAppId(appName);
+        if (!isValidAppId(id)) {
+          return { ok: false, error: "Name must contain at least one letter or number" };
+        }
+        const existing = readLocalApps();
+        if (existing.some((a) => a.id === id)) {
+          return { ok: false, error: `App "${id}" already exists in this browser` };
+        }
+        const created: AppSummary = { id, appName: appName.trim() || titleFromAppId(id) };
+        const written = saveToLocalStorage(makeDefaultProject(created.id, created.appName));
+        if (!written.ok) return { ok: false, error: `Browser storage is full (${written.error})` };
+        const next = [...existing, created].sort((a, b) => a.appName.localeCompare(b.appName));
+        writeLocalApps(next);
+        setApps(next);
+        await switchApp(created.id);
+        return { ok: true, id: created.id };
+      }
+
       try {
         const resp = await fetch("/api/apps", {
           method: "POST",
@@ -457,41 +653,111 @@ export function useProject() {
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [dirty]);
 
-  const setState = useCallback((updater: Updater) => {
-    _setState((prev) => {
+  /**
+   * The single entry point for every edit. Resolves the update against
+   * `stateRef` rather than inside a React updater callback, because the
+   * history bookkeeping here has to touch refs and setCanUndo/setCanRedo —
+   * side effects that are not allowed inside an updater. stateRef is written
+   * synchronously, so two setState calls in the same tick still compose.
+   */
+  const setState = useCallback(
+    (updater: Updater, opts: EditOptions = {}) => {
+      const prev = stateRef.current;
       const next = applyUpdater(updater, prev);
-      if (next === prev) return prev;
-      const now = Date.now();
-      if (now - lastPushAt.current > COALESCE_MS) {
-        pastRef.current.push(prev);
-        if (pastRef.current.length > HISTORY_LIMIT) pastRef.current.shift();
-        futureRef.current.length = 0;
+      if (next === prev) return;
+
+      if (!opts.transient) {
+        const now = Date.now();
+        // A new step unless this is the same gesture, still in progress.
+        const sameGesture =
+          !!opts.coalesce &&
+          opts.coalesce === lastCoalesceKey.current &&
+          now - lastEditAt.current <= COALESCE_MS;
+        if (!sameGesture) {
+          pastRef.current.push(prev);
+          if (pastRef.current.length > HISTORY_LIMIT) pastRef.current.shift();
+          // Any fresh edit invalidates the redo branch.
+          futureRef.current.length = 0;
+          syncHistory();
+        }
+        lastCoalesceKey.current = opts.coalesce ?? null;
+        lastEditAt.current = now;
       }
-      lastPushAt.current = now;
-      return next;
-    });
-  }, []);
+
+      stateRef.current = next;
+      _setState(next);
+    },
+    [syncHistory],
+  );
 
   const undo = useCallback(() => {
-    _setState((cur) => {
-      const prev = pastRef.current.pop();
-      if (prev === undefined) return cur;
-      futureRef.current.push(cur);
-      // Reset coalescing so the next edit after an undo creates a fresh history entry.
-      lastPushAt.current = 0;
-      return prev;
-    });
-  }, []);
+    const prev = pastRef.current.pop();
+    if (prev === undefined) return;
+    const cur = stateRef.current;
+    futureRef.current.push(cur);
+    const restored = withView(prev, cur);
+    // Close the open gesture, so the next edit can never merge into the step
+    // we just rewound past.
+    lastCoalesceKey.current = null;
+    lastEditAt.current = 0;
+    stateRef.current = restored;
+    _setState(restored);
+    syncHistory();
+  }, [syncHistory]);
 
   const redo = useCallback(() => {
-    _setState((cur) => {
-      const next = futureRef.current.pop();
-      if (next === undefined) return cur;
-      pastRef.current.push(cur);
-      lastPushAt.current = 0;
-      return next;
-    });
-  }, []);
+    const next = futureRef.current.pop();
+    if (next === undefined) return;
+    const cur = stateRef.current;
+    pastRef.current.push(cur);
+    const restored = withView(next, cur);
+    lastCoalesceKey.current = null;
+    lastEditAt.current = 0;
+    stateRef.current = restored;
+    _setState(restored);
+    syncHistory();
+  }, [syncHistory]);
+
+  /**
+   * Remove an app entirely. Screenshots on disk (or in IndexedDB) are kept —
+   * see the DELETE handler in /api/apps for why.
+   *
+   * Deleting the app you're looking at moves you to the next one. The caller
+   * blocks deleting the last app, so there is always somewhere to land.
+   */
+  const deleteApp = useCallback(
+    async (id: string): Promise<{ ok: true } | { ok: false; error: string }> => {
+      if (!isValidAppId(id)) return { ok: false, error: "Invalid app id" };
+      const remaining = apps.filter((a) => a.id !== id);
+      if (remaining.length === 0) {
+        return { ok: false, error: "Can't remove the only app" };
+      }
+
+      if (modeRef.current === "local") {
+        try {
+          const resp = await fetch(`/api/apps?app=${encodeURIComponent(id)}`, {
+            method: "DELETE",
+          });
+          const json = (await resp.json()) as { ok: boolean; error?: string };
+          if (!json.ok) return { ok: false, error: json.error || `HTTP ${resp.status}` };
+        } catch (e) {
+          return { ok: false, error: e instanceof Error ? e.message : String(e) };
+        }
+      } else {
+        writeLocalApps(remaining);
+      }
+
+      dropFromLocalStorage(id);
+      setApps(remaining);
+      // Only move if we were standing on it. Deleting a background app must not
+      // disturb the deck you're editing — or its undo history.
+      if (id === stateRef.current.appId) {
+        await switchApp(remaining[0].id);
+      }
+      return { ok: true };
+    },
+    [apps, switchApp],
+  );
 
   // Resets clear the deck but keep the app's identity, name, and palettes —
   // resetting SpeakDiary must never hand you another app's starter content.
@@ -520,9 +786,11 @@ export function useProject() {
     state,
     setState,
     apps,
+    mode,
     appId: state.appId,
     switchApp,
     createApp,
+    deleteApp,
     switching,
     hydrated,
     savedAt,
@@ -536,5 +804,7 @@ export function useProject() {
     resetDevice,
     undo,
     redo,
+    canUndo,
+    canRedo,
   };
 }

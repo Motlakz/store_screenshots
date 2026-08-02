@@ -641,7 +641,7 @@ export function SlideCanvas({
         overflow: "hidden",
       }}
     >
-      <SlideBackground slide={slide} cW={cW} cH={cH} theme={theme} />
+      <SlideBackground slide={slide} cW={cW} cH={cH} theme={theme} appName={appName} />
       <SlideElements
         slide={slide}
         device={device}
@@ -751,7 +751,14 @@ export function DeckCanvas({
               overflow: "hidden",
             }}
           >
-            <SlideBackground slide={slide} cW={cW} cH={cH} theme={theme} slideIndex={index} />
+            <SlideBackground
+              slide={slide}
+              cW={cW}
+              cH={cH}
+              theme={theme}
+              slideIndex={index}
+              appName={appName}
+            />
             {showGuides && <ScreenGuide cW={cW} cH={cH} index={index} active={active} />}
           </div>
         );
@@ -844,12 +851,14 @@ function SlideBackground({
   cH,
   theme,
   slideIndex = 0,
+  appName,
 }: {
   slide: Slide;
   cW: number;
   cH: number;
   theme: Theme;
   slideIndex?: number;
+  appName?: string;
 }) {
   const inverted = !!slide.inverted;
   const { decor } = resolveStyle(theme);
@@ -864,6 +873,16 @@ function SlideBackground({
       }}
     >
       {decor.dreamy && <DreamyDecorations slideId={slide.id} cW={cW} cH={cH} />}
+
+      {decor.bellyclock && (
+        <BellyClockDecorations
+          cW={cW}
+          cH={cH}
+          slideIndex={slideIndex}
+          ink={foregroundFor(theme, inverted, slideIndex, slide.background)}
+          appName={appName || "BellyClock"}
+        />
+      )}
 
       {decor.blobs && (
         <>
@@ -922,6 +941,193 @@ function SlideBackground({
           }}
         />
       ) : null}
+    </div>
+  );
+}
+
+// BellyClock uses hand-drawn editorial diagrams, not the shared grab-bag of
+// squiggles. Every mark explains the screen's subject: time, metabolic phase,
+// hydration, trends, journaling, community, or spiritual rhythm.
+function BellyClockDecorations({
+  cW,
+  cH,
+  slideIndex,
+  ink,
+  appName,
+}: {
+  cW: number;
+  cH: number;
+  slideIndex: number;
+  ink: string;
+  appName: string;
+}) {
+  const phase = ["#60A5FA", "#818CF8", "#A78BFA", "#E879F9", "#FB7185", "#86EFAC"];
+  const scene = slideIndex % 8;
+  const stroke = Math.max(3, cW * 0.0035);
+  const faint = `${ink}2E`;
+  const quiet = `${ink}66`;
+  const glowLayouts = [
+    [[-8, 10, 48], [72, 34, 44], [28, 78, 52]],
+    [[66, -5, 48], [-14, 48, 50], [58, 76, 46]],
+    [[-12, 64, 50], [70, 8, 42], [52, 48, 50]],
+    [[62, 60, 52], [-10, 16, 46], [58, -8, 44]],
+    [[68, 46, 46], [-12, 70, 54], [18, 4, 42]],
+    [[-10, 42, 48], [70, 68, 50], [62, 2, 44]],
+    [[64, -6, 46], [-12, 58, 52], [52, 70, 48]],
+    [[-12, 0, 50], [66, 28, 52], [28, 72, 54]],
+  ] as const;
+  const glowColors = ["#7C3AED", "#E879F9", "#22D3EE"] as const;
+  const labelStyle: React.CSSProperties = {
+    fontFamily: "var(--font-jetbrains-mono), 'JetBrains Mono', monospace",
+    fontSize: Math.max(13, cW * 0.018),
+    fontWeight: 600,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    fill: ink,
+  };
+
+  const diagram = (() => {
+    if (scene === 0) {
+      return (
+        <>
+          <g transform={`translate(${cW * 0.73} ${cH * 0.55}) rotate(-12)`} opacity="0.72">
+            {phase.map((color, index) => (
+              <circle
+                key={color}
+                r={cW * (0.28 - index * 0.012)}
+                fill="none"
+                stroke={color}
+                strokeWidth={stroke * 2.1}
+                strokeLinecap="round"
+                strokeDasharray={`${cW * 0.19} ${cW * 1.7}`}
+                strokeDashoffset={-index * cW * 0.205}
+              />
+            ))}
+            <circle r={cW * 0.205} fill="none" stroke={faint} strokeWidth={stroke} strokeDasharray={`${stroke} ${stroke * 3}`} />
+            <path d={`M 0 ${-cW * 0.31} L ${cW * 0.025} ${-cW * 0.26} L ${-cW * 0.018} ${-cW * 0.265} Z`} fill={phase[3]} />
+          </g>
+          <text x={cW * 0.67} y={cH * 0.84} style={labelStyle}>digest · burn · renew</text>
+        </>
+      );
+    }
+    if (scene === 1) {
+      return (
+        <g transform={`translate(${cW * 0.82} ${cH * 0.2}) rotate(7)`} opacity="0.72">
+          <circle r={cW * 0.17} fill="none" stroke={quiet} strokeWidth={stroke} />
+          {Array.from({ length: 24 }, (_, index) => {
+            const a = (index / 24) * Math.PI * 2;
+            const inner = cW * (index % 6 === 0 ? 0.135 : 0.145);
+            const outer = cW * 0.165;
+            return <line key={index} x1={Math.cos(a) * inner} y1={Math.sin(a) * inner} x2={Math.cos(a) * outer} y2={Math.sin(a) * outer} stroke={index < 16 ? phase[2] : quiet} strokeWidth={index % 6 === 0 ? stroke * 1.4 : stroke * 0.7} strokeLinecap="round" />;
+          })}
+          <path d={`M0 0 C ${cW * 0.02} ${-cW * 0.07}, ${cW * 0.08} ${-cW * 0.08}, ${cW * 0.11} ${-cW * 0.045}`} fill="none" stroke={phase[4]} strokeWidth={stroke * 1.7} strokeLinecap="round" />
+          <text x={-cW * 0.055} y={cW * 0.015} style={labelStyle}>16:8</text>
+        </g>
+      );
+    }
+    if (scene === 2) {
+      return (
+        <g opacity="0.66" fill="none" strokeLinecap="round" strokeLinejoin="round">
+          {[0, 1, 2].map((index) => (
+            <g key={index} transform={`translate(${cW * (0.1 + index * 0.11)} ${cH * (0.69 + index * 0.045)}) rotate(${index * 5 - 7})`}>
+              <path d={`M0 ${-cW * 0.065} C ${-cW * 0.07} ${cW * 0.02}, ${-cW * 0.055} ${cW * 0.09}, 0 ${cW * 0.1} C ${cW * 0.058} ${cW * 0.087}, ${cW * 0.07} ${cW * 0.02}, 0 ${-cW * 0.065} Z`} stroke={phase[0]} strokeWidth={stroke * 1.35} />
+              <path d={`M${-cW * 0.022} ${cW * 0.055} Q0 ${cW * 0.073} ${cW * 0.025} ${cW * 0.048}`} stroke={phase[0]} strokeWidth={stroke * 0.8} opacity="0.65" />
+            </g>
+          ))}
+          <path d={`M${cW * 0.08} ${cH * 0.88} C${cW * 0.22} ${cH * 0.84}, ${cW * 0.31} ${cH * 0.91}, ${cW * 0.43} ${cH * 0.86}`} stroke={quiet} strokeWidth={stroke} strokeDasharray={`${stroke * 2} ${stroke * 3}`} />
+        </g>
+      );
+    }
+    if (scene === 3) {
+      return (
+        <g transform={`translate(${cW * 0.06} ${cH * 0.67})`} opacity="0.63" fill="none" strokeLinecap="round" strokeLinejoin="round">
+          {[0, 1, 2, 3].map((index) => <line key={index} x1="0" y1={index * cH * 0.065} x2={cW * 0.52} y2={index * cH * 0.065} stroke={faint} strokeWidth={stroke * 0.55} strokeDasharray={`${stroke} ${stroke * 3}`} />)}
+          <path d={`M0 ${cH * 0.17} C${cW * 0.08} ${cH * 0.12}, ${cW * 0.11} ${cH * 0.16}, ${cW * 0.18} ${cH * 0.09} S${cW * 0.31} ${cH * 0.13}, ${cW * 0.39} ${cH * 0.045} S${cW * 0.47} ${cH * 0.055}, ${cW * 0.52} 0`} stroke={phase[3]} strokeWidth={stroke * 1.8} />
+          {[0.18, 0.39, 0.52].map((x, index) => <circle key={x} cx={cW * x} cy={[0.09, 0.045, 0][index] * cH} r={stroke * 1.8} fill={phase[4]} stroke="none" />)}
+        </g>
+      );
+    }
+    if (scene === 4) {
+      return (
+        <g transform={`translate(${cW * 0.68} ${cH * 0.72}) rotate(-4)`} opacity="0.62" fill="none" strokeLinecap="round">
+          <path d={`M0 0 Q${cW * 0.12} ${-cH * 0.035} ${cW * 0.25} 0 T${cW * 0.49} 0`} stroke={phase[4]} strokeWidth={stroke * 1.45} />
+          {[0, 1, 2].map((index) => (
+            <g key={index} transform={`translate(0 ${cH * (0.055 + index * 0.075)})`}>
+              <rect width={cW * 0.035} height={cW * 0.035} rx={stroke * 1.4} stroke={phase[2]} strokeWidth={stroke} />
+              <path d={`M${cW * 0.008} ${cW * 0.018} l${cW * 0.008} ${cW * 0.009} l${cW * 0.016} ${-cW * 0.021}`} stroke={phase[5]} strokeWidth={stroke} />
+              <path d={`M${cW * 0.055} ${cW * 0.018} C${cW * 0.15} ${cW * 0.006}, ${cW * 0.3} ${cW * 0.03}, ${cW * 0.45} ${cW * 0.012}`} stroke={quiet} strokeWidth={stroke * 0.8} />
+            </g>
+          ))}
+        </g>
+      );
+    }
+    if (scene === 5) {
+      const nodes = [[0.12, 0.76], [0.28, 0.68], [0.42, 0.79], [0.22, 0.88], [0.49, 0.91]];
+      return (
+        <g opacity="0.62">
+          <path d={`M${cW * 0.12} ${cH * 0.76} C${cW * 0.22} ${cH * 0.64}, ${cW * 0.34} ${cH * 0.7}, ${cW * 0.42} ${cH * 0.79} S${cW * 0.38} ${cH * 0.91}, ${cW * 0.49} ${cH * 0.91}`} fill="none" stroke={quiet} strokeWidth={stroke} strokeDasharray={`${stroke * 2} ${stroke * 3}`} />
+          {nodes.map(([x, y], index) => <circle key={index} cx={cW * x} cy={cH * y} r={cW * (index === 1 ? 0.027 : 0.018)} fill={phase[index % phase.length]} stroke={ink} strokeWidth={stroke * 0.55} />)}
+        </g>
+      );
+    }
+    if (scene === 6) {
+      return (
+        <g transform={`translate(${cW * 0.78} ${cH * 0.18})`} opacity="0.7">
+          <path d={`M0 ${-cW * 0.13} A${cW * 0.14} ${cW * 0.14} 0 1 0 ${cW * 0.105} ${cW * 0.11} A${cW * 0.115} ${cW * 0.115} 0 1 1 0 ${-cW * 0.13}`} fill="none" stroke={phase[5]} strokeWidth={stroke * 1.7} strokeLinecap="round" />
+          {[0, 1, 2, 3, 4].map((index) => <line key={index} x1={-cW * 0.2 + index * cW * 0.1} y1={cW * 0.18} x2={-cW * 0.18 + index * cW * 0.1} y2={cW * (0.19 + (index % 2) * 0.025)} stroke={quiet} strokeWidth={stroke} strokeLinecap="round" />)}
+        </g>
+      );
+    }
+    return (
+      <g transform={`translate(${cW * 0.08} ${cH * 0.72})`} opacity="0.72">
+        {phase.map((color, index) => (
+          <g key={color} transform={`translate(0 ${index * cH * 0.038})`}>
+            <circle cx={stroke * 2} cy="0" r={stroke * 1.55} fill={color} />
+            <line x1={stroke * 6} y1="0" x2={cW * (0.2 + index * 0.035)} y2={index % 2 ? stroke : -stroke} stroke={color} strokeWidth={stroke * 1.1} strokeLinecap="round" />
+          </g>
+        ))}
+      </g>
+    );
+  })();
+
+  return (
+    <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+      {glowLayouts[scene].map(([left, top, size], index) => (
+        <div
+          key={glowColors[index]}
+          style={{
+            position: "absolute",
+            left: `${left}%`,
+            top: `${top}%`,
+            width: `${size}%`,
+            aspectRatio: "1 / 1",
+            borderRadius: "50%",
+            background: `radial-gradient(circle, ${glowColors[index]} 0%, ${glowColors[index]}99 18%, ${glowColors[index]}33 48%, transparent 72%)`,
+            filter: `blur(${Math.max(24, cW * 0.035)}px)`,
+            mixBlendMode: "screen",
+            opacity: index === 1 ? 0.34 : 0.3,
+            transform: `rotate(${scene * 7 + index * 19}deg) scale(${index === 2 ? 1.12 : 1})`,
+          }}
+        />
+      ))}
+      <div
+        style={{
+          position: "absolute",
+          left: cW * 0.055,
+          top: cH * 0.035,
+          color: ink,
+          fontFamily: "var(--font-quicksand), Quicksand, sans-serif",
+          fontSize: Math.max(18, cW * 0.028),
+          fontWeight: 700,
+          letterSpacing: "-0.02em",
+          opacity: 0.82,
+        }}
+      >
+        {appName.toLowerCase()}
+      </div>
+      <svg width="100%" height="100%" viewBox={`0 0 ${cW} ${cH}`} preserveAspectRatio="none">
+        {diagram}
+      </svg>
     </div>
   );
 }
@@ -1288,6 +1494,24 @@ function FeatureGraphicCanvas({
   editable?: boolean;
   edit?: EditHandlers;
 }) {
+  // Every BellyClock palette gets the branded store banner. The regular slide
+  // decor can differ by palette, but the product's feature graphic should never
+  // fall back to the shared generic collage.
+  if (theme.id.startsWith("bellyclock")) {
+    return (
+      <BellyClockFeatureGraphic
+        slide={slide}
+        cW={cW}
+        theme={theme}
+        locale={locale}
+        appName={appName}
+        appIcon={appIcon}
+        editable={editable}
+        edit={edit}
+      />
+    );
+  }
+
   const screenshots = [slide.screenshot, slide.screenshotSecondary, slide.screenshotTertiary]
     .map((src) => resolveScreenshot(src, locale))
     .filter((src): src is string => !!src && !!img(src));
@@ -1387,6 +1611,310 @@ function FeatureGraphicCanvas({
           })}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function BellyClockFeatureGraphic({
+  slide,
+  cW,
+  theme,
+  locale,
+  appName,
+  appIcon,
+  editable,
+  edit,
+}: {
+  slide: Slide;
+  cW: number;
+  theme: Theme;
+  locale: string;
+  appName?: string;
+  appIcon?: string;
+  editable?: boolean;
+  edit?: EditHandlers;
+}) {
+  const cH = CANVAS["feature-graphic"].h;
+  const style = resolveStyle(theme);
+  const headline = pickText(slide.headline, locale);
+  const hasEmphasis = !!style.emphasis && /\*[^*]+\*/.test(headline);
+  const phases = [
+    ["digest", "#60A5FA"],
+    ["glycogen", "#818CF8"],
+    ["burn", "#A78BFA"],
+    ["keto", "#E879F9"],
+    ["renew", "#FB7185"],
+    ["refed", "#86EFAC"],
+  ] as const;
+  const iconSrc = appIcon && img(appIcon) ? img(appIcon) : "";
+  // Pull the clock into the copy column's orbit. The phase badges occupy the
+  // former dead zone and make the diagram read as BellyClock physiology.
+  const ringCenterX = cW * 0.705;
+  const ringCenterY = cH * 0.51;
+  const ringRadius = cH * 0.31;
+  const circumference = 2 * Math.PI * ringRadius;
+  const segment = circumference * 0.135;
+  const gap = circumference - segment;
+
+  function phaseGlyph(label: (typeof phases)[number][0], color: string) {
+    const iconStroke = {
+      fill: "none",
+      stroke: color,
+      strokeWidth: 2.2,
+      strokeLinecap: "round" as const,
+      strokeLinejoin: "round" as const,
+    };
+    switch (label) {
+      case "digest":
+        return (
+          <>
+            <path d="M-7 -10 V10 M-11 -10 V-3 Q-11 1 -7 1 Q-3 1 -3 -3 V-10 M7 -10 V10 M7 -10 Q14 -4 7 2" {...iconStroke} />
+          </>
+        );
+      case "glycogen":
+        return (
+          <>
+            <path d="M-11 -7 L0 -13 L11 -7 V7 L0 13 L-11 7 Z M0 -13 V13 M-11 -7 L0 0 L11 -7" {...iconStroke} />
+          </>
+        );
+      case "burn":
+        return <path d="M1 -14 C8 -6 11 -1 9 6 C7 13 -1 16 -7 11 C-14 5 -9 -5 -3 -10 C-4 -3 0 0 3 2 C5 -4 4 -8 1 -14 Z" {...iconStroke} />;
+      case "keto":
+        return <path d="M0 -14 C-8 -3 -12 2 -12 8 C-12 15 -6 20 0 20 C6 20 12 15 12 8 C12 2 8 -3 0 -14 Z M-5 9 Q0 13 6 8" {...iconStroke} />;
+      case "renew":
+        return (
+          <>
+            <circle cx="0" cy="0" r="11" {...iconStroke} />
+            <path d="M0 -16 V-10 M0 10 V16 M-16 0 H-10 M10 0 H16 M-11 -11 L-7 -7 M7 7 L11 11 M11 -11 L7 -7 M-7 7 L-11 11 M-4 1 Q0 -4 5 0 Q1 6 -5 5" {...iconStroke} />
+          </>
+        );
+      case "refed":
+      default:
+        return (
+          <>
+            <path d="M-13 3 Q0 16 13 3 M-11 4 H11 M0 3 V-8" {...iconStroke} />
+            <path d="M0 -8 C2 -16 11 -17 14 -14 C12 -7 7 -4 0 -8 Z M0 -8 C-3 -15 -10 -15 -13 -12 C-10 -6 -6 -4 0 -8 Z" {...iconStroke} />
+          </>
+        );
+    }
+  }
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        overflow: "hidden",
+        background: "#0A0612",
+        color: "#F7F0E5",
+      }}
+    >
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(circle at 17% 8%, rgba(124,58,237,.58) 0%, rgba(124,58,237,.18) 24%, transparent 48%), radial-gradient(circle at 75% 30%, rgba(232,121,249,.48) 0%, rgba(232,121,249,.14) 25%, transparent 52%), radial-gradient(circle at 90% 90%, rgba(34,211,238,.48) 0%, rgba(34,211,238,.12) 27%, transparent 54%)",
+          filter: `blur(${cW * 0.018}px)`,
+          transform: "scale(1.08)",
+        }}
+      />
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: grainCss(0.045),
+          backgroundRepeat: "repeat",
+          mixBlendMode: "soft-light",
+          opacity: 0.72,
+        }}
+      />
+
+      <div
+        style={{
+          position: "absolute",
+          left: cW * 0.055,
+          top: cH * 0.085,
+          width: cW * 0.51,
+          zIndex: 4,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: cW * 0.012 }}>
+          {iconSrc ? (
+            <img
+              src={iconSrc}
+              alt=""
+              draggable={false}
+              style={{
+                width: cW * 0.052,
+                height: cW * 0.052,
+                borderRadius: cW * 0.013,
+                boxShadow: "0 10px 30px rgba(34,211,238,.22)",
+              }}
+            />
+          ) : (
+            <svg width={cW * 0.052} height={cW * 0.052} viewBox="0 0 54 54" aria-hidden>
+              <circle cx="27" cy="27" r="21" fill="rgba(10,6,18,.66)" stroke="#67E8F9" strokeWidth="2.5" />
+              <path d="M27 10 A17 17 0 0 1 43 27" fill="none" stroke="#E879F9" strokeWidth="4" strokeLinecap="round" />
+              <path d="M27 44 A17 17 0 0 1 11 27" fill="none" stroke="#86EFAC" strokeWidth="4" strokeLinecap="round" />
+              <path d="M27 27 L27 16 M27 27 L36 30" stroke="#F7F0E5" strokeWidth="2.5" strokeLinecap="round" />
+              <circle cx="27" cy="27" r="2.7" fill="#F7F0E5" />
+            </svg>
+          )}
+          <div
+            style={{
+              fontFamily: "var(--font-quicksand), Quicksand, sans-serif",
+              fontSize: cW * 0.031,
+              fontWeight: 700,
+              letterSpacing: "-0.025em",
+            }}
+          >
+            {appName || "BellyClock"}
+          </div>
+          <div style={{ width: cW * 0.055, height: 1, marginLeft: cW * 0.008, background: "rgba(247,240,229,.34)" }} />
+          <div
+            style={{
+              color: "#86EFAC",
+              fontFamily: "var(--font-jetbrains-mono), 'JetBrains Mono', monospace",
+              fontSize: cW * 0.0095,
+              fontWeight: 600,
+              letterSpacing: "0.13em",
+              textTransform: "uppercase",
+            }}
+          >
+            fasting, in context
+          </div>
+        </div>
+
+        <div style={{ marginTop: cH * 0.095, maxWidth: cW * 0.48 }}>
+          {hasEmphasis ? (
+            <StyledHeadline
+              value={headline}
+              size={cW * 0.057}
+              color="#F7F0E5"
+              font={{ ...style.headline, family: style.headline.family }}
+              emphasis={style.emphasis!}
+              emphasisColor="#67E8F9"
+            />
+          ) : (
+            <EditableText
+              value={headline}
+              editable={editable}
+              multiline
+              onChange={edit?.onHeadlineChange}
+              style={{
+                color: "#F7F0E5",
+                fontFamily: style.headline.family,
+                fontSize: cW * 0.057,
+                fontWeight: style.headline.weight,
+                lineHeight: 0.94,
+                letterSpacing: "-0.035em",
+              }}
+            />
+          )}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: cW * 0.015,
+            marginTop: cH * 0.105,
+            color: "rgba(247,240,229,.72)",
+            fontFamily: "var(--font-jetbrains-mono), 'JetBrains Mono', monospace",
+            fontSize: cW * 0.009,
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+          }}
+        >
+          {phases.map(([label, color]) => (
+            <span key={label} style={{ display: "inline-flex", alignItems: "center", gap: cW * 0.0045 }}>
+              <span style={{ width: cW * 0.0065, height: cW * 0.0065, borderRadius: "50%", background: color, boxShadow: `0 0 12px ${color}` }} />
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <svg
+        aria-hidden
+        width="100%"
+        height="100%"
+        viewBox={`0 0 ${cW} ${cH}`}
+        style={{ position: "absolute", inset: 0, zIndex: 2 }}
+      >
+        <g transform={`translate(${ringCenterX} ${ringCenterY}) rotate(-96)`}>
+          <circle r={ringRadius + 29} fill="rgba(10,6,18,.48)" stroke="rgba(247,240,229,.12)" strokeWidth="1.5" strokeDasharray="3 8" />
+          <circle r={ringRadius + 12} fill="none" stroke="rgba(247,240,229,.16)" strokeWidth="1.5" />
+          {phases.map(([, color], index) => (
+            <circle
+              key={color}
+              r={ringRadius}
+              fill="none"
+              stroke={color}
+              strokeWidth={16}
+              strokeLinecap="round"
+              strokeDasharray={`${segment} ${gap}`}
+              strokeDashoffset={-(circumference / phases.length) * index}
+              style={{ filter: `drop-shadow(0 0 11px ${color}88)` }}
+            />
+          ))}
+          {Array.from({ length: 24 }, (_, index) => {
+            const angle = (index / 24) * Math.PI * 2;
+            const inner = ringRadius - (index % 6 === 0 ? 37 : 31);
+            const outer = ringRadius - 22;
+            return (
+              <line
+                key={index}
+                x1={Math.cos(angle) * inner}
+                y1={Math.sin(angle) * inner}
+                x2={Math.cos(angle) * outer}
+                y2={Math.sin(angle) * outer}
+                stroke={index % 6 === 0 ? "#F7F0E5" : "rgba(247,240,229,.46)"}
+                strokeWidth={index % 6 === 0 ? 2.5 : 1.2}
+                strokeLinecap="round"
+              />
+            );
+          })}
+        </g>
+        <g transform={`translate(${ringCenterX} ${ringCenterY})`}>
+          <circle r={ringRadius * 0.68} fill="rgba(18,10,30,.78)" stroke="rgba(103,232,249,.22)" strokeWidth="1.5" />
+          <text x="0" y={-cH * 0.067} textAnchor="middle" fill="#86EFAC" fontFamily="var(--font-jetbrains-mono), 'JetBrains Mono', monospace" fontSize={cW * 0.0105} fontWeight="600" letterSpacing="2.4">CURRENT PHASE</text>
+          <text x="0" y={cH * 0.026} textAnchor="middle" fill="#F7F0E5" fontFamily="var(--font-jetbrains-mono), 'JetBrains Mono', monospace" fontSize={cW * 0.052} fontWeight="600" letterSpacing="-2">16:08</text>
+          <text x="0" y={cH * 0.09} textAnchor="middle" fill="#E879F9" fontFamily="var(--font-instrument-serif), Georgia, serif" fontSize={cW * 0.026} fontStyle="italic">fat burn</text>
+          <path d={`M${-cW * 0.055} ${cH * 0.11} C${-cW * 0.018} ${cH * 0.125}, ${cW * 0.02} ${cH * 0.095}, ${cW * 0.062} ${cH * 0.112}`} fill="none" stroke="#E879F9" strokeWidth="3.5" strokeLinecap="round" />
+        </g>
+        {phases.map(([label, color], index) => {
+          const angle = ((-68 + index * 60) * Math.PI) / 180;
+          const orbit = ringRadius + cH * 0.105;
+          const x = ringCenterX + Math.cos(angle) * orbit;
+          const y = ringCenterY + Math.sin(angle) * orbit;
+          return (
+            <g key={`${label}-badge`} transform={`translate(${x} ${y})`}>
+              <circle r={cH * 0.049} fill="rgba(10,6,18,.86)" stroke={color} strokeWidth="1.7" style={{ filter: `drop-shadow(0 0 9px ${color}77)` }} />
+              <g transform="scale(.72)">{phaseGlyph(label, color)}</g>
+              <text
+                x="0"
+                y={cH * 0.078}
+                textAnchor="middle"
+                fill="rgba(247,240,229,.78)"
+                fontFamily="var(--font-jetbrains-mono), 'JetBrains Mono', monospace"
+                fontSize={cW * 0.0074}
+                fontWeight="600"
+                letterSpacing="1.1"
+              >
+                {label.toUpperCase()}
+              </text>
+            </g>
+          );
+        })}
+        <path d={`M${cW * 0.548} ${cH * 0.13} C${cW * 0.59} ${cH * 0.09}, ${cW * 0.64} ${cH * 0.115}, ${cW * 0.67} ${cH * 0.17}`} fill="none" stroke="rgba(103,232,249,.62)" strokeWidth="2.4" strokeLinecap="round" strokeDasharray="2 7" />
+        <text x={cW * 0.535} y={cH * 0.102} fill="rgba(247,240,229,.7)" fontFamily="var(--font-jetbrains-mono), 'JetBrains Mono', monospace" fontSize={cW * 0.0085} letterSpacing="1.6">YOUR BODY KEEPS TIME</text>
+      </svg>
     </div>
   );
 }
@@ -1527,7 +2055,7 @@ function SlideElements({
     const saved = slide.transforms?.[id];
     const deviceFrame = id === "deviceSecondary" ? slide.frameSecondary ?? slide.frame : slide.frame;
     const deviceFinish = frameColorById(resolveFrame(deviceFrame).color);
-    const rotation = saved?.rotation ?? 0;
+    const rotation = saved?.rotation ?? themeDevice.tilt ?? 0;
     const zIndex = saved?.zIndex ?? (id === "deviceSecondary" ? 2 : 3);
     return (
       <Movable

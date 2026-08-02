@@ -24,6 +24,7 @@ import {
   addBackgroundColor,
   backgroundColors,
   convertBackground,
+  emphasisWithDefaults,
   removeBackgroundColor,
   setBackgroundColor,
 } from "@/lib/theme-edit";
@@ -45,6 +46,9 @@ const KINDS: ThemeBackground["kind"][] = ["solid", "gradient", "solids"];
 export function PaletteDialog({ open, onOpenChange, theme, appId, owned, onPatch }: Props) {
   const background: ThemeBackground = theme.background ?? { kind: "solid", color: theme.bg };
   const colors = backgroundColors(background, theme.bg);
+  // Themes without an emphasis block get an inherited one, so the highlight
+  // color is editable everywhere rather than only in the editorial styles.
+  const emphasis = emphasisWithDefaults(theme);
 
   function patchBackground(next: ThemeBackground) {
     // Keep `bg` in step so the swatch and any legacy fallback stay truthful.
@@ -195,13 +199,16 @@ export function PaletteDialog({ open, onOpenChange, theme, appId, owned, onPatch
           <SwatchRow label="On light" value={theme.fgAlt} onChange={(v) => onPatch({ fgAlt: v })} />
           <SwatchRow label="Accent" value={theme.accent} onChange={(v) => onPatch({ accent: v })} />
           <SwatchRow label="Muted" value={theme.muted} onChange={(v) => onPatch({ muted: v })} />
-          {theme.emphasis && (
-            <SwatchRow
-              label="Emphasis"
-              value={theme.emphasis.color}
-              onChange={(v) => onPatch({ emphasis: { ...theme.emphasis!, color: v } })}
-            />
-          )}
+          <SwatchRow
+            label="Highlight"
+            value={emphasis.color}
+            onChange={(v) => onPatch({ emphasis: { ...emphasis, color: v } })}
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Applies to the <span className="font-mono">*wrapped*</span> phrase in a headline —
+            write <span className="font-mono">One idea *per slide*</span>. Headline text itself
+            takes whichever ink reads better on each screen.
+          </p>
         </div>
 
         <div className="flex justify-end">

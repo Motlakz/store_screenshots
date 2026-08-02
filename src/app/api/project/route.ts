@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { PROJECTS_DIR, isValidAppId } from "@/lib/apps";
+import { HOSTED_ERROR, editorMode } from "@/lib/mode";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,11 @@ function readAppId(req: Request): string | null {
 }
 
 export async function GET(req: Request) {
+  // Not listing decks in /api/apps would be pointless if this still served
+  // them by id — the ids are guessable.
+  if ((await editorMode()) === "hosted") {
+    return NextResponse.json({ ok: false, error: HOSTED_ERROR }, { status: 503 });
+  }
   const appId = readAppId(req);
   if (!appId) {
     return NextResponse.json({ ok: false, error: "Missing or invalid app id" }, { status: 400 });
@@ -41,6 +47,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  if ((await editorMode()) === "hosted") {
+    return NextResponse.json({ ok: false, error: HOSTED_ERROR }, { status: 503 });
+  }
   const appId = readAppId(req);
   if (!appId) {
     return NextResponse.json({ ok: false, error: "Missing or invalid app id" }, { status: 400 });

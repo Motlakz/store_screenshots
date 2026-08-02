@@ -3,6 +3,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { appUploadPrefix, isValidAppId } from "@/lib/apps";
+import { HOSTED_ERROR, editorMode } from "@/lib/mode";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,11 @@ function parseDataUrl(dataUrl: string): { mime: string; bytes: Buffer } | null {
 }
 
 export async function POST(req: Request) {
+  // The picker treats a failure here as "keep it in the browser instead", so
+  // refusing is all hosted mode has to do.
+  if ((await editorMode()) === "hosted") {
+    return NextResponse.json({ ok: false, error: HOSTED_ERROR }, { status: 503 });
+  }
   let body: { dataUrl?: string; app?: string };
   try {
     body = (await req.json()) as { dataUrl?: string; app?: string };

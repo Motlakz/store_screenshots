@@ -2,7 +2,29 @@
 // array. Shared starters in constants.ts are copied on first edit, so tweaking
 // a color for one app can never change how another app renders.
 
-import type { ProjectState, Theme, ThemeBackground } from "./types";
+import { resolveStyle } from "./style";
+import type { ProjectState, Theme, ThemeBackground, ThemeEmphasis } from "./types";
+
+/**
+ * The emphasis block to edit for a theme that doesn't define one.
+ *
+ * Emphasis styles the `*asterisk-wrapped*` phrase in a headline, and a theme
+ * that ships one (the editorial styles) uses it for a whole look — script
+ * face, larger size, a tilt. A theme that doesn't should not acquire all of
+ * that just because someone opened the color picker, so every field here is
+ * inherited from the headline. The only thing that ends up differing is the
+ * color, which is the point.
+ */
+export function emphasisWithDefaults(theme: Theme): ThemeEmphasis {
+  if (theme.emphasis) return theme.emphasis;
+  const headline = resolveStyle(theme).headline;
+  return {
+    family: headline.family,
+    weight: headline.weight,
+    scale: 1,
+    color: theme.accent,
+  };
+}
 
 /**
  * Apply `patch` to the app's copy of `base`, cloning it out of the shared

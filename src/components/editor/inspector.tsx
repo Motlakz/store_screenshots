@@ -68,6 +68,8 @@ type Props = {
   selectedElementId: ElementId | null;
   onChange: (patch: Partial<Slide>) => void;
   onSelectElement: (id: ElementId | null) => void;
+  /** Deck-wide, surfaced in the Device frame panel. */
+  onOrientationChange: (v: Orientation) => void;
 };
 
 const ELEMENT_LABEL: Record<BuiltInElementId, string> = {
@@ -87,6 +89,7 @@ export function Inspector({
   selectedElementId,
   onChange,
   onSelectElement,
+  onOrientationChange,
 }: Props) {
   const isFeatureGraphic = device === "feature-graphic" || slide.layout === "feature-graphic";
   const isNoDevice = slide.layout === "no-device";
@@ -223,6 +226,8 @@ export function Inspector({
             device={device}
             target={selectedElementId === "deviceSecondary" ? "secondary" : "primary"}
             onChange={onChange}
+            orientation={orientation}
+            onOrientationChange={onOrientationChange}
           />
         )}
 

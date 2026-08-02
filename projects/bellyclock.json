@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "appId": "bellyclock",
   "appName": "BellyClock",
-  "themeId": "bellyclock",
+  "themeId": "bellyclock-editorial",
   "connectedCanvas": true,
   "locales": [
     "en"
@@ -10,7 +10,7 @@
   "locale": "en",
   "device": "android",
   "orientation": "portrait",
-  "appIcon": "",
+  "appIcon": "/screenshots/bellyclock/app-icon.png",
   "slidesByDevice": {
     "iphone": [
       {
@@ -130,118 +130,257 @@
     ],
     "android": [
       {
-        "id": "s_ms98bzye_a",
+        "id": "01-body-clock",
         "layout": "hero",
         "label": {
-          "en": "MEET YOUR APP"
+          "en": "YOUR FASTING CLOCK"
         },
         "headline": {
-          "en": "Sell one *idea*\nper screen."
+          "en": "Know what your\nbody is *doing*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/bellyclock/uploaded/0e2e1024acf037ec.jpg",
+        "transforms": {
+          "device": {
+            "x": 127.69485292454968,
+            "y": 365.17211954638435,
+            "width": 851,
+            "height": 1844,
+            "rotation": -4,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 86.4,
+            "y": 172.79999999999998,
+            "width": 907.1999999999999,
+            "height": 537.6,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": -18,
+          "color": "porcelain"
+        }
       },
       {
-        "id": "s_ms98bzye_b",
+        "id": "02-guided-fast",
         "layout": "device-bottom",
         "label": {
-          "en": "FEATURE 01"
+          "en": "FAST WITH CONTEXT"
         },
         "headline": {
-          "en": "Your headline\n*lives* here."
+          "en": "Follow a plan,\nnot a *guess*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/bellyclock/uploaded/dfd9140010af1859.jpg",
+        "transforms": {
+          "device": {
+            "x": 49.00310415862691,
+            "y": 384.36726554202653,
+            "width": 901,
+            "height": 1951,
+            "rotation": 7,
+            "zIndex": 3
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": -18,
+          "color": "porcelain"
+        }
       },
       {
-        "id": "s_ms98bzye_c",
+        "id": "03-hydration-rhythm",
         "layout": "device-top",
         "label": {
-          "en": "FEATURE 02"
+          "en": "HYDRATION RHYTHM"
         },
         "headline": {
-          "en": "Flip it for\nvisual *rhythm*."
+          "en": "Drink with\nyour body’s *clock*."
         },
-        "screenshot": "",
-        "inverted": true
+        "screenshot": "/screenshots/bellyclock/uploaded/f0c79200be3c3897.jpg",
+        "transforms": {
+          "device": {
+            "x": 36.996869177888584,
+            "y": -138.44832763186753,
+            "width": 949,
+            "height": 2055,
+            "rotation": -6,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 101.66232114467539,
+            "y": 1287.6820349761529,
+            "width": 907.1999999999999,
+            "height": 537.6,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": -18,
+          "color": "porcelain"
+        }
       },
       {
-        "id": "s_ms98bzye_d",
-        "layout": "two-devices",
-        "label": {
-          "en": "FEATURE 03"
-        },
-        "headline": {
-          "en": "Show two\n*screens* at once."
-        },
-        "screenshot": "",
-        "screenshotSecondary": ""
-      },
-      {
-        "id": "s_ms98bzye_e",
+        "id": "04-patterns",
         "layout": "hero",
         "label": {
-          "en": "FEATURE 04"
+          "en": "PATTERNS, NOT PRESSURE"
         },
         "headline": {
-          "en": "Lead with the\n*outcome*."
+          "en": "See what shapes\neach *fast*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/bellyclock/uploaded/1e64c36314e25ffa.jpg",
+        "transforms": {
+          "device": {
+            "x": 32.8222114916116,
+            "y": 300.92548795779476,
+            "width": 1009,
+            "height": 2186,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": -1,
+          "rotateY": 0,
+          "color": "porcelain"
+        },
+        "focusElements": []
       },
       {
-        "id": "s_ms98bzye_f",
+        "id": "05-journal",
         "layout": "device-bottom",
         "label": {
-          "en": "FEATURE 05"
+          "en": "BODY NOTES"
         },
         "headline": {
-          "en": "One benefit,\n*one* look."
+          "en": "Remember how\neach fast *felt*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/bellyclock/uploaded/66840329fad37fe3.jpg",
+        "transforms": {
+          "device": {
+            "x": 61.41966472360946,
+            "y": 254.04269610835587,
+            "width": 965,
+            "height": 2091,
+            "rotation": -5,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 83.34753577106494,
+            "y": 71.18346581875987,
+            "width": 907.1999999999999,
+            "height": 537.6,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": -18,
+          "color": "porcelain"
+        }
       },
       {
-        "id": "s_ms98bzye_g",
-        "layout": "no-device",
-        "label": {
-          "en": "WHY IT WORKS"
-        },
-        "headline": {
-          "en": "Let the words\ncarry *this* one."
-        },
-        "screenshot": "",
-        "inverted": true
-      },
-      {
-        "id": "s_ms98bzye_h",
+        "id": "06-community",
         "layout": "device-top",
         "label": {
-          "en": "FEATURE 06"
+          "en": "FAST TOGETHER"
         },
         "headline": {
-          "en": "Close the loop\non the *promise*."
+          "en": "Find people on\nthe same *path*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/bellyclock/uploaded/7267e6cb22a4adf3.jpg",
+        "transforms": {
+          "device": {
+            "x": 150.3180464040579,
+            "y": -203.57710906141438,
+            "width": 862,
+            "height": 1867,
+            "rotation": 6,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 65.03275039745677,
+            "y": 1565.4562798092225,
+            "width": 907.1999999999999,
+            "height": 537.6,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 2,
+          "rotateY": -1,
+          "color": "porcelain"
+        }
       },
       {
-        "id": "s_ms98bzye_i",
-        "layout": "two-devices",
+        "id": "07-spiritual-rhythm",
+        "layout": "hero",
         "label": {
-          "en": "FEATURE 07"
+          "en": "FAITH-AWARE FASTING"
         },
         "headline": {
-          "en": "Pair the\n*before* and after."
+          "en": "Make room for\nyour spiritual *rhythm*."
         },
-        "screenshot": "",
-        "screenshotSecondary": ""
+        "screenshot": "/screenshots/bellyclock/uploaded/3a6be9e52b354eee.jpg",
+        "transforms": {
+          "device": {
+            "x": 32.82219809960952,
+            "y": 444.3912942099035,
+            "width": 975,
+            "height": 2113,
+            "rotation": -4,
+            "zIndex": 3
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": -9,
+          "color": "porcelain"
+        }
       },
       {
-        "id": "s_ms98bzye_j",
+        "id": "08-whole-rhythm",
         "layout": "no-device",
         "label": {
-          "en": "GET STARTED"
+          "en": "ONE CLOCK · YOUR WHOLE RHYTHM"
         },
         "headline": {
-          "en": "And so much\n*more*."
+          "en": "Fast · hydrate · reflect\nlearn · connect · repeat"
         },
-        "screenshot": ""
+        "screenshot": "",
+        "textElements": [
+          {
+            "id": "phase-note",
+            "text": {
+              "en": "DIGEST  →  GLYCOGEN  →  BURN  →  KETO  →  RENEW"
+            },
+            "transform": {
+              "x": 105,
+              "y": 1440,
+              "width": 870,
+              "height": 120,
+              "rotation": -2,
+              "zIndex": 6
+            },
+            "fontSize": 30,
+            "fontWeight": 600,
+            "color": "#86EFAC",
+            "align": "center"
+          }
+        ]
       }
     ],
     "ipad": [
@@ -435,13 +574,67 @@
         "layout": "feature-graphic",
         "label": {},
         "headline": {
-          "en": "Your tagline goes here."
+          "en": "Read your body’s\n*fasting clock*."
         },
         "screenshot": ""
       }
     ]
   },
   "themes": [
+    {
+      "id": "bellyclock-editorial",
+      "name": "BellyClock Field Notes",
+      "bg": "#0A0612",
+      "bgAlt": "#F4E9D8",
+      "fg": "#F7F0E5",
+      "fgAlt": "#1A0A2E",
+      "accent": "#86EFAC",
+      "muted": "#C9C2DA",
+      "background": {
+        "kind": "solids",
+        "colors": [
+          "#0A0612",
+          "#17102A",
+          "#101B2E",
+          "#211025",
+          "#0D1D20",
+          "#17102A",
+          "#0A1F1A",
+          "#120A1E"
+        ]
+      },
+      "headline": {
+        "family": "var(--font-montserrat), Montserrat, Inter, system-ui, sans-serif",
+        "weight": 700,
+        "lineHeight": 0.96,
+        "letterSpacing": -0.022
+      },
+      "label": {
+        "family": "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace",
+        "weight": 600,
+        "transform": "uppercase",
+        "scale": 0.82,
+        "letterSpacing": 0.08
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#67E8F9",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.12,
+        "rotation": -2,
+        "lineHeight": 0.9
+      },
+      "device": {
+        "tilt": -4,
+        "shadow": "0 42px 88px rgba(124, 58, 237, 0.34), 0 7px 18px rgba(0, 0, 0, 0.30)"
+      },
+      "decor": {
+        "grain": 0.035,
+        "bellyclock": true,
+        "wordmark": true
+      }
+    },
     {
       "id": "bellyclock",
       "name": "BellyClock Aurora",

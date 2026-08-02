@@ -101,10 +101,45 @@ Plus per-app brand palettes transcribed from each app's own token files: `speakd
 
 Two ways:
 
-1. **Drop a file in the inspector** — drag-and-drop or click Pick. The file is sent to `/api/upload` with the active app id, hashed, and written to `public/screenshots/<app-id>/uploaded/<hash>.png`. Commit those files alongside `projects/<app-id>.json` and the screenshots survive a `git clone`.
+1. **Drop a file in the inspector** — drag-and-drop or click Pick. In local mode the file is sent to `/api/upload` with the active app id, hashed, and written to `public/screenshots/<app-id>/uploaded/<hash>.png`. In hosted mode that endpoint refuses and the image goes to IndexedDB instead, with the slide storing a short `idb:<key>`. Either way the key is a content hash, so re-dropping the same image reuses the existing entry rather than duplicating it.
 2. **Reference a static file** — drop PNG/JPGs into `public/screenshots/<app-id>/` and point the slide's `screenshot` field at `/screenshots/<app-id>/<file>`.
 
 Paths may contain `{locale}` (e.g. `/screenshots/myapp/{locale}/01.png`) to serve a different capture per language; it's substituted at render and export time.
+
+## Local vs hosted mode
+
+The editor runs in one of two persistence models, decided per instance:
+
+| | `local` | `hosted` |
+| --- | --- | --- |
+| Apps come from | `projects/*.json` on disk | this browser's storage |
+| Deck saves to | the project file | localStorage |
+| Screenshots go to | `public/screenshots/<app>/uploaded/` | IndexedDB, referenced as `idb:<key>` |
+| Your committed decks | opened normally | **never listed or served** |
+
+Mode follows the actual filesystem: if `projects/` is writable it's `local`, otherwise `hosted`. That means `npm run dev` and a self-hosted box with a real disk behave exactly as before, while any immutable deployment (Vercel, Netlify, a read-only container) flips to hosted on its own. The failure direction is deliberate — a deploy nobody remembered to configure hides your decks instead of publishing them.
+
+Override with `SCREENSHOTS_MODE=local|hosted` when the probe guesses wrong.
+
+**Hosted mode is the shareable one.** A visitor lands on an empty editor, creates their own app, drops their own screenshots, and exports a zip — all client-side, nothing written to the server, and none of the decks in this repo visible to them. `/api/project`, `/api/upload`, and `POST /api/apps` all return 503; `/api/apps` reports an empty list without reading `projects/` at all.
+
+Two things worth knowing before deploying:
+
+- **There is no auth anywhere.** That's harmless on a read-only host because every write is refused. Do not point `SCREENSHOTS_MODE=local` at a public URL with a writable disk — any visitor could create and overwrite decks.
+- **Hosted storage is per-browser.** Clearing site data deletes a visitor's apps. There's no account, no sync, and no server-side copy.
+
+### Screenshots are not committed
+
+`public/screenshots/**` images are gitignored — only `ASSETS.md` and `app-icon.png` are tracked. This is a public repo, and app captures are large, frequently re-shot, and usually show unreleased UI.
+
+They still have to *live* under `public/` because the canvas renders them with a plain `<img src="/screenshots/…">`, and `html-to-image` can only snapshot same-origin images — a remote URL taints the canvas and the export comes out blank. Serving location and version control are separate concerns here.
+
+The consequence: a fresh clone opens decks whose device screens are empty, with the picker showing *"uploaded image (not on disk)"*. Each app's `ASSETS.md` records what that deck expects. If you keep your captures elsewhere, point the folder at them instead of copying:
+
+```powershell
+mklink /J public\screenshots\myapp\uploaded D:\path\to\real\shots   # Windows
+ln -s /path/to/real/shots public/screenshots/myapp/uploaded         # macOS/Linux
+```
 
 ## Exporting
 
@@ -126,7 +161,10 @@ The toolbar dropdown lists every Apple/Google-required size for the current devi
 
 - `mockup.png` is the iPhone bezel overlay; replacing it requires re-measuring the `PHONE_SCREEN` constants.
 - Image preloading converts every static path to a base64 data URI before exports run, and export retries paths that were previously missing — this prevents the html-to-image race where some slide screenshots come out black.
-- Reset via the toolbar's circular arrow icon clears the **current app's** screens only — its name, palette, locales, and the files on disk are kept, and other apps are untouched. To wipe an app entirely, delete `projects/<app-id>.json` and `public/screenshots/<app-id>/`.
+- Reset via the toolbar's eraser icon clears the **current app's** screens only — its name, palette, locales, and the files on disk are kept, and other apps are untouched.
+- **Removing an app** — hover a row in the app dropdown and click the ✕. It deletes `projects/<app-id>.json` (or the browser copy, hosted) after a confirm, and deliberately **keeps** `public/screenshots/<app-id>/`: the deck is a few KB the editor can rebuild, the screenshots are often the only copy. Delete that folder by hand if you want the app gone completely. The ✕ is hidden when only one app is left, since there'd be nowhere to land.
+- **Portrait/landscape** lives in the inspector's **Device frame** panel, alongside the other controls for how the device is presented. It only appears for devices with a landscape export size, and unlike the rest of that panel it applies to the whole device deck, not one screen.
+- **Undo** — ⌘/Ctrl+Z and the toolbar's undo/redo buttons. Steps follow actions, not the clock: one drag, or one run of typing in one field, is one step, but moving to a different control starts a new one. Switching device tab, orientation, or locale is view state and never lands on the stack. History is per-app and clears on switch.
 - **Persistence model** — the canonical state lives in `projects/<app-id>.json` (git-tracked). On load, the editor reads that app's localStorage cache first for instant paint, then overwrites with the file contents if present; if the file endpoint is unavailable, saving is blocked so stale cache cannot overwrite disk. On save, both are written. If you ever see a conflict, the file always wins.
 - **App identity** — the filename is the source of truth. `/api/project` validates `?app=` against a strict slug charset before touching the filesystem and stamps the id onto whatever it writes, so a stale or crafted `appId` in a payload can't redirect a save into another app's file.
 - **Migration model** — schema v1 projects do not need a manual conversion. On first load, the editor upgrades localized text and transform records, writes `schemaVersion: 2`, preserves all existing screens, and keeps `connectedCanvas: false` so old offscreen/clipped elements export exactly as isolated screens. Turn on **Connected** in the toolbar when you want elements to cross screen edges. Explicit skill migrations preserve an existing `connectedCanvas` choice, otherwise they keep legacy decks isolated too.

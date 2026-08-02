@@ -60,22 +60,39 @@ SelectContent.displayName = SelectPrimitive.Content.displayName;
 
 const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> & {
+    /**
+     * Per-row control (a remove button, say), pinned to the right edge.
+     *
+     * It is a sibling of ItemText rather than a child for a reason: Radix
+     * mirrors ItemText into the closed trigger, so anything nested inside it
+     * would also render as part of the selected value. Rows with an action get
+     * extra right padding and the tick moves inboard to make room.
+     */
+    action?: React.ReactNode;
+  }
+>(({ className, children, action, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
       "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      action && "pr-14",
       className,
     )}
     {...props}
   >
-    <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span
+      className={cn(
+        "absolute flex h-3.5 w-3.5 items-center justify-center",
+        action ? "right-8" : "right-2",
+      )}
+    >
       <SelectPrimitive.ItemIndicator>
         <Check className="h-4 w-4" />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    {action}
   </SelectPrimitive.Item>
 ));
 SelectItem.displayName = SelectPrimitive.Item.displayName;

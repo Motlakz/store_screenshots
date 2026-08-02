@@ -37,14 +37,18 @@ import { Sidebar } from "./sidebar";
 import { DeckCanvas, getCanvas } from "./slide-canvas";
 import { Toolbar } from "./toolbar";
 
+const SIDEBAR_STORAGE_KEY = "editor-screens-collapsed";
+
 export function ScreenshotEditor() {
   const {
     state,
     setState,
     apps,
+    mode,
     appId,
     switchApp,
     createApp,
+    deleteApp,
     switching,
     hydrated,
     savedAt,
@@ -58,6 +62,8 @@ export function ScreenshotEditor() {
     resetDevice,
     undo,
     redo,
+    canUndo,
+    canRedo,
   } = useProject();
   const [activeSlideId, setActiveSlideId] = React.useState<string | null>(null);
   const [selectedElement, setSelectedElement] = React.useState<SelectedElement | null>(null);
@@ -66,6 +72,31 @@ export function ScreenshotEditor() {
   const [exportLocaleOverride, setExportLocaleOverride] = React.useState<string | null>(null);
   const [exportSlideIndex, setExportSlideIndex] = React.useState(0);
   const exportRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Screens rail. Editor-chrome preference, not deck content, so it lives in
+  // localStorage next to the theme rather than in the project file. Safe to
+  // read during the initial render: that render is the loading spinner on both
+  // server and client, so there's nothing to mismatch.
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleSidebar = React.useCallback(() => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        window.localStorage.setItem(SIDEBAR_STORAGE_KEY, next ? "1" : "0");
+      } catch {
+        /* preference is best-effort */
+      }
+      return next;
+    });
+  }, []);
 
   // Leaving an app with unsaved edits routes through a prompt instead of a
   // silent write, so manual mode really means "nothing moves unless I say so".
@@ -153,7 +184,8 @@ export function ScreenshotEditor() {
 
   React.useEffect(() => {
     if (!supportsLandscape(state.device) && state.orientation !== "portrait") {
-      setState((p) => ({ ...p, orientation: "portrait" }));
+      // A correction the editor makes on your behalf — never an undo step.
+      setState((p) => ({ ...p, orientation: "portrait" }), { transient: true });
     }
   }, [state.device, state.orientation, setState]);
 
@@ -202,26 +234,31 @@ export function ScreenshotEditor() {
   // Surface storage failures (quota exceeded etc.) so the user knows their work isn't safe.
   React.useEffect(() => {
     if (saveError) {
-      toast.error("Couldn't load or save project file", {
-        description: saveError,
-        duration: 8000,
-      });
+      toast.error(
+        mode === "hosted" ? "Couldn't save to this browser" : "Couldn't load or save project file",
+        { description: saveError, duration: 8000 },
+      );
     }
-  }, [saveError]);
+  }, [saveError, mode]);
 
   // ---------- Mutations ----------
 
   const patchSlide = React.useCallback(
     (id: string, patch: Partial<Slide>) => {
-      setState((prev) => ({
-        ...prev,
-        slidesByDevice: {
-          ...prev.slidesByDevice,
-          [prev.device]: (prev.slidesByDevice[prev.device] || []).map((s) =>
-            s.id === id ? { ...s, ...patch } : s,
-          ),
-        },
-      }));
+      setState(
+        (prev) => ({
+          ...prev,
+          slidesByDevice: {
+            ...prev.slidesByDevice,
+            [prev.device]: (prev.slidesByDevice[prev.device] || []).map((s) =>
+              s.id === id ? { ...s, ...patch } : s,
+            ),
+          },
+        }),
+        // Keyed by which fields moved, so holding a slider is one undo step
+        // but reaching for the next control starts another.
+        { coalesce: `slide:${id}:${Object.keys(patch).sort().join(",")}` },
+      );
     },
     [setState],
   );
@@ -254,9 +291,12 @@ export function ScreenshotEditor() {
       });
       setActiveSlideId((cur) => (cur === id ? fallback?.id || null : cur));
 
+      // "Restore", not "Undo": this puts *this* screen back at *this* index no
+      // matter what you did after deleting it, and it lands as its own history
+      // step. ⌘Z is the general-purpose rewind; this is the targeted one.
       toast("Screen deleted", {
         action: {
-          label: "Undo",
+          label: "Restore",
           onClick: () => {
             setState((prev) => {
               const cur = prev.slidesByDevice[dev] || [];
@@ -296,70 +336,81 @@ export function ScreenshotEditor() {
         [key]: writeLocalized(slide[key], state.locale, value),
       } as Partial<Slide>);
     },
+    // patchSlide already keys on the field name, so a run of typing in one
+    // field collapses to a single step.
     [patchSlide, state.locale],
   );
 
   const patchElementTransform = React.useCallback(
     (slideId: string, elementId: ElementId, transform: ElementTransform) => {
-      setState((prev) => ({
-        ...prev,
-        slidesByDevice: {
-          ...prev.slidesByDevice,
-          [prev.device]: (prev.slidesByDevice[prev.device] || []).map((slide) => {
-            if (slide.id !== slideId) return slide;
-            if (isTextElementId(elementId)) {
-              const textId = textElementKey(elementId);
+      setState(
+        (prev) => ({
+          ...prev,
+          slidesByDevice: {
+            ...prev.slidesByDevice,
+            [prev.device]: (prev.slidesByDevice[prev.device] || []).map((slide) => {
+              if (slide.id !== slideId) return slide;
+              if (isTextElementId(elementId)) {
+                const textId = textElementKey(elementId);
+                return {
+                  ...slide,
+                  textElements: (slide.textElements || []).map((element) =>
+                    element.id === textId ? { ...element, transform } : element,
+                  ),
+                };
+              }
+              if (isFocusElementId(elementId)) {
+                const focusId = focusElementKey(elementId);
+                return {
+                  ...slide,
+                  focusElements: (slide.focusElements || []).map((element) =>
+                    element.id === focusId ? { ...element, transform } : element,
+                  ),
+                };
+              }
+              if (!isBuiltInElementId(elementId)) return slide;
               return {
                 ...slide,
-                textElements: (slide.textElements || []).map((element) =>
-                  element.id === textId ? { ...element, transform } : element,
-                ),
+                transforms: {
+                  ...(slide.transforms || {}),
+                  [elementId]: transform,
+                } as Partial<Record<BuiltInElementId, ElementTransform>>,
               };
-            }
-            if (isFocusElementId(elementId)) {
-              const focusId = focusElementKey(elementId);
-              return {
-                ...slide,
-                focusElements: (slide.focusElements || []).map((element) =>
-                  element.id === focusId ? { ...element, transform } : element,
-                ),
-              };
-            }
-            if (!isBuiltInElementId(elementId)) return slide;
-            return {
-              ...slide,
-              transforms: {
-                ...(slide.transforms || {}),
-                [elementId]: transform,
-              } as Partial<Record<BuiltInElementId, ElementTransform>>,
-            };
-          }),
-        },
-      }));
+            }),
+          },
+        }),
+        // One drag or resize of one element is one undo step, however many
+        // intermediate frames react-rnd emits along the way.
+        { coalesce: `transform:${slideId}:${elementId}` },
+      );
     },
     [setState],
   );
 
   const patchTextElementText = React.useCallback(
     (slideId: string, textId: string, value: string) => {
-      setState((prev) => ({
-        ...prev,
-        slidesByDevice: {
-          ...prev.slidesByDevice,
-          [prev.device]: (prev.slidesByDevice[prev.device] || []).map((slide) =>
-            slide.id === slideId
-              ? {
-                  ...slide,
-                  textElements: (slide.textElements || []).map((element) =>
-                    element.id === textId
-                      ? { ...element, text: writeLocalized(element.text, prev.locale, value) }
-                      : element,
-                  ),
-                }
-              : slide,
-          ),
-        },
-      }));
+      setState(
+        (prev) => ({
+          ...prev,
+          slidesByDevice: {
+            ...prev.slidesByDevice,
+            [prev.device]: (prev.slidesByDevice[prev.device] || []).map((slide) =>
+              slide.id === slideId
+                ? {
+                    ...slide,
+                    textElements: (slide.textElements || []).map((element) =>
+                      element.id === textId
+                        ? { ...element, text: writeLocalized(element.text, prev.locale, value) }
+                        : element,
+                    ),
+                  }
+                : slide,
+            ),
+          },
+        }),
+        // Typing straight into the canvas: one step per text box, per pause.
+        { coalesce: `text:${slideId}:${textId}` },
+      );
     },
     [setState],
   );
@@ -429,6 +480,16 @@ export function ScreenshotEditor() {
         return;
       }
 
+      // Intentionally above the inEditable guard, so it works while typing.
+      // It also shadows the browser's native bold-in-contenteditable, which is
+      // a feature here: canvas text round-trips through innerText, so any <b>
+      // the browser inserted would silently vanish on the next render.
+      if ((e.metaKey || e.ctrlKey) && (e.key === "b" || e.key === "B")) {
+        e.preventDefault();
+        toggleSidebar();
+        return;
+      }
+
       if (e.key === "Escape") {
         setSelectedElement(null);
         if (target && "blur" in target && typeof target.blur === "function") target.blur();
@@ -485,6 +546,7 @@ export function ScreenshotEditor() {
     dirty,
     saving,
     saveNow,
+    toggleSidebar,
   ]);
 
   // ---------- Export ----------
@@ -691,9 +753,11 @@ export function ScreenshotEditor() {
       <Toaster position="top-right" richColors closeButton />
       <Toolbar
         apps={apps}
+        mode={mode}
         appId={appId}
         onSwitchApp={requestSwitch}
         onCreateApp={requestCreate}
+        onDeleteApp={deleteApp}
         switching={switching}
         themeId={state.themeId}
         setThemeId={(v) => setState((p) => ({ ...p, themeId: v }))}
@@ -702,16 +766,20 @@ export function ScreenshotEditor() {
         themeOwned={ownsTheme(state, state.themeId)}
         onPatchTheme={(patch) => setState((p) => patchActiveTheme(p, themeById(p.themeId, p.themes), patch))}
         appName={state.appName}
-        setAppName={(v) => setState((p) => ({ ...p, appName: v }))}
+        setAppName={(v) => setState((p) => ({ ...p, appName: v }), { coalesce: "app-name" })}
         connectedCanvas={state.connectedCanvas}
         setConnectedCanvas={(v) => setState((p) => ({ ...p, connectedCanvas: v }))}
         locale={state.locale}
-        setLocale={(v) => setState((p) => ({ ...p, locale: v }))}
+        // Device, orientation, and locale pick what you're looking at rather
+        // than changing the deck, so they stay out of the undo stack.
+        setLocale={(v) => setState((p) => ({ ...p, locale: v }), { transient: true })}
         locales={state.locales}
         device={state.device}
-        setDevice={(v) => setState((p) => ({ ...p, device: v }))}
-        orientation={state.orientation}
-        setOrientation={(v) => setState((p) => ({ ...p, orientation: v }))}
+        setDevice={(v) => setState((p) => ({ ...p, device: v }), { transient: true })}
+        onUndo={undo}
+        onRedo={redo}
+        canUndo={canUndo}
+        canRedo={canRedo}
         onExport={exportAll}
         onResetAll={() => {
           reset();
@@ -735,8 +803,14 @@ export function ScreenshotEditor() {
       />
 
       <div className="flex flex-1 overflow-hidden md:flex-row flex-col">
-        <aside className="md:w-72 w-full shrink-0 border-r bg-card md:max-h-none max-h-64 overflow-hidden">
+        <aside
+          className={`w-full shrink-0 overflow-hidden border-r bg-card transition-[width,max-height] duration-200 ease-out ${
+            sidebarCollapsed ? "max-h-12 md:max-h-none md:w-12" : "max-h-64 md:max-h-none md:w-72"
+          }`}
+        >
           <Sidebar
+            collapsed={sidebarCollapsed}
+            onToggleCollapse={toggleSidebar}
             slides={currentSlides}
             activeId={activeSlide?.id || null}
             device={state.device}
@@ -797,6 +871,9 @@ export function ScreenshotEditor() {
                 selectedElement?.slideId === activeSlide.id ? selectedElement.elementId : null
               }
               onChange={(patch) => patchSlide(activeSlide.id, patch)}
+              onOrientationChange={(v) =>
+                setState((p) => ({ ...p, orientation: v }), { transient: true })
+              }
               onSelectElement={(elementId) =>
                 setSelectedElement(
                   elementId ? { slideId: activeSlide.id, elementId } : null,
@@ -825,8 +902,15 @@ export function ScreenshotEditor() {
               {pendingNav?.kind === "create"
                 ? `You have unsaved edits. Creating "${pendingNav.name}" will leave this app.`
                 : "You have unsaved edits. Switching apps will leave this app."}{" "}
-              Discarding keeps <span className="font-mono text-[11px]">projects/{appId}.json</span>{" "}
-              exactly as it is on disk.
+              {mode === "hosted" ? (
+                <>Discarding keeps the copy already saved in this browser.</>
+              ) : (
+                <>
+                  Discarding keeps{" "}
+                  <span className="font-mono text-[11px]">projects/{appId}.json</span> exactly as
+                  it is on disk.
+                </>
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-wrap justify-end gap-2">

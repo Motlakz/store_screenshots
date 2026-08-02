@@ -5,3 +5,25 @@ out
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+.vercel
+
+# App screenshots are source material, not source code.
+#
+# They have to live under public/ because the canvas renders them with a plain
+# <img src="/screenshots/...">, and html-to-image can only snapshot same-origin
+# images — a remote URL taints the canvas and the export comes out blank. That
+# is a serving requirement, not a versioning one: keep the files on disk here,
+# just don't publish them.
+#
+# What stays tracked is the part worth versioning: each folder's ASSETS.md
+# (what a deck expects, and what's still missing) and projects/<app>.json (the
+# deck itself, which references these paths). A fresh clone renders empty
+# device screens until you drop the real captures back in.
+public/screenshots/**/*.png
+public/screenshots/**/*.jpg
+public/screenshots/**/*.jpeg
+public/screenshots/**/*.webp
+
+# Icons are the exception: already public on the stores, a few KB, and the
+# feature-graphic layout can't render without one.
+!public/screenshots/*/app-icon.png

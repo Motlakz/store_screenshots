@@ -28,13 +28,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { LAYOUT_HINT, LAYOUT_LABEL } from "@/lib/constants";
 import { nid } from "@/lib/defaults";
 import {
+  clearLocaleTransform,
+  hasLocaleTransform,
   isBuiltInElementId,
   focusElementKey,
   isFocusElementId,
   isTextElementId,
+  restackByLocale,
+  restackElement,
   textElementKey,
   toTextElementId,
   toFocusElementId,
+  writeElementTransform,
 } from "@/lib/elements";
 import { img } from "@/lib/image-cache";
 import { pickText, resolveScreenshot, writeLocalized } from "@/lib/locale";
@@ -65,6 +70,9 @@ type Props = {
   device: Device;
   orientation: Orientation;
   locale: string;
+  locales: string[];
+  transformScope: "locale" | "all";
+  onTransformScopeChange: (scope: "locale" | "all") => void;
   selectedElementId: ElementId | null;
   onChange: (patch: Partial<Slide>) => void;
   onSelectElement: (id: ElementId | null) => void;
@@ -86,6 +94,9 @@ export function Inspector({
   device,
   orientation,
   locale,
+  locales,
+  transformScope,
+  onTransformScopeChange,
   selectedElementId,
   onChange,
   onSelectElement,
@@ -117,7 +128,7 @@ export function Inspector({
 
   React.useEffect(() => {
     if (device === "feature-graphic" && slide.layout !== "feature-graphic") {
-      onChange({ layout: "feature-graphic", transforms: undefined });
+      onChange({ layout: "feature-graphic", transforms: undefined, transformsByLocale: undefined });
     }
   }, [device, onChange, slide.layout]);
 
@@ -143,6 +154,7 @@ export function Inspector({
               onChange({
                 layout: next,
                 transforms: undefined,
+                transformsByLocale: undefined,
                 screenshotSecondary:
                   next === "two-devices" ? slide.screenshotSecondary || slide.screenshot : undefined,
               });
@@ -247,6 +259,9 @@ export function Inspector({
             device={device}
             orientation={orientation}
             locale={locale}
+            locales={locales}
+            transformScope={transformScope}
+            onTransformScopeChange={onTransformScopeChange}
             selectedElementId={selectedElementId}
             onChange={onChange}
             onSelectElement={onSelectElement}
@@ -269,6 +284,9 @@ function ElementTransformControls({
   device,
   orientation,
   locale,
+  locales,
+  transformScope,
+  onTransformScopeChange,
   selectedElementId,
   onChange,
   onSelectElement,
@@ -278,6 +296,9 @@ function ElementTransformControls({
   device: Device;
   orientation: Orientation;
   locale: string;
+  locales: string[];
+  transformScope: "locale" | "all";
+  onTransformScopeChange: (scope: "locale" | "all") => void;
   selectedElementId: ElementId | null;
   onChange: (patch: Partial<Slide>) => void;
   onSelectElement: (id: ElementId | null) => void;
@@ -288,11 +309,10 @@ function ElementTransformControls({
   for (const element of slide.textElements || []) present.push(toTextElementId(element.id));
   for (const element of slide.focusElements || []) present.push(toFocusElementId(element.id));
 
-  const transforms = slide.transforms || {};
   const activeId =
     selectedElementId && present.includes(selectedElementId) ? selectedElementId : null;
   const activeTransform = activeId
-    ? getElementTransform(slide, device, orientation, activeId)
+    ? getElementTransform(slide, device, orientation, activeId, locale)
     : undefined;
   const activeTextElement =
     activeId && isTextElementId(activeId)
@@ -304,36 +324,20 @@ function ElementTransformControls({
       : null;
 
   function getTransform(id: ElementId) {
-    return getElementTransform(slide, device, orientation, id);
+    return getElementTransform(slide, device, orientation, id, locale);
   }
 
   function patchElement(id: ElementId, patch: Partial<ElementTransform>) {
     const cur = getTransform(id);
     if (!cur) return;
-    if (isTextElementId(id)) {
-      const textId = textElementKey(id);
-      onChange({
-        textElements: (slide.textElements || []).map((element) =>
-          element.id === textId
-            ? { ...element, transform: { ...element.transform, ...patch } }
-            : element,
-        ),
-      });
-      return;
-    }
-    if (isFocusElementId(id)) {
-      const focusId = focusElementKey(id);
-      onChange({
-        focusElements: (slide.focusElements || []).map((element) =>
-          element.id === focusId ? { ...element, transform: { ...element.transform, ...patch } } : element,
-        ),
-      });
-      return;
-    }
-    if (!isBuiltInElementId(id)) return;
-    onChange({
-      transforms: { ...transforms, [id]: { ...cur, ...patch } },
-    });
+    onChange(
+      writeElementTransform(
+        slide,
+        id,
+        { ...cur, ...patch },
+        transformScope === "locale" && locales.length > 1 ? locale : null,
+      ),
+    );
   }
 
   function patchTextElement(id: string, patch: Partial<TextElement>) {
@@ -404,6 +408,7 @@ function ElementTransformControls({
       screenshotSecondary: slide.screenshotSecondary || slide.screenshot,
       frameSecondary: slide.frame ? { ...slide.frame } : undefined,
       transforms: undefined,
+      transformsByLocale: undefined,
     });
     onSelectElement("deviceSecondary");
   }
@@ -414,6 +419,7 @@ function ElementTransformControls({
       screenshotSecondary: undefined,
       frameSecondary: undefined,
       transforms: undefined,
+      transformsByLocale: undefined,
     });
     onSelectElement(null);
   }
@@ -463,32 +469,40 @@ function ElementTransformControls({
     if (target === idx) return;
     ranked.splice(idx, 1);
     ranked.splice(target, 0, id);
-    const nextTransforms = { ...transforms };
-    const nextTextElements = (slide.textElements || []).map((element) => ({
-      ...element,
-      transform: { ...element.transform },
-    }));
-    const nextFocusElements = (slide.focusElements || []).map((element) => ({
-      ...element,
-      transform: { ...element.transform },
-    }));
+    const nextTransforms = { ...(slide.transforms || {}) };
+    let nextTextElements = [...(slide.textElements || [])];
+    let nextFocusElements = [...(slide.focusElements || [])];
+    const zByBuiltIn: Partial<Record<BuiltInElementId, number>> = {};
     ranked.forEach((eid, i) => {
       const cur = getTransform(eid);
       if (!cur) return;
+      const zIndex = i + 1;
       if (isTextElementId(eid)) {
         const textId = textElementKey(eid);
-        const textElement = nextTextElements.find((element) => element.id === textId);
-        if (textElement) textElement.transform = { ...textElement.transform, zIndex: i + 1 };
+        nextTextElements = nextTextElements.map((element) =>
+          element.id === textId ? restackElement(element, zIndex) : element,
+        );
       } else if (isFocusElementId(eid)) {
         const focusId = focusElementKey(eid);
-        const focusElement = nextFocusElements.find((element) => element.id === focusId);
-        if (focusElement) focusElement.transform = { ...focusElement.transform, zIndex: i + 1 };
+        nextFocusElements = nextFocusElements.map((element) =>
+          element.id === focusId ? restackElement(element, zIndex) : element,
+        );
       } else if (isBuiltInElementId(eid)) {
-        nextTransforms[eid] = { ...cur, zIndex: i + 1 };
+        nextTransforms[eid] = { ...(slide.transforms?.[eid] || cur), zIndex };
+        zByBuiltIn[eid] = zIndex;
       }
     });
-    onChange({ transforms: nextTransforms, textElements: nextTextElements, focusElements: nextFocusElements });
+    onChange({
+      transforms: nextTransforms,
+      transformsByLocale: restackByLocale(slide.transformsByLocale, zByBuiltIn),
+      textElements: nextTextElements,
+      focusElements: nextFocusElements,
+    });
   }
+
+  const activeHasLocalePlacement = activeId
+    ? hasLocaleTransform(slide, activeId, locale)
+    : false;
 
   return (
     <div className="space-y-3 rounded-md border bg-muted/30 p-3">
@@ -501,6 +515,45 @@ function ElementTransformControls({
               : "Add a layer, or select an element on the canvas."}
           </p>
         </div>
+        {locales.length > 1 && (
+          <div className="rounded-md border bg-background p-2">
+            <div className="mb-1.5 flex items-center justify-between gap-2">
+              <Label className="text-[11px] font-semibold">Position changes apply to</Label>
+              {activeHasLocalePlacement && (
+                <button
+                  type="button"
+                  className="text-[10px] text-primary hover:underline"
+                  onClick={() => activeId && onChange(clearLocaleTransform(slide, activeId, locale))}
+                >
+                  Use shared position
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-1">
+              <Button
+                type="button"
+                variant={transformScope === "locale" ? "secondary" : "ghost"}
+                size="sm"
+                className="h-7 text-[11px]"
+                onClick={() => onTransformScopeChange("locale")}
+              >
+                {locale.toUpperCase()} only
+              </Button>
+              <Button
+                type="button"
+                variant={transformScope === "all" ? "secondary" : "ghost"}
+                size="sm"
+                className="h-7 text-[11px]"
+                onClick={() => onTransformScopeChange("all")}
+              >
+                All languages
+              </Button>
+            </div>
+            <p className="mt-1.5 text-[10px] leading-relaxed text-muted-foreground">
+              Canvas dragging and the controls below follow this setting.
+            </p>
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-1.5">
           {canAddDevice && (
             <Button

@@ -457,10 +457,10 @@ export function Toolbar(props: Props) {
           disabled={!!props.exporting}
           size="sm"
           className="h-8"
-          title="Export every size × locale for this device as a zip"
+          title="Choose screens, screenshot groups, and languages to export"
         >
           <Download className="h-4 w-4" />
-          {props.exporting ? `Exporting ${props.exporting}` : "Export bundle"}
+          {props.exporting ? `Exporting ${props.exporting}` : "Export…"}
         </Button>
       </div>
 

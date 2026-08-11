@@ -66,10 +66,18 @@ export type SelectedElement = {
 // ProjectState.locales.
 export type LocalizedText = Partial<Record<string, string>>;
 
+// Per-locale placement keyed by locale code. A locale that isn't listed
+// inherits the shared `transform`, so a deck starts out identical in every
+// language and only diverges where you actually moved something. See
+// lib/elements.ts for the read/write helpers.
+export type LocaleTransforms = Partial<Record<string, ElementTransform>>;
+
 export type TextElement = {
   id: string;
   text: LocalizedText;
   transform: ElementTransform;
+  /** Overrides `transform` for the listed locales only. */
+  transformByLocale?: LocaleTransforms;
   fontSize?: number;
   fontWeight?: number;
   color?: string;
@@ -86,6 +94,8 @@ export type ScreenshotFocusElement = {
   crop: { x: number; y: number; width: number; height: number };
   /** Independent position and size on the marketing canvas. */
   transform: ElementTransform;
+  /** Overrides `transform` for the listed locales only. */
+  transformByLocale?: LocaleTransforms;
   borderRadius?: number;
   borderWidth?: number;
   accentColor?: string;
@@ -130,6 +140,9 @@ export type Slide = {
   frameSecondary?: SlideFrame;
   // Per-element overrides; when present, replaces layout default placement.
   transforms?: Partial<Record<BuiltInElementId, ElementTransform>>;
+  // Placement for one language only, keyed by locale then element. Wins over
+  // `transforms`, so nudging the device in fr leaves en and es where they are.
+  transformsByLocale?: Partial<Record<string, Partial<Record<BuiltInElementId, ElementTransform>>>>;
   textElements?: TextElement[];
 };
 

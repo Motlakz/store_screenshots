@@ -39,7 +39,14 @@ import {
   shade,
 } from "@/lib/style";
 import { frameColorById, resolveFrame } from "@/lib/frames";
-import { focusElementKey, isFocusElementId, toFocusElementId, toTextElementId } from "@/lib/elements";
+import {
+  builtInTransform,
+  focusElementKey,
+  isFocusElementId,
+  localizedTransform,
+  toFocusElementId,
+  toTextElementId,
+} from "@/lib/elements";
 import { img } from "@/lib/image-cache";
 import { pickText, resolveScreenshot } from "@/lib/locale";
 import {
@@ -535,8 +542,9 @@ function rectFor(
   id: BuiltInElementId,
   slide: Slide,
   defaults: LayoutRects,
+  locale: string,
 ): (Rect & { align?: "center" | "left" }) | undefined {
-  const saved = slide.transforms?.[id];
+  const saved = builtInTransform(slide, id, locale);
   const def = defaults[id];
   if (!def && !saved) return undefined;
   if (!saved) return def;
@@ -559,24 +567,28 @@ function getSlideGeometry(slide: Slide, device: Device, orientation: Orientation
   return { cW, cH, Frame, frameAspect, defaults };
 }
 
+// Placement as the given locale sees it — a per-locale override if this
+// language has one, otherwise the shared transform, otherwise the layout default.
 export function getElementTransform(
   slide: Slide,
   device: Device,
   orientation: Orientation,
   id: ElementId,
+  locale: string,
 ): ElementTransform | undefined {
   if (id.startsWith("text:")) {
     const textId = id.slice("text:".length);
     const textElement = slide.textElements?.find((element) => element.id === textId);
-    return textElement?.transform;
+    return textElement ? localizedTransform(textElement, locale) : undefined;
   }
   if (isFocusElementId(id)) {
-    return slide.focusElements?.find((element) => element.id === focusElementKey(id))?.transform;
+    const element = slide.focusElements?.find((item) => item.id === focusElementKey(id));
+    return element ? localizedTransform(element, locale) : undefined;
   }
   const { defaults } = getSlideGeometry(slide, device, orientation);
-  const rect = rectFor(id as BuiltInElementId, slide, defaults);
+  const rect = rectFor(id as BuiltInElementId, slide, defaults, locale);
   if (!rect) return undefined;
-  const saved = slide.transforms?.[id as BuiltInElementId];
+  const saved = builtInTransform(slide, id as BuiltInElementId, locale);
   return {
     x: rect.x,
     y: rect.y,
@@ -729,8 +741,10 @@ export function DeckCanvas({
                 appIcon={appIcon}
                 editable={editable}
                 edit={{
+                  onLabelChange: (v) => edit?.onLabelChange?.(slide.id, v),
                   onHeadlineChange: (v) => edit?.onHeadlineChange?.(slide.id, v),
                 }}
+                enable3D={enable3D}
               />
               {showGuides && <ScreenGuide cW={cW} cH={cH} index={index} active={active} />}
             </div>
@@ -1547,6 +1561,7 @@ function FeatureGraphicCanvas({
   appIcon,
   editable,
   edit,
+  enable3D,
 }: {
   slide: Slide;
   cW: number;
@@ -1556,7 +1571,24 @@ function FeatureGraphicCanvas({
   appIcon?: string;
   editable?: boolean;
   edit?: EditHandlers;
+  enable3D?: boolean;
 }) {
+  if (theme.id === "speakdiary") {
+    return (
+      <SpeakDiaryFeatureGraphic
+        slide={slide}
+        cW={cW}
+        theme={theme}
+        locale={locale}
+        appName={appName}
+        appIcon={appIcon}
+        editable={editable}
+        edit={edit}
+        enable3D={enable3D}
+      />
+    );
+  }
+
   // Every BellyClock palette gets the branded store banner. The regular slide
   // decor can differ by palette, but the product's feature graphic should never
   // fall back to the shared generic collage.
@@ -1674,6 +1706,338 @@ function FeatureGraphicCanvas({
           })}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function SpeakDiaryFeatureGraphic({
+  slide,
+  cW,
+  theme,
+  locale,
+  appName,
+  appIcon,
+  editable,
+  edit,
+  enable3D,
+}: {
+  slide: Slide;
+  cW: number;
+  theme: Theme;
+  locale: string;
+  appName?: string;
+  appIcon?: string;
+  editable?: boolean;
+  edit?: EditHandlers;
+  enable3D?: boolean;
+}) {
+  const cH = CANVAS["feature-graphic"].h;
+  const screenshots = [slide.screenshot, slide.screenshotSecondary, slide.screenshotTertiary]
+    .map((src) => resolveScreenshot(src, locale))
+    .filter((src): src is string => !!src && !!img(src));
+  const iconSrc = appIcon && img(appIcon) ? img(appIcon) : "";
+  const headline = pickText(slide.headline, locale);
+  const headlineColors = ["#ff5a00", "#7c3aed", "#ee2b72"];
+  const featureCards = locale === "fr"
+    ? [
+        ["✎", "Journal", "quotidien", "#ff6a16"],
+        ["↗", "Suivi des", "objectifs", "#58B77A"],
+        ["✉", "Lettres à", "soi-même", "#7c3aed"],
+        ["♡", "Évolution", "personnelle", "#e43e8f"],
+      ]
+    : locale === "es"
+      ? [
+          ["✎", "Diario", "personal", "#ff6a16"],
+          ["↗", "Seguir", "metas", "#58B77A"],
+          ["✉", "Cartas a", "mí", "#7c3aed"],
+          ["♡", "Crecimiento", "personal", "#e43e8f"],
+        ]
+      : [
+          ["✎", "Journal", "Daily", "#ff6a16"],
+          ["↗", "Track", "Goals", "#58B77A"],
+          ["✉", "Letters To", "Self", "#7c3aed"],
+          ["♡", "Personal", "Growth", "#e43e8f"],
+        ];
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        overflow: "hidden",
+        color: "#15111d",
+        background:
+          "radial-gradient(circle at 76% 20%, rgba(255,214,196,.7), transparent 28%), radial-gradient(circle at 56% 84%, rgba(232,218,255,.72), transparent 34%), linear-gradient(135deg, #fffdfa 0%, #fff8f5 48%, #fffdfb 100%)",
+      }}
+    >
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: grainCss(0.025),
+          backgroundRepeat: "repeat",
+          mixBlendMode: "multiply",
+          opacity: 0.55,
+        }}
+      />
+
+      <div
+        style={{
+          position: "absolute",
+          left: cW * 0.027,
+          top: cH * 0.075,
+          width: cW * 0.31,
+          zIndex: 6,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {iconSrc ? (
+            <img
+              src={iconSrc}
+              alt=""
+              draggable={false}
+              style={{
+                width: cW * 0.046,
+                height: cW * 0.046,
+                borderRadius: cW * 0.011,
+                boxShadow: "0 10px 24px rgba(255,90,0,.2)",
+              }}
+            />
+          ) : (
+            <div
+              aria-hidden
+              style={{
+                width: cW * 0.046,
+                height: cW * 0.046,
+                borderRadius: cW * 0.011,
+                display: "grid",
+                placeItems: "center",
+                background: "#ff5a00",
+                color: "white",
+                fontSize: cW * 0.021,
+                fontWeight: 800,
+              }}
+            >
+              {(appName || "S").slice(0, 1).toUpperCase()}
+            </div>
+          )}
+        </div>
+
+        <div style={{ position: "relative", marginTop: cH * 0.065 }}>
+          <EditableText
+            value={headline}
+            editable={editable}
+            multiline
+            onChange={edit?.onHeadlineChange}
+            placeholder="your space,\nyour story,\nyour growth"
+            style={{
+              position: "relative",
+              zIndex: 2,
+              minHeight: cH * 0.235,
+              fontFamily: "var(--font-inter), Inter, system-ui, sans-serif",
+              fontSize: cW * 0.037,
+              fontWeight: 530,
+              lineHeight: 1.06,
+              letterSpacing: "-0.035em",
+              color: "transparent",
+              caretColor: "#15111d",
+            }}
+          />
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              inset: 0,
+              fontFamily: "var(--font-inter), Inter, system-ui, sans-serif",
+              fontSize: cW * 0.037,
+              fontWeight: 530,
+              lineHeight: 1.06,
+              letterSpacing: "-0.035em",
+              whiteSpace: "pre-wrap",
+              pointerEvents: "none",
+            }}
+          >
+            {headline.split("\n").map((line, index) => {
+              const match = line.match(/^(.*?)([^\s,]+)([,.!?]*)$/);
+              return (
+                <React.Fragment key={`${line}-${index}`}>
+                  {match ? (
+                    <>
+                      <span>{match[1]}</span>
+                      <span style={{ color: headlineColors[index % headlineColors.length] }}>{match[2]}</span>
+                      <span style={{ color: headlineColors[index % headlineColors.length] }}>{match[3]}</span>
+                    </>
+                  ) : (
+                    line
+                  )}
+                  {index < headline.split("\n").length - 1 ? "\n" : null}
+                </React.Fragment>
+              );
+            })}
+          </div>
+        </div>
+
+        <EditableText
+          value={pickText(slide.label, locale)}
+          editable={editable}
+          multiline
+          onChange={edit?.onLabelChange}
+          placeholder="Journal daily, track goals, understand your mood."
+          style={{
+            width: cW * 0.28,
+            marginTop: cH * 0.018,
+            fontFamily: "var(--font-inter), Inter, system-ui, sans-serif",
+            fontSize: cW * 0.011,
+            fontWeight: 500,
+            lineHeight: 1.35,
+            color: "#3d3748",
+          }}
+        />
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: cW * 0.008,
+            width: cW * 0.285,
+            marginTop: cH * 0.045,
+          }}
+        >
+          {featureCards.map(([glyph, first, second, color]) => (
+            <div
+              key={`${first}-${second}`}
+              style={{
+                height: cH * 0.15,
+                padding: `${cH * 0.016}px ${cW * 0.007}px`,
+                borderRadius: cW * 0.009,
+                border: "1px solid rgba(49,36,66,.12)",
+                background: "rgba(255,255,255,.82)",
+                boxShadow: "0 8px 20px rgba(72,45,95,.06)",
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: cW * 0.026,
+                  height: cW * 0.026,
+                  margin: "0 auto",
+                  display: "grid",
+                  placeItems: "center",
+                  borderRadius: cW * 0.007,
+                  background: color,
+                  color: "white",
+                  fontSize: cW * 0.015,
+                  fontWeight: 800,
+                }}
+              >
+                {glyph}
+              </div>
+              <div style={{ marginTop: cH * 0.011, fontSize: cW * 0.0072, lineHeight: 1.15, color: "#3d3748" }}>
+                {first}<br />{second}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          left: cW * 0.35,
+          top: cH * 0.055,
+          width: cW * 0.62,
+          height: cH * 0.9,
+          borderRadius: "50%",
+          background: "radial-gradient(ellipse, rgba(239,227,255,.92) 0%, rgba(255,224,211,.45) 52%, transparent 74%)",
+          filter: `blur(${cW * 0.007}px)`,
+        }}
+      />
+
+      <div style={{ position: "absolute", left: cW * 0.355, top: 0, width: cW * 0.635, height: "100%", zIndex: 4 }}>
+        {screenshots.slice(0, 3).map((src, index) => {
+          const positions = [
+            { left: cW * 0.005, top: cH * 0.055, width: cW * 0.205, height: cH * 0.91, rotateX: 4, rotateY: -13, rotate: -2, z: 1 },
+            { left: cW * 0.19, top: cH * 0.01, width: cW * 0.22, height: cH * 0.98, rotateX: 3, rotateY: 0, rotate: 0, z: 3 },
+            { left: cW * 0.395, top: cH * 0.045, width: cW * 0.205, height: cH * 0.92, rotateX: 4, rotateY: 13, rotate: 2, z: 2 },
+          ];
+          const position = positions[index];
+          return (
+            <div
+              key={`${src}-${index}`}
+              style={{
+                position: "absolute",
+                left: position.left,
+                top: position.top,
+                width: position.width,
+                height: position.height,
+                overflow: "visible",
+                transform: `rotate(${position.rotate}deg)`,
+                filter: "drop-shadow(0 18px 26px rgba(71,46,91,.18))",
+                zIndex: position.z,
+              }}
+            >
+              <Device3D
+                frame={{
+                  style: "3d",
+                  color: "graphite",
+                  rotateX: position.rotateX,
+                  rotateY: position.rotateY,
+                  depth: 2500,
+                  thickness: 34,
+                }}
+                device="android"
+                orientation="portrait"
+                src={src}
+                enable3D={enable3D}
+                hideEmpty
+                crop={{ top: 0, right: 0, bottom: 0, left: 0 }}
+              >
+                <AndroidPhone
+                  src={src}
+                  hideEmpty
+                  bezel="#f7f3f0"
+                  bezelStroke="rgba(40,31,47,.22)"
+                  bezelStrokeWidth={1}
+                  crop={{ top: 0, right: 0, bottom: 0, left: 0 }}
+                  style={{ width: "100%", height: "100%" }}
+                />
+              </Device3D>
+            </div>
+          );
+        })}
+      </div>
+
+      {["\u{1F642}", "\u{1F60D}", "✦"].map((symbol, index) => {
+        const positions = [
+          { left: cW * 0.32, top: cH * 0.24 },
+          { left: cW * 0.945, top: cH * 0.54 },
+          { left: cW * 0.77, top: cH * 0.88 },
+        ];
+        return (
+          <div
+            key={symbol}
+            aria-hidden
+            style={{
+              position: "absolute",
+              ...positions[index],
+              zIndex: 8,
+              width: cW * 0.038,
+              height: cW * 0.038,
+              display: "grid",
+              placeItems: "center",
+              borderRadius: "50%",
+              background: "rgba(255,255,255,.94)",
+              boxShadow: "0 8px 22px rgba(72,45,95,.18)",
+              fontSize: cW * 0.019,
+            }}
+          >
+            {symbol}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -2032,9 +2396,9 @@ function SlideElements({
   // the active theme rather than being baked into the frame components.
   const themeDevice = resolveStyle(theme).device;
   // Per-screen body finish, if this slide picked one.
-  const captionRect = rectFor("caption", slide, defaults);
-  const deviceRect = rectFor("device", slide, defaults);
-  const secondaryRect = rectFor("deviceSecondary", slide, defaults);
+  const captionRect = rectFor("caption", slide, defaults, locale);
+  const deviceRect = rectFor("device", slide, defaults, locale);
+  const secondaryRect = rectFor("deviceSecondary", slide, defaults, locale);
   const focusElements = (slide.focusElements || []).filter(
     (element) => !element.locales?.length || element.locales.includes(locale),
   );
@@ -2078,7 +2442,7 @@ function SlideElements({
 
   function renderCaption() {
     if (!captionRect) return null;
-    const saved = slide.transforms?.caption;
+    const saved = builtInTransform(slide, "caption", locale);
     const rotation = saved?.rotation ?? 0;
     const zIndex = saved?.zIndex ?? 4;
     const inner = (
@@ -2127,7 +2491,7 @@ function SlideElements({
   }
 
   function renderDevice(id: "device" | "deviceSecondary", rect: Rect, src: string, extraStyle?: React.CSSProperties) {
-    const saved = slide.transforms?.[id];
+    const saved = builtInTransform(slide, id, locale);
     const deviceFrame = id === "deviceSecondary" ? slide.frameSecondary ?? slide.frame : slide.frame;
     const deviceFinish = frameColorById(resolveFrame(deviceFrame).color);
     const rotation = saved?.rotation ?? themeDevice.tilt ?? 0;
@@ -2191,7 +2555,7 @@ function SlideElements({
 
   function renderTextElement(textElement: TextElement, index: number) {
     const elementId = toTextElementId(textElement.id);
-    const rect = textElement.transform;
+    const rect = localizedTransform(textElement, locale);
     const rotation = rect.rotation ?? 0;
     const zIndex = rect.zIndex ?? 5 + index;
     const textColor = textElement.color || (inverted ? theme.fgAlt : theme.fg);
@@ -2259,7 +2623,7 @@ function SlideElements({
   function renderFocusElement(element: ScreenshotFocusElement, index: number) {
     const elementId = toFocusElementId(element.id);
     const source = resolveScreenshot(element.source || slide.screenshot, locale);
-    const rect = element.transform;
+    const rect = localizedTransform(element, locale);
     const crop = element.crop;
     const rotation = rect.rotation ?? 0;
     const zIndex = rect.zIndex ?? 8 + index;

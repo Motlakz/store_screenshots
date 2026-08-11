@@ -12,19 +12,25 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  getExportSizes,
   hasTheme,
   supportsLandscape,
   themeById,
 } from "@/lib/constants";
-import { detectPlatform, nid } from "@/lib/defaults";
-import { focusElementKey, isBuiltInElementId, isFocusElementId, isTextElementId, textElementKey } from "@/lib/elements";
+import { nid } from "@/lib/defaults";
+import {
+  writeElementTransform,
+} from "@/lib/elements";
+import {
+  exportBundleName,
+  planExport,
+  type ExportSelection,
+  type ExportUnit,
+} from "@/lib/export";
 import { preloadImages } from "@/lib/image-cache";
 import { ownsTheme, patchActiveTheme } from "@/lib/theme-edit";
 import { resolveScreenshot, writeLocalized } from "@/lib/locale";
 import { useProject } from "@/lib/storage";
 import type {
-  BuiltInElementId,
   Device,
   ElementId,
   ElementTransform,
@@ -32,6 +38,7 @@ import type {
   Slide,
 } from "@/lib/types";
 import { Inspector } from "./inspector";
+import { ExportDialog } from "./export-dialog";
 import { PreviewStage } from "./preview-stage";
 import { Sidebar } from "./sidebar";
 import { DeckCanvas, getCanvas } from "./slide-canvas";
@@ -68,9 +75,10 @@ export function ScreenshotEditor() {
   const [activeSlideId, setActiveSlideId] = React.useState<string | null>(null);
   const [selectedElement, setSelectedElement] = React.useState<SelectedElement | null>(null);
   const [exporting, setExporting] = React.useState<string | null>(null);
+  const [exportDialogOpen, setExportDialogOpen] = React.useState(false);
+  const [exportUnit, setExportUnit] = React.useState<ExportUnit | null>(null);
   const [ready, setReady] = React.useState(false);
-  const [exportLocaleOverride, setExportLocaleOverride] = React.useState<string | null>(null);
-  const [exportSlideIndex, setExportSlideIndex] = React.useState(0);
+  const [transformScope, setTransformScope] = React.useState<"locale" | "all">("locale");
   const exportRef = React.useRef<HTMLDivElement | null>(null);
 
   // Screens rail. Editor-chrome preference, not deck content, so it lives in
@@ -350,35 +358,19 @@ export function ScreenshotEditor() {
           ...prev,
           slidesByDevice: {
             ...prev.slidesByDevice,
-            [prev.device]: (prev.slidesByDevice[prev.device] || []).map((slide) => {
-              if (slide.id !== slideId) return slide;
-              if (isTextElementId(elementId)) {
-                const textId = textElementKey(elementId);
-                return {
-                  ...slide,
-                  textElements: (slide.textElements || []).map((element) =>
-                    element.id === textId ? { ...element, transform } : element,
-                  ),
-                };
-              }
-              if (isFocusElementId(elementId)) {
-                const focusId = focusElementKey(elementId);
-                return {
-                  ...slide,
-                  focusElements: (slide.focusElements || []).map((element) =>
-                    element.id === focusId ? { ...element, transform } : element,
-                  ),
-                };
-              }
-              if (!isBuiltInElementId(elementId)) return slide;
-              return {
-                ...slide,
-                transforms: {
-                  ...(slide.transforms || {}),
-                  [elementId]: transform,
-                } as Partial<Record<BuiltInElementId, ElementTransform>>,
-              };
-            }),
+            [prev.device]: (prev.slidesByDevice[prev.device] || []).map((slide) =>
+              slide.id === slideId
+                ? {
+                    ...slide,
+                    ...writeElementTransform(
+                      slide,
+                      elementId,
+                      transform,
+                      transformScope === "locale" && prev.locales.length > 1 ? prev.locale : null,
+                    ),
+                  }
+                : slide,
+            ),
           },
         }),
         // One drag or resize of one element is one undo step, however many
@@ -386,7 +378,7 @@ export function ScreenshotEditor() {
         { coalesce: `transform:${slideId}:${elementId}` },
       );
     },
-    [setState],
+    [setState, transformScope],
   );
 
   const patchTextElementText = React.useCallback(
@@ -437,17 +429,45 @@ export function ScreenshotEditor() {
                 Object.entries(src.transforms).map(([key, value]) => [key, { ...value }]),
               )
             : undefined,
+          transformsByLocale: src.transformsByLocale
+            ? Object.fromEntries(
+                Object.entries(src.transformsByLocale).map(([locale, transforms]) => [
+                  locale,
+                  transforms
+                    ? Object.fromEntries(
+                        Object.entries(transforms).map(([key, value]) => [key, value ? { ...value } : value]),
+                      )
+                    : transforms,
+                ]),
+              )
+            : undefined,
           textElements: src.textElements?.map((element) => ({
             ...element,
             id: nid(),
             text: { ...element.text },
             transform: { ...element.transform },
+            transformByLocale: element.transformByLocale
+              ? Object.fromEntries(
+                  Object.entries(element.transformByLocale).map(([locale, transform]) => [
+                    locale,
+                    transform ? { ...transform } : transform,
+                  ]),
+                )
+              : undefined,
           })),
           focusElements: src.focusElements?.map((element) => ({
             ...element,
             id: nid(),
             crop: { ...element.crop },
             transform: { ...element.transform },
+            transformByLocale: element.transformByLocale
+              ? Object.fromEntries(
+                  Object.entries(element.transformByLocale).map(([locale, transform]) => [
+                    locale,
+                    transform ? { ...transform } : transform,
+                  ]),
+                )
+              : undefined,
           })),
         };
         const next = [...slides.slice(0, idx + 1), copy, ...slides.slice(idx + 1)];
@@ -561,33 +581,29 @@ export function ScreenshotEditor() {
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
     });
 
-  async function exportAll() {
-    if (!currentSlides.length) {
-      toast.error("No screens to export");
+  async function runExport(selection: ExportSelection) {
+    const units = planExport(state, selection);
+    if (!units.length) {
+      toast.error("Nothing selected for export");
       return;
     }
-
-    const sizes = getExportSizes(state.device, state.orientation);
-    if (!sizes.length) {
-      toast.error("Nothing to export");
-      return;
-    }
-    const locales = state.locales;
+    setExportDialogOpen(false);
     await preloadImages(assetPaths, { retryFailed: true });
     await waitForPaint();
 
-    const missingScreens = currentSlides
-      .map((slide, index) => ({ slide, index }))
-      .filter(({ slide }) => slideNeedsScreenshot(state.device, slide) && !slide.screenshot);
-    const reusedBackScreens = currentSlides
-      .map((slide, index) => ({ slide, index }))
-      .filter(
-        ({ slide }) =>
-          state.device !== "feature-graphic" &&
-          slide.layout === "two-devices" &&
-          slide.screenshot &&
-          !slide.screenshotSecondary,
-      );
+    const uniqueSlides = Array.from(
+      new Map(units.map((unit) => [`${unit.device}:${unit.slide.id}`, unit])).values(),
+    );
+    const missingScreens = uniqueSlides.filter(
+      (unit) => slideNeedsScreenshot(unit.device, unit.slide) && !unit.slide.screenshot,
+    );
+    const reusedBackScreens = uniqueSlides.filter(
+      (unit) =>
+        unit.device !== "feature-graphic" &&
+        unit.slide.layout === "two-devices" &&
+        unit.slide.screenshot &&
+        !unit.slide.screenshotSecondary,
+    );
     if (missingScreens.length > 0 || reusedBackScreens.length > 0) {
       const details = [
         missingScreens.length
@@ -603,87 +619,81 @@ export function ScreenshotEditor() {
       });
     }
 
-    // Make sure custom fonts are loaded before snapshot so typography in PNG
-    // matches what's on screen.
-    if (typeof document !== "undefined" && document.fonts && document.fonts.ready) {
+    if (typeof document !== "undefined" && document.fonts?.ready) {
       try {
         await document.fonts.ready;
       } catch {
-        /* ignore */
+        /* Fonts have fallbacks; export can continue. */
       }
     }
 
-    const { cW, cH } = getCanvas(state.device, state.orientation);
-    const platform = detectPlatform(state.device);
     const zip = new JSZip();
-    const totalUnits = sizes.length * locales.length * currentSlides.length;
-    let unit = 0;
+    const errors: string[] = [];
     let okCount = 0;
     let failed = 0;
-    const errors: string[] = [];
+    let onlyDataUrl: string | null = null;
 
-    for (const locale of locales) {
-      setExportLocaleOverride(locale);
-      await waitForPaint();
-
-      for (const size of sizes) {
-        for (let i = 0; i < currentSlides.length; i++) {
-          const slide = currentSlides[i];
-          unit += 1;
-          setExporting(`${unit}/${totalUnits}`);
-          setExportSlideIndex(i);
-          await waitForPaint();
-          const el = exportRef.current;
-          if (!el) {
-            failed += 1;
-            errors.push(`${locale} ${size.w}×${size.h} screen ${i + 1}: render target missing`);
-            continue;
-          }
-          try {
-            const dataUrl = await captureSlide(el, cW, cH, size.w, size.h);
-            const base64 = dataUrl.split(",")[1] || "";
-            const filename = `${String(i + 1).padStart(2, "0")}-${slide.layout}.png`;
-            const path = `${platform}/${state.device}/${size.w}x${size.h}/${locale}/${filename}`;
-            zip.file(path, base64, { base64: true });
-            okCount += 1;
-          } catch (e) {
-            failed += 1;
-            const msg = e instanceof Error ? e.message : String(e);
-            errors.push(`${locale} ${size.w}×${size.h} screen ${i + 1}: ${msg}`);
-            console.error("Export failed", { slideId: slide.id, locale, size }, e);
-          }
+    try {
+      for (let index = 0; index < units.length; index++) {
+        const unit = units[index];
+        setExporting(`${index + 1}/${units.length}`);
+        setExportUnit(unit);
+        await waitForPaint();
+        const el = exportRef.current;
+        if (!el) {
+          failed += 1;
+          errors.push(`${unit.locale} ${unit.size.w}×${unit.size.h} screen ${unit.slideIndex + 1}: render target missing`);
+          continue;
+        }
+        const unitOrientation = supportsLandscape(unit.device) ? state.orientation : "portrait";
+        const { cW, cH } = getCanvas(unit.device, unitOrientation);
+        try {
+          const dataUrl = await captureSlide(el, cW, cH, unit.size.w, unit.size.h);
+          if (units.length === 1) onlyDataUrl = dataUrl;
+          else zip.file(unit.path, dataUrl.split(",")[1] || "", { base64: true });
+          okCount += 1;
+        } catch (error) {
+          failed += 1;
+          const message = error instanceof Error ? error.message : String(error);
+          errors.push(`${unit.locale} ${unit.size.w}×${unit.size.h} screen ${unit.slideIndex + 1}: ${message}`);
+          console.error("Export failed", { unit }, error);
         }
       }
+    } finally {
+      setExportUnit(null);
+      setExporting(null);
     }
-
-    setExportLocaleOverride(null);
-    setExporting(null);
 
     if (okCount > 0) {
       try {
-        const blob = await zip.generateAsync({ type: "blob" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${state.appId || slugify(state.appName)}-${platform}-${state.device}-${stamp()}.zip`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-      } catch (e) {
-        toast.error("Couldn't bundle export");
-        console.error(e);
+        const name = exportBundleName(state.appId, state.appName, selection);
+        const anchor = document.createElement("a");
+        let objectUrl: string | null = null;
+        if (units.length === 1 && onlyDataUrl) {
+          anchor.href = onlyDataUrl;
+          anchor.download = `${name}.png`;
+        } else {
+          const blob = await zip.generateAsync({ type: "blob" });
+          objectUrl = URL.createObjectURL(blob);
+          anchor.href = objectUrl;
+          anchor.download = `${name}-${stamp()}.zip`;
+        }
+        anchor.click();
+        if (objectUrl) setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
+      } catch (error) {
+        toast.error("Couldn't create the download");
+        console.error(error);
         return;
       }
     }
 
-    const summary = `${locales.length} locale${locales.length === 1 ? "" : "s"} × ${sizes.length} size${sizes.length === 1 ? "" : "s"}`;
+    const summary = `${selection.locales.length} language${selection.locales.length === 1 ? "" : "s"} · ${selection.picks.length} group${selection.picks.length === 1 ? "" : "s"}`;
     if (failed === 0) {
-      toast.success(`Exported ${okCount} PNGs (${summary})`);
+      toast.success(`Exported ${okCount} PNG${okCount === 1 ? "" : "s"} (${summary})`);
     } else if (okCount === 0) {
-      toast.error(`All ${failed} renders failed`, {
-        description: errors.slice(0, 3).join("\n"),
-      });
+      toast.error(`All ${failed} renders failed`, { description: errors.slice(0, 3).join("\n") });
     } else {
-      toast.error(`${failed} of ${totalUnits} renders failed`, {
+      toast.error(`${failed} of ${units.length} renders failed`, {
         description: errors.slice(0, 3).join("\n"),
       });
     }
@@ -748,6 +758,10 @@ export function ScreenshotEditor() {
   }
 
   const { cW, cH } = getCanvas(state.device, state.orientation);
+  const exportDevice = exportUnit?.device ?? state.device;
+  const exportOrientation = supportsLandscape(exportDevice) ? state.orientation : "portrait";
+  const exportSlides = state.slidesByDevice[exportDevice] || [];
+  const { cW: exportCW, cH: exportCH } = getCanvas(exportDevice, exportOrientation);
   const busy = !!exporting || switching;
 
   return (
@@ -782,7 +796,7 @@ export function ScreenshotEditor() {
         onRedo={redo}
         canUndo={canUndo}
         canRedo={canRedo}
-        onExport={exportAll}
+        onExport={() => setExportDialogOpen(true)}
         onResetAll={() => {
           reset();
           setActiveSlideId(null);
@@ -802,6 +816,16 @@ export function ScreenshotEditor() {
         saving={saving}
         dirty={dirty}
         busy={busy}
+      />
+
+      <ExportDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        state={state}
+        orientation={state.orientation}
+        activeSlide={activeSlide}
+        busy={!!exporting}
+        onExport={(selection) => void runExport(selection)}
       />
 
       <div className="flex flex-1 overflow-hidden md:flex-row flex-col">
@@ -869,6 +893,9 @@ export function ScreenshotEditor() {
               device={state.device}
               orientation={state.orientation}
               locale={state.locale}
+              locales={state.locales}
+              transformScope={transformScope}
+              onTransformScopeChange={setTransformScope}
               selectedElementId={
                 selectedElement?.slideId === activeSlide.id ? selectedElement.elementId : null
               }
@@ -939,12 +966,12 @@ export function ScreenshotEditor() {
           pointerEvents: "none",
         }}
       >
-        {currentSlides.length > 0 && exporting && (
+        {exportUnit && exportSlides.length > 0 && exporting && (
           <div
             ref={exportRef}
             style={{
-              width: cW,
-              height: cH,
+              width: exportCW,
+              height: exportCH,
               overflow: "hidden",
               position: "absolute",
               left: -99999,
@@ -954,18 +981,18 @@ export function ScreenshotEditor() {
             <div
               style={{
                 position: "absolute",
-                left: -exportSlideIndex * cW,
+                left: -exportUnit.slideIndex * exportCW,
                 top: 0,
-                width: cW * currentSlides.length,
-                height: cH,
+                width: exportCW * exportSlides.length,
+                height: exportCH,
               }}
             >
               <DeckCanvas
-                slides={currentSlides}
-                device={state.device}
-                orientation={state.orientation}
+                slides={exportSlides}
+                device={exportDevice}
+                orientation={exportOrientation}
                 theme={theme}
-                locale={exportLocaleOverride ?? state.locale}
+                locale={exportUnit.locale}
                 appName={state.appName}
                 appIcon={state.appIcon}
                 connectedCanvas={state.connectedCanvas}
@@ -976,15 +1003,6 @@ export function ScreenshotEditor() {
         )}
       </div>
     </div>
-  );
-}
-
-function slugify(s: string) {
-  return (
-    s
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "") || "screenshots"
   );
 }
 

@@ -738,7 +738,25 @@
     "ipad": [],
     "android-7": [],
     "android-10": [],
-    "feature-graphic": []
+    "feature-graphic": [
+      {
+        "id": "feature-graphic-main",
+        "layout": "feature-graphic",
+        "label": {
+          "en": "Journal daily, track goals, understand your mood, and send letters to your future self.",
+          "fr": "Écrivez chaque jour, suivez vos objectifs, comprenez votre humeur et envoyez des lettres à votre futur vous.",
+          "es": "Escribe a diario, sigue tus metas, comprende tu estado de ánimo y envía cartas a tu yo del futuro."
+        },
+        "headline": {
+          "en": "your space,\nyour story,\nyour growth",
+          "fr": "votre espace,\nvotre histoire,\nvotre évolution",
+          "es": "tu espacio,\ntu historia,\ntu crecimiento"
+        },
+        "screenshot": "/screenshots/speakdiary/localized/{locale}/journal-calendar.jpg",
+        "screenshotSecondary": "/screenshots/speakdiary/localized/{locale}/insights-overview.jpg",
+        "screenshotTertiary": "/screenshots/speakdiary/localized/{locale}/future-letters.jpg"
+      }
+    ]
   },
   "themes": [
     {

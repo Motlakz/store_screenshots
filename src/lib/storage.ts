@@ -20,6 +20,7 @@ import { coerceLocalized } from "./locale";
 import type {
   Device,
   ElementTransform,
+  LocaleTransforms,
   ProjectState,
   SaveMode,
   Slide,
@@ -53,16 +54,32 @@ function cleanTransform(value: unknown): ElementTransform | undefined {
   };
 }
 
+// Per-locale placement, keyed by locale code. Entries that don't survive
+// cleanTransform are dropped rather than falling back to a partial rect —
+// the shared transform is a better answer than a half-parsed one.
+function cleanLocaleTransforms(value: unknown): LocaleTransforms | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const out: LocaleTransforms = {};
+  for (const [locale, transform] of Object.entries(value as Record<string, unknown>)) {
+    if (!locale.trim()) continue;
+    const clean = cleanTransform(transform);
+    if (clean) out[locale] = clean;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 function cleanTextElement(value: unknown): TextElement | undefined {
   if (!value || typeof value !== "object") return undefined;
   const raw = value as Partial<TextElement>;
   if (typeof raw.id !== "string" || !raw.id.trim()) return undefined;
   const transform = cleanTransform(raw.transform);
   if (!transform) return undefined;
+  const transformByLocale = cleanLocaleTransforms(raw.transformByLocale);
   return {
     id: raw.id,
     text: coerceLocalized(raw.text as unknown),
     transform,
+    ...(transformByLocale ? { transformByLocale } : {}),
     ...(typeof raw.fontSize === "number" && Number.isFinite(raw.fontSize)
       ? { fontSize: raw.fontSize }
       : {}),
@@ -86,8 +103,32 @@ function migrateSlide(slide: Slide): Slide {
           .filter((entry): entry is [string, ElementTransform] => !!entry[1]),
       )
     : undefined;
+  const transformsByLocale = slide.transformsByLocale
+    ? Object.fromEntries(
+        Object.entries(slide.transformsByLocale)
+          .map(([locale, map]) => {
+            const cleaned = map
+              ? Object.fromEntries(
+                  Object.entries(map)
+                    .map(([id, transform]) => [id, cleanTransform(transform)])
+                    .filter((entry): entry is [string, ElementTransform] => !!entry[1]),
+                )
+              : {};
+            return [locale, cleaned] as const;
+          })
+          .filter(([, map]) => Object.keys(map).length > 0),
+      )
+    : undefined;
   const textElements = Array.isArray(slide.textElements)
     ? slide.textElements.map(cleanTextElement).filter((t): t is TextElement => !!t)
+    : undefined;
+  const focusElements = Array.isArray(slide.focusElements)
+    ? slide.focusElements.map((element) => {
+        const transformByLocale = cleanLocaleTransforms(element?.transformByLocale);
+        return transformByLocale
+          ? { ...element, transformByLocale }
+          : { ...element, transformByLocale: undefined };
+      })
     : undefined;
 
   return {
@@ -95,7 +136,11 @@ function migrateSlide(slide: Slide): Slide {
     label: coerceLocalized(slide.label as unknown),
     headline: coerceLocalized(slide.headline as unknown),
     ...(transforms && Object.keys(transforms).length > 0 ? { transforms } : { transforms: undefined }),
+    ...(transformsByLocale && Object.keys(transformsByLocale).length > 0
+      ? { transformsByLocale: transformsByLocale as Slide["transformsByLocale"] }
+      : { transformsByLocale: undefined }),
     ...(textElements && textElements.length > 0 ? { textElements } : { textElements: undefined }),
+    ...(focusElements && focusElements.length > 0 ? { focusElements } : {}),
   };
 }
 

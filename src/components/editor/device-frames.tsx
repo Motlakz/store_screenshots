@@ -2,6 +2,7 @@
 import * as React from "react";
 import { PHONE_SCREEN } from "@/lib/constants";
 import { img } from "@/lib/image-cache";
+import type { ScreenCrop } from "@/lib/types";
 
 type FrameProps = {
   src: string;
@@ -16,7 +17,29 @@ type FrameProps = {
   bezel?: string;
   bezelStroke?: string;
   bezelStrokeWidth?: number;
+  crop?: ScreenCrop;
 };
+
+function croppedImageStyle(crop?: ScreenCrop): React.CSSProperties {
+  const clamp = (value: number | undefined) => Math.min(0.45, Math.max(0, value ?? 0));
+  const top = clamp(crop?.top);
+  const right = clamp(crop?.right);
+  const bottom = clamp(crop?.bottom);
+  const left = clamp(crop?.left);
+  const visibleW = Math.max(0.1, 1 - left - right);
+  const visibleH = Math.max(0.1, 1 - top - bottom);
+  return {
+    display: "block",
+    position: "absolute",
+    width: `${100 / visibleW}%`,
+    height: `${100 / visibleH}%`,
+    left: `${(-left * 100) / visibleW}%`,
+    top: `${(-top * 100) / visibleH}%`,
+    objectFit: "cover",
+    objectPosition: "top",
+    maxWidth: "none",
+  };
+}
 
 /** Body fill + outline for the CSS-drawn frames. */
 function bezelStyle(
@@ -33,7 +56,7 @@ function bezelStyle(
 }
 
 // iPhone — uses pre-measured mockup.png overlay
-export function Phone({ src, alt = "", style, hideEmpty }: FrameProps) {
+export function Phone({ src, alt = "", style, hideEmpty, crop }: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "1022 / 2082", ...style }}>
@@ -60,7 +83,7 @@ export function Phone({ src, alt = "", style, hideEmpty }: FrameProps) {
           <img
             src={resolved}
             alt={alt}
-            style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+            style={croppedImageStyle(crop)}
             draggable={false}
           />
         ) : hideEmpty ? null : (
@@ -71,7 +94,7 @@ export function Phone({ src, alt = "", style, hideEmpty }: FrameProps) {
   );
 }
 
-export function AndroidPhone({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth }: FrameProps) {
+export function AndroidPhone({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth, crop }: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "9 / 19.5", ...style }}>
@@ -117,7 +140,7 @@ export function AndroidPhone({ src, alt = "", style, hideEmpty, bezel, bezelStro
             <img
               src={resolved}
               alt={alt}
-              style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+              style={croppedImageStyle(crop)}
               draggable={false}
             />
           ) : hideEmpty ? null : (
@@ -129,7 +152,7 @@ export function AndroidPhone({ src, alt = "", style, hideEmpty, bezel, bezelStro
   );
 }
 
-export function AndroidTabletP({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth }: FrameProps) {
+export function AndroidTabletP({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth, crop }: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "5 / 8", ...style }}>
@@ -174,7 +197,7 @@ export function AndroidTabletP({ src, alt = "", style, hideEmpty, bezel, bezelSt
             <img
               src={resolved}
               alt={alt}
-              style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+              style={croppedImageStyle(crop)}
               draggable={false}
             />
           ) : hideEmpty ? null : (
@@ -186,7 +209,7 @@ export function AndroidTabletP({ src, alt = "", style, hideEmpty, bezel, bezelSt
   );
 }
 
-export function AndroidTabletL({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth }: FrameProps) {
+export function AndroidTabletL({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth, crop }: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "8 / 5", ...style }}>
@@ -231,7 +254,7 @@ export function AndroidTabletL({ src, alt = "", style, hideEmpty, bezel, bezelSt
             <img
               src={resolved}
               alt={alt}
-              style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+              style={croppedImageStyle(crop)}
               draggable={false}
             />
           ) : hideEmpty ? null : (
@@ -243,7 +266,7 @@ export function AndroidTabletL({ src, alt = "", style, hideEmpty, bezel, bezelSt
   );
 }
 
-export function IPad({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth }: FrameProps) {
+export function IPad({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth, crop }: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "770 / 1000", ...style }}>
@@ -288,7 +311,7 @@ export function IPad({ src, alt = "", style, hideEmpty, bezel, bezelStroke, beze
             <img
               src={resolved}
               alt={alt}
-              style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+              style={croppedImageStyle(crop)}
               draggable={false}
             />
           ) : hideEmpty ? null : (

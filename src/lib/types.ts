@@ -78,6 +78,8 @@ export type TextElement = {
 
 export type ScreenshotFocusElement = {
   id: string;
+  /** Render this crop only for the listed locales. Omitted means every locale. */
+  locales?: string[];
   /** Optional alternate source; omitted uses the slide's primary screenshot. */
   source?: string;
   /** Percent crop within the source screenshot. */
@@ -89,6 +91,14 @@ export type ScreenshotFocusElement = {
   accentColor?: string;
 };
 
+export type ScreenCrop = {
+  /** Fractions of the original capture removed before it fills the device. */
+  top?: number;
+  right?: number;
+  bottom?: number;
+  left?: number;
+};
+
 export type Slide = {
   id: string;
   layout: SlideLayout;
@@ -96,8 +106,16 @@ export type Slide = {
   headline: LocalizedText;    // multi-line; newlines are intentional, per locale
   screenshot: string;         // path under /screenshots/ — may contain {locale}
   screenshotSecondary?: string; // for two-devices layout — may contain {locale}
+  screenshotByLocale?: Partial<Record<string, string>>;
+  screenshotSecondaryByLocale?: Partial<Record<string, string>>;
   screenshotTertiary?: string; // third image used by feature-graphic collages
   focusElements?: ScreenshotFocusElement[];
+  /** Locale-specific art direction, used when one market has a custom card mosaic. */
+  hideDeviceLocales?: string[];
+  hideSecondaryDeviceLocales?: string[];
+  /** Presentation-only crop; the original localized capture remains untouched. */
+  screenshotCropByLocale?: Partial<Record<string, ScreenCrop>>;
+  screenshotSecondaryCropByLocale?: Partial<Record<string, ScreenCrop>>;
   inverted?: boolean;         // dark background variant
   // Per-screen background override. Wins over the theme's background so one
   // screen can differ without forking the whole palette. Ink is re-derived
@@ -184,6 +202,8 @@ export type ThemeDecor = {
   dreamy?: boolean;
   /** BellyClock's purposeful physiology field-note diagrams (never random doodles). */
   bellyclock?: boolean;
+  /** PillBird's floating cream-and-blush capsules, blister strips and hearts. */
+  pillbird?: boolean;
   /** Lowercase corner wordmark, editorial style. */
   wordmark?: boolean;
 };

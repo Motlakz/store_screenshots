@@ -209,6 +209,8 @@ export function ScreenshotEditor() {
         s.screenshot,
         s.screenshotSecondary,
         s.screenshotTertiary,
+        ...Object.values(s.screenshotByLocale || {}),
+        ...Object.values(s.screenshotSecondaryByLocale || {}),
         ...(s.focusElements || []).map((element) => element.source),
       ]) {
         if (!raw || raw.startsWith("data:")) continue;

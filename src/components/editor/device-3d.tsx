@@ -3,7 +3,7 @@ import * as React from "react";
 import * as THREE from "three";
 import { frameColorById, resolveFrame } from "@/lib/frames";
 import { img } from "@/lib/image-cache";
-import type { Device, Orientation, SlideFrame } from "@/lib/types";
+import type { Device, Orientation, ScreenCrop, SlideFrame } from "@/lib/types";
 
 type Props = {
   frame: SlideFrame | undefined;
@@ -14,6 +14,7 @@ type Props = {
   hideEmpty?: boolean;
   fallbackBody?: string;
   fallbackEdge?: string;
+  crop?: ScreenCrop;
   children: React.ReactNode;
 };
 
@@ -90,6 +91,7 @@ export function Device3D({
   hideEmpty,
   fallbackBody,
   fallbackEdge,
+  crop,
   children,
 }: Props) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -172,8 +174,19 @@ export function Device3D({
     const innerH = metrics.height - metrics.screenInset * 2;
     const screenGeometry = normalizedShapeGeometry(innerW, innerH, Math.max(0.48, metrics.corner - metrics.screenInset));
     const screenUvs = screenGeometry.attributes.uv;
+    const clampCrop = (value: number | undefined) => THREE.MathUtils.clamp(value ?? 0, 0, 0.45);
+    const cropTop = clampCrop(crop?.top);
+    const cropRight = clampCrop(crop?.right);
+    const cropBottom = crop ? clampCrop(crop.bottom) : SCREEN_BOTTOM_CROP;
+    const cropLeft = clampCrop(crop?.left);
+    const visibleU = Math.max(0.1, 1 - cropLeft - cropRight);
+    const visibleV = Math.max(0.1, 1 - cropTop - cropBottom);
     for (let i = 0; i < screenUvs.count; i += 1) {
-      screenUvs.setY(i, SCREEN_BOTTOM_CROP + screenUvs.getY(i) * (1 - SCREEN_BOTTOM_CROP));
+      screenUvs.setXY(
+        i,
+        cropLeft + screenUvs.getX(i) * visibleU,
+        cropBottom + screenUvs.getY(i) * visibleV,
+      );
     }
     screenUvs.needsUpdate = true;
     const screenMaterial = new THREE.MeshBasicMaterial({
@@ -321,7 +334,7 @@ export function Device3D({
       });
       renderer.dispose();
     };
-  }, [body, device, edge, enable3D, f.style, orientation, screenSrc]);
+  }, [body, crop?.bottom, crop?.left, crop?.right, crop?.top, device, edge, enable3D, f.style, orientation, screenSrc]);
 
   React.useEffect(() => {
     applyViewRef.current?.();

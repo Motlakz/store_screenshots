@@ -3,69 +3,11 @@
   "appId": "speakdiary",
   "appName": "SpeakDiary",
   "themeId": "speakdiary",
-  "themes": [
-    {
-      "id": "speakdiary",
-      "name": "SpeakDiary Dreamy",
-      "bg": "#DDEBFA",
-      "bgAlt": "#FBE3D7",
-      "fg": "#1B2240",
-      "fgAlt": "#1B2240",
-      "accent": "#5B3FC8",
-      "muted": "#8A8FA3",
-      "background": {
-        "kind": "gradient",
-        "stops": [
-          "#DDEBFA 0%",
-          "#F5E0F0 45%",
-          "#FCEFD6 100%"
-        ],
-        "angle": 180
-      },
-      "backgroundAlt": {
-        "kind": "gradient",
-        "stops": [
-          "#FBE3D7 0%",
-          "#F7C9D6 50%",
-          "#F3B6CC 100%"
-        ],
-        "angle": 180
-      },
-      "headline": {
-        "family": "var(--font-quicksand), Quicksand, Inter, system-ui, sans-serif",
-        "weight": 650,
-        "lineHeight": 0.98,
-        "letterSpacing": -0.012
-      },
-      "label": {
-        "family": "var(--font-quicksand), Quicksand, Inter, system-ui, sans-serif",
-        "weight": 600,
-        "transform": "uppercase"
-      },
-      "emphasis": {
-        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
-        "color": "#B49BE6",
-        "weight": 400,
-        "italic": true,
-        "scale": 1.08
-      },
-      "decor": {
-        "dreamy": true,
-        "motifs": [
-          "heart",
-          "sparkle",
-          "paw"
-        ],
-        "motifColor": "#F39A9A"
-      }
-    }
-  ],
   "connectedCanvas": true,
   "locales": [
     "en",
-    "fr-FR",
-    "es-ES",
-    "es-419"
+    "fr",
+    "es"
   ],
   "locale": "en",
   "device": "android",
@@ -75,183 +17,783 @@
     "iphone": [],
     "android": [
       {
-        "id": "01-voice",
+        "id": "01-home",
         "layout": "hero",
         "label": {
-          "en": "SPEAK, DON'T TYPE",
-          "fr-FR": "PARLEZ, N'ÉCRIVEZ PLUS",
-          "es-ES": "HABLA, NO ESCRIBAS",
-          "es-419": "HABLA, NO ESCRIBAS"
+          "en": "YOUR PRIVATE VOICE JOURNAL",
+          "fr": "VOTRE JOURNAL VOCAL PRIVÉ",
+          "es": "TU DIARIO DE VOZ PRIVADO"
         },
         "headline": {
-          "en": "The journal that\n*listens*.",
-          "fr-FR": "Le journal qui\nvous *écoute*.",
-          "es-ES": "El diario que\nte *escucha*.",
-          "es-419": "El diario que sí\nte *escucha*."
+          "en": "A journal that really\n*listens*.",
+          "fr": "Un journal qui vous\n*écoute*.",
+          "es": "Un diario que sí te\n*escucha*."
         },
-        "screenshot": "/screenshots/speakdiary/uploaded/5f1dd7360260f78f.jpg"
+        "background": {
+          "kind": "solid",
+          "color": "#edc8fe"
+        },
+        "screenshot": "/screenshots/speakdiary/localized/en/lumi-init.jpg",
+        "screenshotByLocale": {
+          "fr": "/screenshots/speakdiary/localized/fr/home.jpg",
+          "es": "/screenshots/speakdiary/localized/es/home.jpg"
+        },
+        "hideSecondaryDeviceLocales": [
+          "fr",
+          "es"
+        ],
+        "screenshotCropByLocale": {
+          "fr": {
+            "bottom": 0.12
+          }
+        },
+        "screenshotSecondaryCropByLocale": {
+          "en": {
+            "bottom": 0.17
+          }
+        },
+        "transforms": {
+          "device": {
+            "x": 126.67508153887565,
+            "y": 395.5523241615906,
+            "width": 801,
+            "height": 1736,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "frameSecondary": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": -18
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": 1
+        }
       },
       {
-        "id": "02-note",
-        "layout": "device-bottom",
+        "id": "02-prompts",
+        "layout": "device-top",
         "label": {
-          "en": "QUICK NOTES",
-          "fr-FR": "NOTES RAPIDES",
-          "es-ES": "NOTAS RÁPIDAS",
-          "es-419": "NOTAS RÁPIDAS"
+          "en": "A GENTLE PLACE TO BEGIN",
+          "fr": "UN DÉPART TOUT EN DOUCEUR",
+          "es": "UN COMIENZO SIN PRESIÓN"
         },
         "headline": {
-          "en": "Never lose a\n*thought* again.",
-          "fr-FR": "Ne perdez plus\nune *idée*.",
-          "es-ES": "No pierdas\nninguna *idea*.",
-          "es-419": "No se te escape\nni una *idea*."
+          "en": "Find the words when\nthey feel *far*.",
+          "fr": "Trouvez les mots quand\nils se font *rares*.",
+          "es": "Encuentra palabras cuando\nse sienten *lejos*."
         },
-        "screenshot": "/screenshots/speakdiary/02-note.jpg",
+        "background": {
+          "kind": "gradient",
+          "stops": [
+            "#FFD9EA 0%",
+            "#F5D9F4 50%",
+            "#FFE9E2 100%"
+          ],
+          "angle": 180
+        },
+        "screenshot": "/screenshots/speakdiary/localized/{locale}/prompt-wheel.jpg",
+        "transforms": {
+          "device": {
+            "x": 167.42286696321298,
+            "y": -73.89189497861777,
+            "width": 732,
+            "height": 1586,
+            "rotation": -1,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 86,
+            "y": 1440,
+            "width": 908,
+            "height": 420,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 2,
+          "rotateY": 1
+        },
+        "focusElements": [
+          {
+            "id": "s_msokzf2z_22",
+            "crop": {
+              "x": 5.5,
+              "y": 72,
+              "width": 89.5,
+              "height": 12.3
+            },
+            "transform": {
+              "x": 52.98338959767125,
+              "y": 929.5407931371585,
+              "width": 948,
+              "height": 291.32905027932964,
+              "rotation": -3,
+              "zIndex": 9
+            },
+            "borderRadius": 34,
+            "borderWidth": 6,
+            "accentColor": "#e76ed7"
+          }
+        ]
+      },
+      {
+        "id": "04-insights",
+        "layout": "device-bottom",
+        "label": {
+          "en": "PATTERNS, MADE CLEAR",
+          "fr": "VOS TENDANCES, PLUS CLAIRES",
+          "es": "TUS PATRONES, MÁS CLAROS"
+        },
+        "headline": {
+          "en": "See what your days\nare *telling* you.",
+          "fr": "Voyez ce que vos jours\nvous *révèlent*.",
+          "es": "Mira lo que tus días\nte *cuentan*."
+        },
+        "background": {
+          "kind": "gradient",
+          "stops": [
+            "#D7ECFF 0%",
+            "#E6F3FF 52%",
+            "#F1EAFF 100%"
+          ],
+          "angle": 180
+        },
+        "screenshot": "/screenshots/speakdiary/localized/{locale}/insights-overview.jpg",
+        "screenshotCropByLocale": {
+          "fr": {
+            "top": 0.075,
+            "bottom": 0.12
+          },
+          "es": {
+            "top": 0.075,
+            "bottom": 0.12
+          }
+        },
+        "hideDeviceLocales": [
+          "en"
+        ],
         "transforms": {
           "caption": {
-            "x": 86.4,
-            "y": 153.6,
-            "width": 907.1999999999999,
-            "height": 537.6,
+            "x": 86,
+            "y": 96,
+            "width": 908,
+            "height": 390,
             "rotation": 0,
             "zIndex": 4
           },
           "device": {
-            "x": 180.5578559423459,
-            "y": 509.2047820470172,
-            "width": 678.5844380403457,
-            "height": 1470.266282420749,
-            "rotation": 0,
-            "zIndex": 3
+            "x": 201,
+            "y": 472,
+            "width": 679,
+            "height": 1470,
+            "rotation": -7,
+            "zIndex": 2
           }
+        },
+        "focusElements": [
+          {
+            "id": "energy",
+            "locales": [
+              "en"
+            ],
+            "source": "/screenshots/speakdiary/localized/en/energy-trend.jpg",
+            "crop": {
+              "x": 0,
+              "y": 0,
+              "width": 100,
+              "height": 100
+            },
+            "transform": {
+              "x": 51.940949352711414,
+              "y": 933.4203951851017,
+              "width": 500,
+              "height": 336.3095238095238,
+              "rotation": 1,
+              "zIndex": 3
+            },
+            "borderRadius": 36,
+            "borderWidth": 5
+          },
+          {
+            "id": "overview",
+            "locales": [
+              "en"
+            ],
+            "source": "/screenshots/speakdiary/localized/en/insights-overview.jpg",
+            "crop": {
+              "x": 8.3,
+              "y": 44.3,
+              "width": 83.4,
+              "height": 28
+            },
+            "transform": {
+              "x": 502.03270497387985,
+              "y": 546.8033159209629,
+              "width": 460,
+              "height": 345.3370636823874,
+              "rotation": 4,
+              "zIndex": 1
+            },
+            "borderRadius": 34
+          },
+          {
+            "id": "writing",
+            "locales": [
+              "en"
+            ],
+            "source": "/screenshots/speakdiary/localized/en/writing-activity.jpg",
+            "crop": {
+              "x": 0,
+              "y": 4.4,
+              "width": 100,
+              "height": 92.2
+            },
+            "transform": {
+              "x": 489.05973200090875,
+              "y": 837.4392459686601,
+              "width": 480,
+              "height": 372.2281259370315,
+              "rotation": -2,
+              "zIndex": 5
+            },
+            "borderRadius": 34,
+            "borderWidth": 4
+          },
+          {
+            "id": "mood",
+            "locales": [
+              "en"
+            ],
+            "source": "/screenshots/speakdiary/localized/en/mood-and-category-stats.jpg",
+            "crop": {
+              "x": 3,
+              "y": 41,
+              "width": 94,
+              "height": 44.5
+            },
+            "transform": {
+              "x": 473.31137860549734,
+              "y": 1160.187372246197,
+              "width": 490,
+              "height": 518.7064125295509,
+              "rotation": 7,
+              "zIndex": 7
+            },
+            "borderRadius": 34,
+            "borderWidth": 5
+          },
+          {
+            "id": "words",
+            "locales": [
+              "en"
+            ],
+            "source": "/screenshots/speakdiary/localized/en/word-count.jpg",
+            "crop": {
+              "x": 0,
+              "y": 0,
+              "width": 100,
+              "height": 100
+            },
+            "transform": {
+              "x": 118.36043606631847,
+              "y": 1250.7145128321597,
+              "width": 586,
+              "height": 445.85052316890886,
+              "rotation": 2,
+              "zIndex": 6
+            },
+            "borderRadius": 34
+          }
+        ],
+        "textElements": [],
+        "frame": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": -5
         }
       },
       {
-        "id": "03-mood-picker",
+        "id": "05-journal",
         "layout": "device-top",
         "label": {
-          "en": "DAILY CHECK-IN",
-          "fr-FR": "HUMEUR DU JOUR",
-          "es-ES": "ÁNIMO DIARIO",
-          "es-419": "ÁNIMO DEL DÍA"
+          "en": "YOUR JOURNAL, YOUR RHYTHM",
+          "fr": "VOTRE JOURNAL, VOTRE RYTHME",
+          "es": "TU DIARIO, TU RITMO"
         },
         "headline": {
-          "en": "Check in with\nyour *mood*.",
-          "fr-FR": "Un point sur\nvotre *humeur*.",
-          "es-ES": "Conecta con\ntu *ánimo*.",
-          "es-419": "Registra cómo\nte *sientes*."
+          "en": "A rhythm that feels\nentirely *yours*.",
+          "fr": "Un rythme qui vous\nressemble *vraiment*.",
+          "es": "Un ritmo que se siente\nmuy *tuyo*."
         },
-        "screenshot": "/screenshots/speakdiary/03-mood-picker.jpg"
-      },
-      {
-        "id": "04-mood-trends",
-        "layout": "hero",
-        "label": {
-          "en": "MOOD INSIGHTS",
-          "fr-FR": "TENDANCES & ÉNERGIE",
-          "es-ES": "ANÁLISIS DE ÁNIMO",
-          "es-419": "TENDENCIAS DE ÁNIMO"
+        "background": {
+          "kind": "gradient",
+          "stops": [
+            "#FFE2C6 0%",
+            "#FFE8D8 48%",
+            "#F7DDF0 100%"
+          ],
+          "angle": 180
         },
-        "headline": {
-          "en": "See the *patterns*\nin your days.",
-          "fr-FR": "Voyez vos\n*tendances*.",
-          "es-ES": "Descubre tus\n*patrones*.",
-          "es-419": "Descubre tus\n*patrones*."
+        "screenshot": "/screenshots/speakdiary/localized/{locale}/journal-calendar.jpg",
+        "screenshotCropByLocale": {
+          "fr": {
+            "bottom": 0.12
+          }
         },
-        "screenshot": "/screenshots/speakdiary/04-mood-trends.jpg"
-      },
-      {
-        "id": "05-calendar",
-        "layout": "device-bottom",
-        "label": {
-          "en": "MOOD CALENDAR",
-          "fr-FR": "CALENDRIER DES HUMEURS",
-          "es-ES": "CALENDARIO DE ÁNIMO",
-          "es-419": "CALENDARIO DE ÁNIMO"
-        },
-        "headline": {
-          "en": "Your growth,\nat your *pace*.",
-          "fr-FR": "Chaque jour, son\n*humeur*.",
-          "es-ES": "Cada día, tu\n*ánimo*.",
-          "es-419": "Cada día con\ntu *ánimo*."
-        },
-        "screenshot": "/screenshots/speakdiary/05-calendar.jpg",
         "transforms": {
           "device": {
-            "x": 206.4649024191085,
-            "y": 480.4191748506154,
-            "width": 678.5844380403457,
-            "height": 1470.266282420749,
+            "x": 188.40993067304544,
+            "y": -33.16351986039178,
+            "width": 712,
+            "height": 1543,
             "rotation": 0,
             "zIndex": 3
+          },
+          "caption": {
+            "x": 95.15731654735464,
+            "y": 1541.0953777070272,
+            "width": 908,
+            "height": 494,
+            "rotation": 0,
+            "zIndex": 10
           }
+        },
+        "focusElements": [
+          {
+            "id": "streak",
+            "locales": [
+              "en"
+            ],
+            "source": "/screenshots/speakdiary/localized/en/streak-cal.jpg",
+            "crop": {
+              "x": 0,
+              "y": 0,
+              "width": 100,
+              "height": 40.2
+            },
+            "transform": {
+              "x": -1048.6179716694055,
+              "y": 558.4751346617875,
+              "width": 488,
+              "height": 366.79269035533,
+              "rotation": -6,
+              "zIndex": 7
+            },
+            "borderRadius": 32,
+            "borderWidth": 5,
+            "accentColor": "#F39A9A"
+          },
+          {
+            "id": "appearance",
+            "source": "/screenshots/speakdiary/localized/{locale}/journal-appearance.jpg",
+            "crop": {
+              "x": 4,
+              "y": 18.8,
+              "width": 92,
+              "height": 62.9
+            },
+            "transform": {
+              "x": 686.8852940803117,
+              "y": 621.9341345957853,
+              "width": 398,
+              "height": 608.4701388888889,
+              "rotation": 5,
+              "zIndex": 8
+            },
+            "borderRadius": 32,
+            "borderWidth": 5,
+            "accentColor": "#B49BE6"
+          }
+        ],
+        "frame": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": -18
+        }
+      },
+      {
+        "id": "03-lumi",
+        "layout": "hero",
+        "label": {
+          "en": "MEET LUMI",
+          "fr": "DÉCOUVREZ LUMI",
+          "es": "CONOCE A LUMI"
+        },
+        "headline": {
+          "en": "Talk it through with\ngentle *guidance*.",
+          "fr": "Parlez-en avec une aide\nplus *douce*.",
+          "es": "Háblalo con una guía\nmás *amable*."
+        },
+        "background": {
+          "kind": "gradient",
+          "stops": [
+            "#D8D8FF 0%",
+            "#E7DDFF 48%",
+            "#F4E6FF 100%"
+          ],
+          "angle": 180
+        },
+        "screenshot": "/screenshots/speakdiary/localized/{locale}/lumi-call.jpg",
+        "transforms": {
+          "caption": {
+            "x": 86,
+            "y": 102,
+            "width": 908,
+            "height": 400,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "device": {
+            "x": 139.63273405147993,
+            "y": 400.2623109721482,
+            "width": 790,
+            "height": 1711,
+            "rotation": 1,
+            "zIndex": 2
+          }
+        },
+        "focusElements": [
+          {
+            "id": "quick-note",
+            "locales": [
+              "en"
+            ],
+            "source": "/screenshots/speakdiary/localized/en/quick-note.jpg",
+            "crop": {
+              "x": 0,
+              "y": 0,
+              "width": 100,
+              "height": 100
+            },
+            "transform": {
+              "x": -1082.2280263456423,
+              "y": 744.9307290483769,
+              "width": 475,
+              "height": 585.8333333333333,
+              "rotation": -4,
+              "zIndex": 1
+            },
+            "borderRadius": 34,
+            "borderWidth": 5,
+            "accentColor": "#C4AEFF"
+          }
+        ],
+        "textElements": [],
+        "frame": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": 2
         }
       },
       {
         "id": "06-goals",
-        "layout": "device-top",
-        "label": {
-          "en": "GENTLE GOALS",
-          "fr-FR": "OBJECTIFS EN DOUCEUR",
-          "es-ES": "METAS AMABLES",
-          "es-419": "METAS SIN PRESIÓN"
-        },
-        "headline": {
-          "en": "Gentle *goals*\nthat stick.",
-          "fr-FR": "Des *objectifs*\ntout en douceur.",
-          "es-ES": "*Metas* amables\nque cumples.",
-          "es-419": "*Metas* suaves\nque sí logras."
-        },
-        "screenshot": "/screenshots/speakdiary/06-goals.jpg"
-      },
-      {
-        "id": "07-progress",
         "layout": "hero",
         "label": {
-          "en": "PROGRESS & STREAKS",
-          "fr-FR": "PROGRÈS & SÉRIES",
-          "es-ES": "PROGRESO Y RACHAS",
-          "es-419": "PROGRESO Y RACHAS"
+          "en": "GENTLE GOALS",
+          "fr": "OBJECTIFS EN DOUCEUR",
+          "es": "METAS SIN PRESIÓN"
         },
         "headline": {
-          "en": "Every step is\n*progress*.",
-          "fr-FR": "Chaque pas, un\n*progrès*.",
-          "es-ES": "Cada paso es\n*progreso*.",
-          "es-419": "Cada paso\nsuma *progreso*."
+          "en": "Small goals. Gentle\n*momentum*.",
+          "fr": "De petits objectifs. Un élan\n*tout doux*.",
+          "es": "Metas pequeñas. Un impulso\n*amable*."
         },
-        "screenshot": "/screenshots/speakdiary/07-progress.jpg"
-      },
-      {
-        "id": "08-lock",
-        "layout": "device-bottom",
-        "label": {
-          "en": "PRIVATE & ENCRYPTED",
-          "fr-FR": "PRIVÉ & CHIFFRÉ",
-          "es-ES": "PRIVADO Y CIFRADO",
-          "es-419": "PRIVADO Y CIFRADO"
+        "background": {
+          "kind": "gradient",
+          "stops": [
+            "#D8F2E4 0%",
+            "#E5F4DA 52%",
+            "#FFF0D8 100%"
+          ],
+          "angle": 180
         },
-        "headline": {
-          "en": "Encrypted and\ntruly *private*.",
-          "fr-FR": "Chiffré et\nvraiment *privé*.",
-          "es-ES": "Cifrado y del\ntodo *privado*.",
-          "es-419": "Cifrado y solo\n*tuyo*."
+        "screenshot": "/screenshots/speakdiary/localized/{locale}/goals.jpg",
+        "screenshotCropByLocale": {
+          "fr": {
+            "bottom": 0.12
+          }
         },
-        "screenshot": "/screenshots/speakdiary/08-lock.jpg",
         "transforms": {
+          "caption": {
+            "x": 164.49193731547075,
+            "y": 22.786736316148037,
+            "width": 908,
+            "height": 410,
+            "rotation": 0,
+            "zIndex": 9
+          },
           "device": {
-            "x": 200.70778097982748,
-            "y": 512.0833427666573,
-            "width": 678.5844380403457,
-            "height": 1470.266282420749,
+            "x": 157.80320901915638,
+            "y": 376.9672952540468,
+            "width": 744,
+            "height": 1613,
             "rotation": 0,
             "zIndex": 3
           }
+        },
+        "focusElements": [
+          {
+            "id": "goal-card",
+            "locales": [
+              "en"
+            ],
+            "source": "/screenshots/speakdiary/localized/en/goal-card.jpg",
+            "crop": {
+              "x": 0,
+              "y": 0,
+              "width": 100,
+              "height": 100
+            },
+            "transform": {
+              "x": 131.60569081836002,
+              "y": 868.130803619484,
+              "width": 804,
+              "height": 748.594180704441,
+              "rotation": 0,
+              "zIndex": 7
+            },
+            "borderRadius": 34,
+            "borderWidth": 5,
+            "accentColor": "#7FBF9B"
+          }
+        ],
+        "frame": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": 0
         }
+      },
+      {
+        "id": "07-security",
+        "layout": "device-bottom",
+        "label": {
+          "en": "PRIVATE BY DESIGN",
+          "fr": "CONFIDENTIEL PAR NATURE",
+          "es": "PRIVADO POR DISEÑO"
+        },
+        "headline": {
+          "en": "Security you can\n*depend* on.",
+          "fr": "Une sécurité vraiment\n*fiable*.",
+          "es": "Seguridad en la que puedes\n*confiar*."
+        },
+        "background": {
+          "kind": "gradient",
+          "stops": [
+            "#FCE4D7 0%",
+            "#F3E1EF 50%",
+            "#E4E3FF 100%"
+          ],
+          "angle": 180
+        },
+        "screenshot": "/screenshots/speakdiary/localized/{locale}/lock-screen.jpg",
+        "transforms": {
+          "caption": {
+            "x": 7.508062684537435,
+            "y": 50.03270497388142,
+            "width": 908,
+            "height": 390,
+            "rotation": 0,
+            "zIndex": 10
+          },
+          "device": {
+            "x": 175.2293076727292,
+            "y": 354.4390168162775,
+            "width": 777,
+            "height": 1684,
+            "rotation": -2,
+            "zIndex": 3
+          }
+        },
+        "focusElements": [
+          {
+            "id": "alarm",
+            "locales": [
+              "en"
+            ],
+            "source": "/screenshots/speakdiary/localized/en/alarm-screen.jpg",
+            "crop": {
+              "x": 0,
+              "y": 17.2,
+              "width": 100,
+              "height": 55.2
+            },
+            "transform": {
+              "x": 13.639301920222351,
+              "y": 1230.6563747253824,
+              "width": 529,
+              "height": 652.9623333333334,
+              "rotation": 0,
+              "zIndex": 7
+            },
+            "borderRadius": 34,
+            "borderWidth": 5,
+            "accentColor": "#FFD7E1"
+          },
+          {
+            "id": "encryption",
+            "locales": [
+              "en"
+            ],
+            "source": "/screenshots/speakdiary/localized/en/encryption.jpg",
+            "crop": {
+              "x": 0,
+              "y": 0,
+              "width": 100,
+              "height": 100
+            },
+            "transform": {
+              "x": 672.6720417896877,
+              "y": 306.4251646604597,
+              "width": 335,
+              "height": 380.9700315457413,
+              "rotation": 7,
+              "zIndex": 8
+            },
+            "borderRadius": 34,
+            "borderWidth": 5,
+            "accentColor": "#BDE3C9"
+          }
+        ],
+        "frame": {
+          "style": "3d",
+          "rotateX": 5,
+          "rotateY": 4
+        }
+      },
+      {
+        "id": "08-drift",
+        "layout": "two-devices",
+        "label": {
+          "en": "MORE WAYS TO REFLECT",
+          "fr": "DAVANTAGE DE FAÇONS DE RÉFLÉCHIR",
+          "es": "MÁS FORMAS DE REFLEXIONAR"
+        },
+        "headline": {
+          "en": "Your words, wherever\nthey need to *go*.",
+          "fr": "Vos mots, là où ils\ndoivent *aller*.",
+          "es": "Tus palabras, donde\ndeban *llegar*."
+        },
+        "background": {
+          "kind": "gradient",
+          "stops": [
+            "#E4D9FF 0%",
+            "#DDEBFA 50%",
+            "#FCEFD6 100%"
+          ],
+          "angle": 180
+        },
+        "screenshot": "/screenshots/speakdiary/localized/{locale}/future-letters.jpg",
+        "screenshotSecondary": "/screenshots/speakdiary/localized/{locale}/drift-globe.jpg",
+        "screenshotCropByLocale": {
+          "fr": {
+            "bottom": 0.12
+          }
+        },
+        "screenshotSecondaryCropByLocale": {
+          "fr": {
+            "bottom": 0.12
+          }
+        },
+        "transforms": {
+          "caption": {
+            "x": 86,
+            "y": 105,
+            "width": 908,
+            "height": 400,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "device": {
+            "x": 7.606631841921626,
+            "y": 559.3606631841926,
+            "width": 590,
+            "height": 1278,
+            "rotation": -4,
+            "zIndex": 1
+          },
+          "deviceSecondary": {
+            "x": 421.3439766775791,
+            "y": 448.54074731336254,
+            "width": 682,
+            "height": 1479,
+            "rotation": 4,
+            "zIndex": 2
+          }
+        },
+        "textElements": [],
+        "frame": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": 7
+        },
+        "focusElements": []
       }
     ],
     "ipad": [],
     "android-7": [],
     "android-10": [],
     "feature-graphic": []
-  }
+  },
+  "themes": [
+    {
+      "id": "speakdiary",
+      "name": "SpeakDiary Dreamy",
+      "bg": "#DDEBFA",
+      "bgAlt": "#FBE3D7",
+      "fg": "#1B2240",
+      "fgAlt": "#1B2240",
+      "accent": "#5B3FC8",
+      "muted": "#697089",
+      "background": {
+        "kind": "gradient",
+        "stops": [
+          "#DDEBFA 0%",
+          "#F5E0F0 45%",
+          "#e8b0fc 100%"
+        ],
+        "angle": 180
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#FBE3D7 0%",
+          "#F7C9D6 50%",
+          "#FCEFD6 100%"
+        ],
+        "angle": 180
+      },
+      "headline": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 650,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.018
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 650,
+        "transform": "uppercase",
+        "letterSpacing": 0.06
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#5B3FC8",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.08
+      },
+      "device": {
+        "shadow": "drop-shadow(0 24px 40px rgba(27,34,64,0.18))"
+      },
+      "decor": {
+        "dreamy": true,
+        "grain": 0.015
+      }
+    }
+  ]
 }

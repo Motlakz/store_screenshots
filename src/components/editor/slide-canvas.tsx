@@ -8,6 +8,7 @@ import type {
   ElementId,
   ElementTransform,
   Orientation,
+  ScreenCrop,
   ScreenshotFocusElement,
   SelectedElement,
   Slide,
@@ -58,6 +59,7 @@ type FrameComp = React.ComponentType<{
   bezel?: string;
   bezelStroke?: string;
   bezelStrokeWidth?: number;
+  crop?: ScreenCrop;
 }>;
 
 export function getCanvas(device: Device, orientation: Orientation) {
@@ -1254,6 +1256,10 @@ function DreamyDecorations({
   cH: number;
   layer?: "back" | "front";
 }) {
+  return <DreamyRefinedDecorations slideId={slideId} cW={cW} cH={cH} layer={layer} />;
+
+  // Legacy motifs remain below so older saved decks still type-check while
+  // SpeakDiary uses the refined illustration set.
   type S = React.CSSProperties;
   const wisp = (key: string, style: S) => (
     <div key={key} style={{ position: "absolute", borderRadius: 999, filter: `blur(${cW * 0.015}px)`, ...style }} />
@@ -1419,6 +1425,63 @@ function DreamyDecorations({
 // Front decoration overlay — draws the readable text chips above the device so
 // their words are never clipped. Non-interactive so editing/selection still
 // works through it. Only used by the dreamy-pastel theme.
+function DreamyRefinedDecorations({ slideId, cW, cH, layer }: { slideId: string; cW: number; cH: number; layer: "back" | "front" }) {
+  if (layer === "front") return null;
+  type S = React.CSSProperties;
+  const cloud = (key: string, style: S) => <div key={key} style={{ position: "absolute", borderRadius: 999, filter: `blur(${cW * 0.012}px)`, background: "rgba(255,255,255,.38)", ...style }} />;
+  const sparkle = (key: string, left: string, top: string, color = "rgba(255,255,255,.9)") => (
+    <svg key={key} viewBox="0 0 100 100" style={{ position: "absolute", left, top, width: cW * 0.04, filter: "drop-shadow(0 6px 12px rgba(91,63,200,.18))" }}><path d="M50 2 C54 33 67 46 98 50 C67 54 54 67 50 98 C46 67 33 54 2 50 C33 46 46 33 50 2Z" fill={color} /></svg>
+  );
+  const sticker = (key: string, pos: S, rotate: number, children: React.ReactNode) => (
+    <div key={key} style={{ position: "absolute", ...pos, transform: `rotate(${rotate}deg)`, borderRadius: cW * 0.045, background: "rgba(255,255,255,.9)", boxShadow: "0 18px 42px rgba(27,34,64,.16), inset 0 1px 0 rgba(255,255,255,.8)", padding: cW * 0.025 }}>{children}</div>
+  );
+  const globe = (key: string, pos: S, size: number) => (
+    <div key={key} style={{ position: "absolute", ...pos, width: cW * size, height: cW * size, borderRadius: "50%", background: "radial-gradient(circle at 28% 22%, rgba(255,255,255,.78) 0 7%, transparent 22%), radial-gradient(circle at 72% 76%, rgba(91,63,200,.18), transparent 44%), #BAD4F2", boxShadow: `inset ${-cW * 0.025}px ${-cW * 0.03}px ${cW * 0.05}px rgba(156,205,177,.7), 0 ${cW * 0.022}px ${cW * 0.05}px rgba(27,34,64,.18)` }}>
+      <svg viewBox="0 0 100 100" style={{ width: "100%", height: "100%", borderRadius: "50%" }}><path d="M14 35 C24 15 42 13 48 25 C53 35 42 39 40 49 C36 60 20 58 15 48Z" fill="#BDE3C9" /><path d="M59 19 C76 20 90 32 91 48 C81 45 71 50 67 61 C63 71 50 69 51 57 C52 45 62 40 59 19Z" fill="#9CCDB1" /><path d="M23 73 C34 65 47 70 50 81 C41 91 28 89 23 73Z" fill="#BDE3C9" /></svg>
+    </div>
+  );
+  const heart = (key: string, pos: S, color = "#FF6FA3") => (
+    <svg key={key} viewBox="0 0 100 90" style={{ position: "absolute", ...pos, width: cW * 0.06, filter: `drop-shadow(0 ${cW * 0.01}px ${cW * 0.02}px rgba(255,111,163,.3))` }}><path d="M50 84 C40 73 8 53 8 29 C8 10 31 3 50 23 C69 3 92 10 92 29 C92 53 60 73 50 84Z" fill={color} /><path d="M25 19 C32 12 40 15 44 20" fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="7" strokeLinecap="round" /></svg>
+  );
+  const ring = (key: string, pos: S, color: string, size = 0.11) => <div key={key} style={{ position: "absolute", ...pos, width: cW * size, height: cW * size, borderRadius: "50%", border: `${cW * 0.014}px solid ${color}`, boxShadow: "0 14px 28px rgba(27,34,64,.15), inset 0 8px 16px rgba(27,34,64,.07)" }} />;
+  const ambient: React.ReactNode[] = (() => {
+    switch (slideId) {
+      case "01-home": return [cloud("cloud", { right: "-7%", top: "25%", width: "31%", height: cH * 0.026 }), sparkle("spark", "8%", "10%", "#F39A9A")];
+      case "02-prompts": return [cloud("cloud", { right: "7%", top: "29%", width: "24%", height: cH * 0.02, opacity: 0.72 }), sparkle("spark", "11%", "8%")];
+      case "03-lumi": return [cloud("cloud", { left: "-10%", top: "18%", width: "34%", height: cH * 0.03, opacity: 0.64 }), sparkle("spark", "89%", "46%", "#F39A9A")];
+      case "04-insights": return [cloud("cloud", { right: "-12%", top: "5%", width: "30%", height: cH * 0.024, opacity: 0.58 }), sparkle("spark", "7%", "45%")];
+      case "05-journal": return [cloud("cloud", { left: "14%", top: "27%", width: "25%", height: cH * 0.021 }), sparkle("spark", "88%", "8%", "#F39A9A")];
+      case "06-goals": return [cloud("cloud", { right: "5%", top: "27%", width: "26%", height: cH * 0.022, opacity: 0.66 }), sparkle("spark", "9%", "13%", "#7FBF9B")];
+      case "07-security": return [cloud("cloud", { left: "-9%", top: "7%", width: "27%", height: cH * 0.02, opacity: 0.32 }), sparkle("spark", "90%", "27%", "#B49BE6")];
+      case "08-drift": return [cloud("cloud-a", { left: "4%", top: "5%", width: "23%", height: cH * 0.02 }), cloud("cloud-b", { right: "-11%", top: "29%", width: "31%", height: cH * 0.026, opacity: 0.62 })];
+      default: return [];
+    }
+  })();
+  const motif: React.ReactNode[] = (() => {
+    switch (slideId) {
+      case "01-home": return [sticker("wave", { left: "4%", top: "38%", width: cW * 0.14, height: cW * 0.1 }, -8, <svg viewBox="0 0 100 70" style={{ width: "100%", height: "100%" }}><path d="M4 38 C14 38 14 13 24 13 C34 13 34 57 44 57 C54 57 54 23 64 23 C74 23 74 46 84 46 C90 46 93 35 97 35" fill="none" stroke="#E89070" strokeWidth="8" strokeLinecap="round" /></svg>)];
+      case "02-prompts": return [
+        sticker("prompt", { right: "5%", top: "36%", width: cW * 0.13 }, 8, <svg viewBox="0 0 100 100" style={{ width: "100%" }}><path d="M50 7 C54 34 66 46 93 50 C66 54 54 66 50 93 C46 66 34 54 7 50 C34 46 46 34 50 7Z" fill="#5B3FC8" /><circle cx="76" cy="23" r="8" fill="#F39A9A" /></svg>),
+        <svg key="ribbon" viewBox="0 0 240 150" style={{ position: "absolute", left: "0%", top: "8%", width: cW * 0.2, transform: "rotate(-8deg)" }}><path d="M12 122 C55 20 141 18 215 72" fill="none" stroke="#B49BE6" strokeWidth="10" strokeLinecap="round" strokeDasharray="2 24" /></svg>, sparkle("spark-b", "12%", "43%", "#F39A9A"),
+      ];
+      case "03-lumi": return [
+        <div key="petals" style={{ position: "absolute", left: "3%", top: "35%", width: cW * 0.19, height: cW * 0.19, filter: "drop-shadow(0 22px 32px rgba(90,58,201,.24))" }}>
+          <div style={{ position: "absolute", inset: "8%", borderRadius: "50% 50% 50% 12%", background: "rgba(122,86,235,.3)", transform: "rotate(24deg)", boxShadow: "inset 8px 10px 18px rgba(255,255,255,.16)" }} />
+          <div style={{ position: "absolute", inset: "19%", borderRadius: "50% 12% 50% 50%", background: "rgba(122,86,235,.4)", transform: "rotate(-28deg)", boxShadow: "inset -7px -9px 15px rgba(59,33,133,.16)" }} />
+          <div style={{ position: "absolute", inset: "31%", borderRadius: "50%", background: "radial-gradient(circle at 30% 24%, rgba(255,255,255,.92) 0 7%, transparent 25%), linear-gradient(145deg, #C4AEFF, #8C6BFF 55%, #5A3AC9)", boxShadow: "0 9px 18px rgba(90,58,201,.38)" }} />
+        </div>,
+      ];
+      case "04-insights": return [ring("ring", { right: "4%", top: "8%" }, "#F39A9A"), <svg key="trend" viewBox="0 0 180 120" style={{ position: "absolute", left: "3%", top: "38%", width: cW * 0.16, transform: "rotate(-6deg)" }}><path d="M12 101 L55 62 L90 78 L158 21 M133 19 L161 19 L159 48" fill="none" stroke="#5B3FC8" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" /></svg>, sparkle("spark-b", "88%", "44%", "#F39A9A")];
+      case "05-journal": return [<div key="swatches" style={{ position: "absolute", right: "5%", top: "8%", display: "flex", gap: cW * 0.012, transform: "rotate(7deg)" }}>{["#F39A9A", "#B49BE6", "#BDE3C9"].map((color) => <span key={color} style={{ width: cW * 0.035, height: cW * 0.035, borderRadius: "50%", background: color, boxShadow: "0 12px 24px rgba(27,34,64,.14)" }} />)}</div>];
+      case "06-goals": return [<svg key="check" viewBox="0 0 100 100" style={{ position: "absolute", left: "6%", top: "8%", width: cW * 0.11, transform: "rotate(-7deg)" }}><circle cx="50" cy="50" r="43" fill="#BDE3C9" /><path d="M27 51 L43 67 L75 33" fill="none" stroke="#1B2240" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" /></svg>];
+      case "07-security": return [sticker("shield", { right: "4%", top: "35%", width: cW * 0.13 }, 7, <svg viewBox="0 0 100 116" style={{ width: "100%" }}><path d="M50 4 L91 20 V54 C91 82 74 101 50 112 C26 101 9 82 9 54 V20Z" fill="#BDE3C9" /><path d="M36 52 V42 C36 22 64 22 64 42 V52 M30 52 H70 V82 H30Z" fill="none" stroke="#1B2240" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" /></svg>)];
+      case "08-drift": return [<svg key="route" viewBox="0 0 220 170" style={{ position: "absolute", right: "0%", top: "7%", width: cW * 0.2, transform: "rotate(8deg)" }}><path d="M12 139 C58 16 142 20 205 83" fill="none" stroke="#5B3FC8" strokeWidth="8" strokeLinecap="round" strokeDasharray="2 22" /><circle cx="13" cy="139" r="10" fill="#F39A9A" /><circle cx="205" cy="83" r="10" fill="#BDE3C9" /></svg>];
+      default: return [heart("heart", { left: "7%", top: "39%", transform: "rotate(-9deg)" })];
+    }
+  })();
+  return <>{[...ambient, ...motif]}</>;
+}
+
 function DreamyFront({ slideId, cW, cH }: { slideId: string; cW: number; cH: number }) {
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 50 }}>
@@ -1955,8 +2018,14 @@ function SlideElements({
   allowCrossScreen: boolean;
   enable3D: boolean;
 }) {
-  const screenshot = resolveScreenshot(slide.screenshot, locale);
-  const screenshotSecondary = resolveScreenshot(slide.screenshotSecondary, locale);
+  const screenshot = resolveScreenshot(
+    slide.screenshotByLocale?.[locale] || slide.screenshot,
+    locale,
+  );
+  const screenshotSecondary = resolveScreenshot(
+    slide.screenshotSecondaryByLocale?.[locale] || slide.screenshotSecondary,
+    locale,
+  );
   const { cW, cH, Frame, frameAspect, defaults } = getSlideGeometry(slide, device, orientation);
   const inverted = !!slide.inverted;
   // Device chrome overrides (cream bezel, ink outline, drop shadow) come from
@@ -1966,7 +2035,13 @@ function SlideElements({
   const captionRect = rectFor("caption", slide, defaults);
   const deviceRect = rectFor("device", slide, defaults);
   const secondaryRect = rectFor("deviceSecondary", slide, defaults);
-  const focusSources = (slide.focusElements || []).map((element) =>
+  const focusElements = (slide.focusElements || []).filter(
+    (element) => !element.locales?.length || element.locales.includes(locale),
+  );
+  const hidePrimaryDevice = slide.hideDeviceLocales?.includes(locale) ?? false;
+  const hideSecondaryDevice =
+    slide.hideSecondaryDeviceLocales?.includes(locale) ?? false;
+  const focusSources = focusElements.map((element) =>
     resolveScreenshot(element.source || slide.screenshot, locale),
   );
   const focusSourceKey = focusSources.join("\u0000");
@@ -2057,6 +2132,9 @@ function SlideElements({
     const deviceFinish = frameColorById(resolveFrame(deviceFrame).color);
     const rotation = saved?.rotation ?? themeDevice.tilt ?? 0;
     const zIndex = saved?.zIndex ?? (id === "deviceSecondary" ? 2 : 3);
+    const crop = id === "deviceSecondary"
+      ? slide.screenshotSecondaryCropByLocale?.[locale]
+      : slide.screenshotCropByLocale?.[locale];
     return (
       <Movable
         rect={toGlobal(rect)}
@@ -2090,6 +2168,7 @@ function SlideElements({
           hideEmpty={hideEmpty}
           fallbackBody={themeDevice.bezel}
           fallbackEdge={themeDevice.bezelStroke}
+          crop={crop}
         >
           <Frame
             src={src}
@@ -2097,6 +2176,7 @@ function SlideElements({
             bezel={deviceFinish?.body ?? themeDevice.bezel}
             bezelStroke={themeDevice.bezelStroke}
             bezelStrokeWidth={themeDevice.bezelStrokeWidth}
+            crop={crop}
             style={{
               width: "100%",
               height: "100%",
@@ -2270,16 +2350,17 @@ function SlideElements({
   return (
     <>
       {secondaryRect &&
+        !hideSecondaryDevice &&
         renderDevice(
           "deviceSecondary",
           secondaryRect,
           screenshotSecondary || screenshot,
           { opacity: 0.85 },
         )}
-      {deviceRect && renderDevice("device", deviceRect, screenshot)}
+      {deviceRect && !hidePrimaryDevice && renderDevice("device", deviceRect, screenshot)}
       {renderCaption()}
       {(slide.textElements || []).map(renderTextElement)}
-      {(slide.focusElements || []).map(renderFocusElement)}
+      {focusElements.map(renderFocusElement)}
     </>
   );
 }

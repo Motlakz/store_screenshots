@@ -27,3 +27,4 @@ public/screenshots/**/*.webp
 # Icons are the exception: already public on the stores, a few KB, and the
 # feature-graphic layout can't render without one.
 !public/screenshots/*/app-icon.png
+.env*

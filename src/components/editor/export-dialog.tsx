@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Download, Images, Languages, Square } from "lucide-react";
+import { Download, FileArchive, Folder, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,24 +10,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { DEVICE_LABEL } from "@/lib/constants";
 import {
   availableDecks,
+  downloadName,
   planExport,
   sizesFor,
   type ExportSelection,
+  type ExportUnit,
 } from "@/lib/export";
+import { pickText } from "@/lib/locale";
 import type { Device, Orientation, ProjectState, Slide } from "@/lib/types";
 
-type Scope = "screen" | "group" | "groups";
-type LocaleScope = "one" | "all";
+// How many rows the "You'll get" tree shows before it collapses into a count.
+const PREVIEW_ROWS = 5;
+
+type Scope = "screen" | "groups";
 
 type Props = {
   open: boolean;
@@ -50,204 +48,351 @@ export function ExportDialog({
 }: Props) {
   const decks = React.useMemo(() => availableDecks(state), [state]);
   const [scope, setScope] = React.useState<Scope>("screen");
-  const [localeScope, setLocaleScope] = React.useState<LocaleScope>("one");
-  const [singleLocale, setSingleLocale] = React.useState(state.locale);
-  const [selectedDevices, setSelectedDevices] = React.useState<Device[]>([state.device]);
+  const [devices, setDevices] = React.useState<Device[]>([state.device]);
+  const [locales, setLocales] = React.useState<string[]>([state.locale]);
 
+  // Each visit starts from what you're looking at, never from last time's
+  // picks — a stale selection is how you ship the wrong language. Keyed on the
+  // slide *id* so an unrelated edit re-rendering the slide can't wipe a
+  // half-made selection out from under the user.
+  const activeSlideId = activeSlide?.id ?? null;
   React.useEffect(() => {
     if (!open) return;
-    setScope("screen");
-    setLocaleScope("one");
-    setSingleLocale(state.locale);
-    setSelectedDevices([state.device]);
-  }, [open, state.device, state.locale]);
+    setScope(activeSlideId ? "screen" : "groups");
+    setDevices([state.device]);
+    setLocales([state.locale]);
+  }, [open, activeSlideId, state.device, state.locale]);
 
   const selection = React.useMemo<ExportSelection>(() => {
-    const locales = localeScope === "all" ? [...state.locales] : [singleLocale];
     if (scope === "screen") {
+      // No slide open means there is no "this screen" to export. Falling back
+      // to the whole deck here would quietly hand over 8 PNGs when the dialog
+      // promised one.
+      if (!activeSlide) return { locales, picks: [] };
       return {
         locales,
-        picks: [{
-          device: state.device,
-          sizes: sizesFor(state.device, orientation),
-          ...(activeSlide ? { slideIds: [activeSlide.id] } : {}),
-        }],
+        picks: [
+          {
+            device: state.device,
+            sizes: sizesFor(state.device, orientation),
+            slideIds: [activeSlide.id],
+          },
+        ],
       };
     }
-    const devices = scope === "group"
-      ? [state.device]
-      : decks.map((deck) => deck.device).filter((device) => selectedDevices.includes(device));
     return {
       locales,
-      picks: devices.map((device) => ({
-        device,
-        sizes: sizesFor(device, orientation),
-      })),
+      picks: decks
+        .filter((deck) => devices.includes(deck.device))
+        .map((deck) => ({ device: deck.device, sizes: sizesFor(deck.device, orientation) })),
     };
-  }, [activeSlide, decks, localeScope, orientation, scope, selectedDevices, singleLocale, state]);
+  }, [activeSlide, decks, devices, locales, orientation, scope, state.device]);
 
-  const units = React.useMemo(() => planExport(state, selection), [selection, state]);
-  const canExport = units.length > 0 && selection.picks.length > 0;
-  const currentLabel = state.device === "feature-graphic" ? "feature graphic" : "screen";
+  const units = React.useMemo(
+    () => (selection.picks.length ? planExport(state, selection) : []),
+    [selection, state],
+  );
+  const filename = React.useMemo(
+    () => (units.length ? downloadName(state.appId, state.appName, selection, units) : ""),
+    [selection, state.appId, state.appName, units],
+  );
+  const preview = React.useMemo(() => previewRows(units), [units]);
+
+  const multiLocale = state.locales.length > 1;
+  const deckCount = (state.slidesByDevice[state.device] || []).length;
+  const screenName = activeSlide
+    ? pickText(activeSlide.label, state.locale) || pickText(activeSlide.headline, state.locale)
+    : "";
 
   function toggleDevice(device: Device) {
-    setSelectedDevices((current) =>
+    setDevices((current) =>
       current.includes(device)
         ? current.filter((entry) => entry !== device)
         : [...current, device],
     );
   }
 
+  function toggleLocale(locale: string) {
+    setLocales((current) =>
+      current.includes(locale)
+        ? current.filter((entry) => entry !== locale)
+        : state.locales.filter((entry) => current.includes(entry) || entry === locale),
+    );
+  }
+
+  const allLocales = locales.length === state.locales.length;
+
   return (
     <Dialog open={open} onOpenChange={(next) => !busy && onOpenChange(next)}>
-      <DialogContent className="max-w-2xl">
+      {/* Scrolls rather than overflowing on short viewports; the base
+          DialogContent already caps the width at max-w-lg. */}
+      <DialogContent className="max-h-[88vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Choose what to export</DialogTitle>
+          <DialogTitle>Export</DialogTitle>
           <DialogDescription>
-            Nothing is bulk-exported until you choose it. The default is the current {currentLabel} in one language.
+            Only what you pick here goes in the download — language sets stay separate.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-5 md:grid-cols-2">
-          <section className="space-y-2">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Content</div>
-            <Choice
+        <Section label="Screens">
+          <div className="space-y-1">
+            <Radio
               active={scope === "screen"}
-              icon={<Square />}
-              title={state.device === "feature-graphic" ? "Single feature graphic" : "Current screen"}
-              detail={activeSlide ? "Only the screen open in the editor" : "The current screen"}
+              title="This screen only"
+              meta={
+                activeSlide
+                  ? [firstLine(screenName) || "Untitled", DEVICE_LABEL[state.device]]
+                      .filter(Boolean)
+                      .join(" · ")
+                  : "Nothing selected"
+              }
+              disabled={!activeSlide}
               onClick={() => setScope("screen")}
             />
-            <Choice
-              active={scope === "group"}
-              icon={<Images />}
-              title="Current screenshot group"
-              detail={`${DEVICE_LABEL[state.device]} · ${(state.slidesByDevice[state.device] || []).length} screen${(state.slidesByDevice[state.device] || []).length === 1 ? "" : "s"}`}
-              onClick={() => setScope("group")}
-            />
-            <Choice
+            <Radio
               active={scope === "groups"}
-              icon={<Images />}
-              title="Choose screenshot groups"
-              detail="Export one or more device decks"
+              title="Whole screenshot groups"
+              meta={`${DEVICE_LABEL[state.device]} has ${deckCount} screen${deckCount === 1 ? "" : "s"}`}
               onClick={() => setScope("groups")}
             />
+          </div>
 
-            {scope === "groups" && (
-              <div className="grid grid-cols-2 gap-2 rounded-md border bg-muted/20 p-2">
-                {decks.map((deck) => {
-                  const selected = selectedDevices.includes(deck.device);
-                  return (
-                    <button
-                      key={deck.device}
-                      type="button"
-                      onClick={() => toggleDevice(deck.device)}
-                      className={`flex items-center justify-between rounded border px-2.5 py-2 text-left text-xs transition-colors ${
-                        selected ? "border-primary bg-primary/10 text-foreground" : "border-input bg-background text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <span>{DEVICE_LABEL[deck.device]}</span>
-                      <span className="flex items-center gap-1">
-                        {deck.count}
-                        {selected && <Check className="h-3.5 w-3.5 text-primary" />}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
-          <section className="space-y-2">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Languages</div>
-            <Choice
-              active={localeScope === "one"}
-              icon={<Languages />}
-              title="One language"
-              detail="Export only the language selected below"
-              onClick={() => setLocaleScope("one")}
-            />
-            {localeScope === "one" && (
-              <Select value={singleLocale} onValueChange={setSingleLocale}>
-                <SelectTrigger className="h-9 w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {state.locales.map((locale) => (
-                    <SelectItem key={locale} value={locale}>
-                      {locale.toUpperCase()}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-            <Choice
-              active={localeScope === "all"}
-              icon={<Languages />}
-              title="All languages"
-              detail={state.locales.map((locale) => locale.toUpperCase()).join(" · ")}
-              onClick={() => setLocaleScope("all")}
-            />
-
-            <div className="rounded-md border bg-muted/30 p-3 text-xs text-muted-foreground">
-              <div className="font-medium text-foreground">
-                {units.length} PNG{units.length === 1 ? "" : "s"}
-              </div>
-              <div className="mt-1 leading-relaxed">
-                {units.length === 1
-                  ? "Downloads directly as a PNG."
-                  : "Downloads as a ZIP, grouped by language first and then screenshot group."}
-              </div>
+          {/* pl-[34px] indents the chips to the radio titles: 10px button
+              padding + 14px radio dot + 10px gap. */}
+          {scope === "groups" && (
+            <div className="flex flex-wrap gap-1.5 pl-[34px] pt-0.5">
+              {decks.map((deck) => (
+                <Chip
+                  key={deck.device}
+                  active={devices.includes(deck.device)}
+                  onClick={() => toggleDevice(deck.device)}
+                >
+                  {DEVICE_LABEL[deck.device]}
+                  <span className="opacity-60">{deck.count}</span>
+                </Chip>
+              ))}
             </div>
-          </section>
-        </div>
+          )}
+        </Section>
 
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={busy}>
-            Cancel
-          </Button>
-          <Button
-            onClick={() => onExport(selection)}
-            disabled={busy || !canExport}
+        {multiLocale && (
+          <Section
+            label="Languages"
+            action={
+              <button
+                type="button"
+                className="text-[10px] font-medium text-primary hover:underline"
+                onClick={() => setLocales(allLocales ? [state.locale] : [...state.locales])}
+              >
+                {allLocales ? `Only ${state.locale.toUpperCase()}` : "Select all"}
+              </button>
+            }
           >
-            <Download />
-            {busy ? "Exporting…" : units.length === 1 ? "Export PNG" : `Export ${units.length} PNGs`}
-          </Button>
+            <div className="flex flex-wrap gap-1.5">
+              {state.locales.map((locale) => (
+                <Chip
+                  key={locale}
+                  active={locales.includes(locale)}
+                  onClick={() => toggleLocale(locale)}
+                >
+                  {locale.toUpperCase()}
+                </Chip>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        <Section label="You'll get">
+          {units.length === 0 ? (
+            <p className="rounded-md border border-dashed px-3 py-4 text-center text-[11px] text-muted-foreground">
+              {scope === "screen"
+                ? "No screen is open — pick whole screenshot groups instead."
+                : locales.length === 0
+                  ? "Pick at least one language."
+                  : "Pick at least one screenshot group."}
+            </p>
+          ) : (
+            <div className="space-y-1 rounded-md border bg-muted/30 p-2.5 font-mono text-[11px]">
+              <div className="flex items-center gap-1.5 font-medium text-foreground">
+                {units.length === 1 ? (
+                  <ImageIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                ) : (
+                  <FileArchive className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                )}
+                <span className="truncate" title={filename}>
+                  {filename}
+                </span>
+              </div>
+              {preview.rows.map((row) => (
+                <div
+                  key={row.label}
+                  className="flex items-center gap-1.5 pl-[18px] text-muted-foreground"
+                >
+                  {row.isFolder ? (
+                    <Folder className="h-3 w-3 shrink-0" />
+                  ) : (
+                    <ImageIcon className="h-3 w-3 shrink-0" />
+                  )}
+                  <span className="truncate">{row.label}</span>
+                  {row.meta && <span className="ml-auto shrink-0 pl-2 opacity-70">{row.meta}</span>}
+                </div>
+              ))}
+              {preview.hidden > 0 && (
+                <div className="pl-[18px] text-muted-foreground opacity-70">
+                  +{preview.hidden} more
+                </div>
+              )}
+            </div>
+          )}
+        </Section>
+
+        <div className="-mx-6 -mb-6 mt-1 flex items-center justify-between gap-3 border-t px-6 py-4">
+          <span className="text-xs text-muted-foreground">
+            {units.length === 0
+              ? "Nothing selected"
+              : `${units.length} PNG${units.length === 1 ? "" : "s"}`}
+          </span>
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button size="sm" onClick={() => onExport(selection)} disabled={busy || !units.length}>
+              <Download />
+              {busy ? "Exporting…" : units.length === 1 ? "Export PNG" : "Export"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-function Choice({
+function Section({
+  label,
+  action,
+  children,
+}: {
+  label: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </h3>
+        {action}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Radio({
   active,
-  icon,
   title,
-  detail,
+  meta,
+  disabled,
   onClick,
 }: {
   active: boolean;
-  icon: React.ReactNode;
   title: string;
-  detail: string;
+  meta: string;
+  disabled?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-start gap-3 rounded-md border p-3 text-left transition-colors ${
-        active ? "border-primary bg-primary/10" : "border-input bg-background hover:bg-muted/50"
+      disabled={disabled}
+      aria-pressed={active}
+      className={`flex w-full items-center gap-2.5 rounded-md border px-2.5 py-2 text-left transition-colors disabled:pointer-events-none disabled:opacity-50 ${
+        active ? "border-primary bg-primary/5" : "border-transparent hover:bg-muted/60"
       }`}
     >
-      <span className={`mt-0.5 ${active ? "text-primary" : "text-muted-foreground"}`}>{icon}</span>
-      <span className="min-w-0 flex-1">
-        <span className="flex items-center justify-between gap-2 text-sm font-medium">
-          {title}
-          {active && <Check className="h-4 w-4 text-primary" />}
-        </span>
-        <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">{detail}</span>
+      <span
+        aria-hidden
+        className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border transition-colors ${
+          active ? "border-primary" : "border-muted-foreground/50"
+        }`}
+      >
+        {active && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
+      </span>
+      <span className="shrink-0 text-xs font-medium">{title}</span>
+      <span className="min-w-0 flex-1 truncate text-right text-[11px] text-muted-foreground">
+        {meta}
       </span>
     </button>
   );
+}
+
+function Chip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+        active
+          ? "border-primary bg-primary/10 text-foreground"
+          : "border-input bg-background text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+/**
+ * What the download looks like once unzipped. Folders win over files: when the
+ * export fans out across languages or decks the folder names are the useful
+ * information, and when it doesn't there are no folders to show, which is the
+ * whole point of collapsing them.
+ */
+function previewRows(units: ExportUnit[]): {
+  rows: { label: string; meta?: string; isFolder: boolean }[];
+  hidden: number;
+} {
+  if (units.length < 2) return { rows: [], hidden: 0 };
+
+  const folders = new Map<string, number>();
+  const files: string[] = [];
+  for (const unit of units) {
+    const parts = unit.path.split("/");
+    // Every path shares the bundle folder; show what sits inside it.
+    const inner = parts.slice(1, -1).join("/");
+    if (inner) folders.set(inner, (folders.get(inner) || 0) + 1);
+    else files.push(parts[parts.length - 1]);
+  }
+
+  if (folders.size > 0) {
+    const entries = [...folders.entries()];
+    return {
+      rows: entries.slice(0, PREVIEW_ROWS).map(([label, count]) => ({
+        label: `${label}/`,
+        meta: `${count} PNG${count === 1 ? "" : "s"}`,
+        isFolder: true,
+      })),
+      hidden: Math.max(0, entries.length - PREVIEW_ROWS),
+    };
+  }
+
+  return {
+    rows: files.slice(0, PREVIEW_ROWS).map((label) => ({ label, isFolder: false })),
+    hidden: Math.max(0, files.length - PREVIEW_ROWS),
+  };
+}
+
+function firstLine(text: string): string {
+  return text.split("\n")[0].trim();
 }

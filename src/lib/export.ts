@@ -102,6 +102,33 @@ export function planExport(state: ProjectState, selection: ExportSelection): Exp
   return units;
 }
 
+export function stamp(at: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${at.getFullYear()}${pad(at.getMonth() + 1)}${pad(at.getDate())}-${pad(at.getHours())}${pad(at.getMinutes())}`;
+}
+
+/**
+ * Exact filename the browser will save, extension included — so the dialog can
+ * promise it and the export can't drift from the promise.
+ *
+ * A lone PNG is named after the screen rather than the bundle: one file called
+ * `…-screenshots.png` says nothing about which screen you just exported.
+ */
+export function downloadName(
+  appId: string,
+  appName: string,
+  selection: ExportSelection,
+  units: ExportUnit[],
+  at?: Date,
+): string {
+  const bundle = exportBundleName(appId, appName, selection);
+  if (units.length === 1) {
+    const file = units[0].path.split("/").pop() || "screen.png";
+    return `${bundle.replace(/-screenshots$/, "")}-${file}`;
+  }
+  return `${bundle}-${stamp(at)}.zip`;
+}
+
 /** Decks that have at least one screen, in a stable order for the dialog. */
 export function availableDecks(state: ProjectState): { device: Device; count: number }[] {
   const order: Device[] = ["iphone", "ipad", "android", "android-7", "android-10", "feature-graphic"];

@@ -516,42 +516,24 @@ function ElementTransformControls({
           </p>
         </div>
         {locales.length > 1 && (
-          <div className="rounded-md border bg-background p-2">
-            <div className="mb-1.5 flex items-center justify-between gap-2">
-              <Label className="text-[11px] font-semibold">Position changes apply to</Label>
-              {activeHasLocalePlacement && (
-                <button
-                  type="button"
-                  className="text-[10px] text-primary hover:underline"
-                  onClick={() => activeId && onChange(clearLocaleTransform(slide, activeId, locale))}
-                >
-                  Use shared position
-                </button>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-1">
-              <Button
-                type="button"
-                variant={transformScope === "locale" ? "secondary" : "ghost"}
-                size="sm"
-                className="h-7 text-[11px]"
+          <div className="flex items-center justify-between gap-2">
+            <Label className="text-[11px] font-medium text-muted-foreground">Moves apply to</Label>
+            <div className="flex items-center gap-0.5 rounded-md border bg-background p-0.5">
+              <ScopeTab
+                active={transformScope === "locale"}
                 onClick={() => onTransformScopeChange("locale")}
+                title={`Dragging and the controls below move ${locale.toUpperCase()} only`}
               >
-                {locale.toUpperCase()} only
-              </Button>
-              <Button
-                type="button"
-                variant={transformScope === "all" ? "secondary" : "ghost"}
-                size="sm"
-                className="h-7 text-[11px]"
+                {locale.toUpperCase()}
+              </ScopeTab>
+              <ScopeTab
+                active={transformScope === "all"}
                 onClick={() => onTransformScopeChange("all")}
+                title="Dragging and the controls below move every language, clearing per-language positions for that element"
               >
-                All languages
-              </Button>
+                All
+              </ScopeTab>
             </div>
-            <p className="mt-1.5 text-[10px] leading-relaxed text-muted-foreground">
-              Canvas dragging and the controls below follow this setting.
-            </p>
           </div>
         )}
         <div className="grid grid-cols-2 gap-1.5">
@@ -585,6 +567,8 @@ function ElementTransformControls({
           textElement={activeTextElement || undefined}
           focusElement={activeFocusElement || undefined}
           locale={locale}
+          localePlacement={locales.length > 1 && activeHasLocalePlacement}
+          onClearLocalePlacement={() => onChange(clearLocaleTransform(slide, activeId, locale))}
           onRotate={(rotation) => patchElement(activeId, { rotation })}
           onReorder={(dir) => reorder(activeId, dir)}
           onTextChange={(value) => {
@@ -621,6 +605,8 @@ function ActiveElementPanel({
   textElement,
   focusElement,
   locale,
+  localePlacement,
+  onClearLocalePlacement,
   onRotate,
   onReorder,
   onTextChange,
@@ -637,6 +623,9 @@ function ActiveElementPanel({
   textElement?: TextElement;
   focusElement?: ScreenshotFocusElement;
   locale: string;
+  /** This element has been positioned for `locale` alone. */
+  localePlacement: boolean;
+  onClearLocalePlacement: () => void;
   onRotate: (rotation: number) => void;
   onReorder: (dir: "front" | "back" | "up" | "down") => void;
   onTextChange: (value: string) => void;
@@ -653,10 +642,22 @@ function ActiveElementPanel({
   return (
     <div className="space-y-2 rounded border bg-background/60 p-2.5">
       <div className="flex items-center justify-between">
-        <span className="flex items-center gap-1 text-xs font-medium">
-          {textElement && <Type className="h-3.5 w-3.5" />}
-          {focusElement && <Crop className="h-3.5 w-3.5" />}
-          {label}
+        <span className="flex min-w-0 items-center gap-1 text-xs font-medium">
+          {textElement && <Type className="h-3.5 w-3.5 shrink-0" />}
+          {focusElement && <Crop className="h-3.5 w-3.5 shrink-0" />}
+          <span className="truncate">{label}</span>
+          {/* Placement that belongs to one language reads as a property of the
+              element, so it sits on the element rather than in the toolbar. */}
+          {localePlacement && (
+            <button
+              type="button"
+              onClick={onClearLocalePlacement}
+              title={`Positioned for ${locale.toUpperCase()} only — click to go back to the shared position`}
+              className="shrink-0 rounded-full border border-primary/40 bg-primary/10 px-1.5 py-px text-[9px] font-semibold uppercase leading-normal tracking-wide text-primary transition-colors hover:bg-primary/20"
+            >
+              {locale} only
+            </button>
+          )}
         </span>
         {textElement || focusElement || onRemoveDevice ? (
           <Button
@@ -1032,6 +1033,35 @@ function LayerButton({
     >
       {children}
     </Button>
+  );
+}
+
+/** One half of the language-scope switch. Sized to sit inline with a label. */
+function ScopeTab({
+  active,
+  onClick,
+  title,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      aria-pressed={active}
+      className={`rounded px-2 py-1 text-[10px] font-semibold uppercase tracking-wide transition-colors ${
+        active
+          ? "bg-secondary text-secondary-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 

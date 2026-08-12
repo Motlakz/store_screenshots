@@ -21,7 +21,7 @@ import {
   writeElementTransform,
 } from "@/lib/elements";
 import {
-  exportBundleName,
+  downloadName,
   planExport,
   type ExportSelection,
   type ExportUnit,
@@ -666,17 +666,17 @@ export function ScreenshotEditor() {
 
     if (okCount > 0) {
       try {
-        const name = exportBundleName(state.appId, state.appName, selection);
+        const name = downloadName(state.appId, state.appName, selection, units);
         const anchor = document.createElement("a");
         let objectUrl: string | null = null;
         if (units.length === 1 && onlyDataUrl) {
           anchor.href = onlyDataUrl;
-          anchor.download = `${name}.png`;
+          anchor.download = name;
         } else {
           const blob = await zip.generateAsync({ type: "blob" });
           objectUrl = URL.createObjectURL(blob);
           anchor.href = objectUrl;
-          anchor.download = `${name}-${stamp()}.zip`;
+          anchor.download = name;
         }
         anchor.click();
         if (objectUrl) setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
@@ -1011,8 +1011,3 @@ function slideNeedsScreenshot(device: Device, slide: Slide) {
   return slide.layout !== "no-device" && slide.layout !== "feature-graphic";
 }
 
-function stamp() {
-  const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;
-}

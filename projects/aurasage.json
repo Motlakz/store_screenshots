@@ -1,0 +1,725 @@
+{
+  "schemaVersion": 2,
+  "appId": "aurasage",
+  "appName": "AuraSage",
+  "themeId": "aurasage-newsprint",
+  "connectedCanvas": true,
+  "locales": [
+    "en"
+  ],
+  "locale": "en",
+  "device": "android",
+  "orientation": "portrait",
+  "appIcon": "/screenshots/aurasage/app-icon.png",
+  "slidesByDevice": {
+    "iphone": [
+      {
+        "id": "aurasage-i01",
+        "layout": "hero",
+        "label": {
+          "en": "A QUIETER DAILY PRACTICE"
+        },
+        "headline": {
+          "en": "Better words\nfor *real days*"
+        },
+        "screenshot": "/screenshots/aurasage/screens/01.png",
+        "background": {
+          "kind": "solid",
+          "color": "#131A17"
+        },
+        "inverted": true,
+        "transforms": {
+          "caption": {
+            "x": 98,
+            "y": 190,
+            "width": 1124,
+            "height": 620,
+            "zIndex": 4
+          },
+          "device": {
+            "x": 284,
+            "y": 742,
+            "width": 800,
+            "height": 2155,
+            "rotation": -11,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "aurasage-i02",
+        "layout": "device-bottom",
+        "label": {
+          "en": "TODAY’S EDITION"
+        },
+        "headline": {
+          "en": "Seven, not an\n*endless feed*"
+        },
+        "screenshot": "/screenshots/aurasage/screens/02.png",
+        "background": {
+          "kind": "solid",
+          "color": "#F2EEE4"
+        },
+        "transforms": {
+          "caption": {
+            "x": 98,
+            "y": 190,
+            "width": 1124,
+            "height": 600,
+            "zIndex": 4
+          },
+          "device": {
+            "x": 270,
+            "y": 760,
+            "width": 806,
+            "height": 2172,
+            "rotation": 13,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "aurasage-i03",
+        "layout": "device-top",
+        "label": {
+          "en": "ONE LINE, NEARBY"
+        },
+        "headline": {
+          "en": "Keep one close\n*all day*"
+        },
+        "screenshot": "/screenshots/aurasage/screens/03.png",
+        "background": {
+          "kind": "solid",
+          "color": "#B9D69A"
+        },
+        "transforms": {
+          "device": {
+            "x": 278,
+            "y": -210,
+            "width": 804,
+            "height": 2166,
+            "rotation": -10,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 98,
+            "y": 2025,
+            "width": 1124,
+            "height": 610,
+            "zIndex": 4
+          }
+        }
+      },
+      {
+        "id": "aurasage-i04",
+        "layout": "two-devices",
+        "label": {
+          "en": "SOUND LIKE YOURSELF"
+        },
+        "headline": {
+          "en": "Hear it in\nyour *own voice*"
+        },
+        "screenshot": "/screenshots/aurasage/screens/04.png",
+        "screenshotSecondary": "/screenshots/aurasage/screens/03.png",
+        "background": {
+          "kind": "solid",
+          "color": "#F2EEE4"
+        },
+        "transforms": {
+          "caption": {
+            "x": 98,
+            "y": 175,
+            "width": 1124,
+            "height": 600,
+            "zIndex": 5
+          },
+          "deviceSecondary": {
+            "x": -96,
+            "y": 900,
+            "width": 680,
+            "height": 1831,
+            "rotation": -12,
+            "zIndex": 2
+          },
+          "device": {
+            "x": 560,
+            "y": 720,
+            "width": 714,
+            "height": 1923,
+            "rotation": 14,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "aurasage-i05",
+        "layout": "device-top",
+        "label": {
+          "en": "QUICK RESET"
+        },
+        "headline": {
+          "en": "Reset in\n*ninety seconds*"
+        },
+        "screenshot": "/screenshots/aurasage/screens/05.png",
+        "background": {
+          "kind": "solid",
+          "color": "#131A17"
+        },
+        "inverted": true,
+        "transforms": {
+          "device": {
+            "x": 260,
+            "y": -165,
+            "width": 826,
+            "height": 2225,
+            "rotation": 15,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 98,
+            "y": 2110,
+            "width": 1124,
+            "height": 590,
+            "zIndex": 4
+          }
+        }
+      },
+      {
+        "id": "aurasage-i06",
+        "layout": "device-bottom",
+        "label": {
+          "en": "A NUDGE, NOT A SCORE"
+        },
+        "headline": {
+          "en": "Reminders on\n*your terms*"
+        },
+        "screenshot": "/screenshots/aurasage/screens/06.png",
+        "background": {
+          "kind": "solid",
+          "color": "#F2EEE4"
+        },
+        "transforms": {
+          "caption": {
+            "x": 98,
+            "y": 190,
+            "width": 1124,
+            "height": 610,
+            "zIndex": 4
+          },
+          "device": {
+            "x": 286,
+            "y": 760,
+            "width": 792,
+            "height": 2133,
+            "rotation": -11,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "aurasage-i07",
+        "layout": "no-device",
+        "label": {
+          "en": "PRIVATE BY DESIGN"
+        },
+        "headline": {
+          "en": "Private. Personal.\n*Offline.*"
+        },
+        "screenshot": "/screenshots/aurasage/screens/07.png",
+        "background": {
+          "kind": "solid",
+          "color": "#131A17"
+        },
+        "inverted": true,
+        "transforms": {
+          "caption": {
+            "x": 98,
+            "y": 190,
+            "width": 1124,
+            "height": 610,
+            "zIndex": 4
+          }
+        },
+        "focusElements": [
+          {
+            "id": "privacy-proof",
+            "crop": {
+              "x": 6.6,
+              "y": 17.4,
+              "width": 86.8,
+              "height": 57.5
+            },
+            "transform": {
+              "x": 116,
+              "y": 880,
+              "width": 1088,
+              "height": 1520,
+              "rotation": -2,
+              "zIndex": 8
+            },
+            "borderRadius": 44,
+            "borderWidth": 6,
+            "accentColor": "#B9D69A"
+          }
+        ]
+      },
+      {
+        "id": "aurasage-i08",
+        "layout": "no-device",
+        "label": {
+          "en": "RETURNING IS THE PRACTICE"
+        },
+        "headline": {
+          "en": "No streaks.\n*Just return.*"
+        },
+        "screenshot": "/screenshots/aurasage/screens/08.png",
+        "background": {
+          "kind": "solid",
+          "color": "#B9D69A"
+        },
+        "transforms": {
+          "caption": {
+            "x": 98,
+            "y": 190,
+            "width": 1124,
+            "height": 610,
+            "zIndex": 4
+          }
+        },
+        "focusElements": [
+          {
+            "id": "rhythm-proof",
+            "crop": {
+              "x": 6.6,
+              "y": 17.5,
+              "width": 86.8,
+              "height": 56.5
+            },
+            "transform": {
+              "x": 108,
+              "y": 870,
+              "width": 1104,
+              "height": 1550,
+              "rotation": 2,
+              "zIndex": 8
+            },
+            "borderRadius": 44,
+            "borderWidth": 6,
+            "accentColor": "#D86F4B"
+          }
+        ]
+      }
+    ],
+    "android": [
+      {
+        "id": "aurasage-a01",
+        "layout": "hero",
+        "label": {
+          "en": "A QUIETER DAILY PRACTICE"
+        },
+        "headline": {
+          "en": "Better words\nfor *real days*"
+        },
+        "screenshot": "/screenshots/aurasage/uploaded/f71fd99de550e143.jpg",
+        "background": {
+          "kind": "solid",
+          "color": "#131A17"
+        },
+        "inverted": true,
+        "frame": {
+          "style": "3d",
+          "color": "graphite",
+          "rotateX": 1,
+          "rotateY": -7,
+          "depth": 1050,
+          "thickness": 20
+        },
+        "transforms": {
+          "caption": {
+            "x": 76,
+            "y": 122,
+            "width": 928,
+            "height": 442,
+            "rotation": 0,
+            "zIndex": 4
+          },
+          "device": {
+            "x": 92.00317965023845,
+            "y": 323.3179711273631,
+            "width": 768,
+            "height": 1664,
+            "rotation": -2,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "aurasage-a02",
+        "layout": "device-bottom",
+        "label": {
+          "en": "TODAY’S EDITION"
+        },
+        "headline": {
+          "en": "Seven, not an\n*endless feed*"
+        },
+        "screenshot": "/screenshots/aurasage/uploaded/ff40d68cfa9b157a.jpg",
+        "background": {
+          "kind": "solid",
+          "color": "#F2EEE4"
+        },
+        "frame": {
+          "style": "3d",
+          "color": "porcelain",
+          "rotateX": -1,
+          "rotateY": 7,
+          "depth": 1040,
+          "thickness": 18
+        },
+        "transforms": {
+          "caption": {
+            "x": 76,
+            "y": 128,
+            "width": 928,
+            "height": 430,
+            "rotation": 0,
+            "zIndex": 4
+          },
+          "device": {
+            "x": 116.2098548812346,
+            "y": 452.46582181169384,
+            "width": 798,
+            "height": 1728,
+            "rotation": 7,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "aurasage-a03",
+        "layout": "device-top",
+        "label": {
+          "en": "ONE LINE, NEARBY"
+        },
+        "headline": {
+          "en": "Keep one close\n*all day*"
+        },
+        "screenshot": "/screenshots/aurasage/uploaded/01aed50807a80572.jpg",
+        "background": {
+          "kind": "solid",
+          "color": "#B9D69A"
+        },
+        "frame": {
+          "style": "3d",
+          "color": "hazel",
+          "rotateX": 1,
+          "rotateY": -6,
+          "depth": 1020,
+          "thickness": 20
+        },
+        "transforms": {
+          "device": {
+            "x": 178.52782193958683,
+            "y": -45.793322734499085,
+            "width": 704,
+            "height": 1525,
+            "rotation": -4,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 76,
+            "y": 1380,
+            "width": 928,
+            "height": 430,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      },
+      {
+        "id": "aurasage-a04",
+        "layout": "hero",
+        "label": {
+          "en": "SOUND LIKE YOURSELF"
+        },
+        "headline": {
+          "en": "Hear it in\nyour *own voice*"
+        },
+        "screenshot": "/screenshots/aurasage/uploaded/e8327ae4ff109961.jpg",
+        "background": {
+          "kind": "solid",
+          "color": "#F2EEE4"
+        },
+        "frame": {
+          "style": "3d",
+          "color": "bay",
+          "rotateX": 1,
+          "rotateY": -9,
+          "depth": 980,
+          "thickness": 20
+        },
+        "frameSecondary": {
+          "style": "3d",
+          "color": "porcelain",
+          "rotateX": -1,
+          "rotateY": 8,
+          "depth": 980,
+          "thickness": 18
+        },
+        "transforms": {
+          "device": {
+            "x": 136.60613445797208,
+            "y": 386.39448498606293,
+            "width": 832,
+            "height": 1802,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "aurasage-a05",
+        "layout": "device-top",
+        "label": {
+          "en": "QUICK RESET"
+        },
+        "headline": {
+          "en": "Reset in\n*ninety seconds*"
+        },
+        "screenshot": "/screenshots/aurasage/uploaded/6edc1700b82c8160.jpg",
+        "background": {
+          "kind": "solid",
+          "color": "#131A17"
+        },
+        "inverted": true,
+        "frame": {
+          "style": "3d",
+          "color": "graphite",
+          "rotateX": 1,
+          "rotateY": 8,
+          "depth": 1000,
+          "thickness": 22
+        },
+        "transforms": {
+          "device": {
+            "x": 141.5770821042206,
+            "y": -41.42925990296218,
+            "width": 706,
+            "height": 1529,
+            "rotation": 15,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 76,
+            "y": 1405,
+            "width": 928,
+            "height": 414,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      },
+      {
+        "id": "aurasage-a06",
+        "layout": "device-bottom",
+        "label": {
+          "en": "A NUDGE, NOT A SCORE"
+        },
+        "headline": {
+          "en": "Reminders on\n*your terms*"
+        },
+        "screenshot": "/screenshots/aurasage/uploaded/64d40e3774f75682.jpg",
+        "background": {
+          "kind": "solid",
+          "color": "#F2EEE4"
+        },
+        "frame": {
+          "style": "3d",
+          "color": "hazel",
+          "rotateX": -1,
+          "rotateY": -6,
+          "depth": 1040,
+          "thickness": 18
+        },
+        "transforms": {
+          "caption": {
+            "x": 76,
+            "y": 118,
+            "width": 928,
+            "height": 430,
+            "rotation": 0,
+            "zIndex": 4
+          },
+          "device": {
+            "x": 99.84261545121717,
+            "y": 405.51829112689194,
+            "width": 803,
+            "height": 1739,
+            "rotation": -11,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "aurasage-a07",
+        "layout": "device-bottom",
+        "label": {
+          "en": "PRIVATE BY DESIGN"
+        },
+        "headline": {
+          "en": "Private. Personal.\n*Offline.*"
+        },
+        "screenshot": "/screenshots/aurasage/uploaded/10660629693e322f.jpg",
+        "background": {
+          "kind": "solid",
+          "color": "#131A17"
+        },
+        "inverted": true,
+        "transforms": {
+          "device": {
+            "x": 133.12725906650303,
+            "y": 409.74391244549537,
+            "width": 771,
+            "height": 1670,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 8,
+          "rotateY": -18
+        }
+      },
+      {
+        "id": "aurasage-a08",
+        "layout": "no-device",
+        "label": {
+          "en": "RETURNING IS THE PRACTICE"
+        },
+        "headline": {
+          "en": "No streaks.\n*Just return.*"
+        },
+        "screenshot": "/screenshots/aurasage/screens/08.png",
+        "background": {
+          "kind": "solid",
+          "color": "#B9D69A"
+        },
+        "transforms": {
+          "caption": {
+            "x": 76,
+            "y": 118,
+            "width": 928,
+            "height": 430,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "focusElements": [
+          {
+            "id": "rhythm-proof",
+            "crop": {
+              "x": 0,
+              "y": 13.3,
+              "width": 100,
+              "height": 56.5
+            },
+            "transform": {
+              "x": 88,
+              "y": 615,
+              "width": 904,
+              "height": 1307.6292882744494,
+              "rotation": 2,
+              "zIndex": 8
+            },
+            "borderRadius": 38,
+            "borderWidth": 8,
+            "accentColor": "#D86F4B"
+          }
+        ]
+      }
+    ],
+    "ipad": [],
+    "android-7": [],
+    "android-10": [],
+    "feature-graphic": [
+      {
+        "id": "aurasage-feature",
+        "layout": "feature-graphic",
+        "label": {
+          "en": "A QUIETER DAILY AFFIRMATION PRACTICE"
+        },
+        "headline": {
+          "en": "Better words\nfor *real days.*"
+        },
+        "screenshot": "/screenshots/aurasage/screens/01.png",
+        "background": {
+          "kind": "solid",
+          "color": "#131A17"
+        },
+        "inverted": true
+      }
+    ]
+  },
+  "themes": [
+    {
+      "id": "aurasage-newsprint",
+      "name": "AuraSage Sunday Edition",
+      "bg": "#F2EEE4",
+      "bgAlt": "#131A17",
+      "fg": "#171C17",
+      "fgAlt": "#F2EEE4",
+      "accent": "#D86F4B",
+      "muted": "#5B6459",
+      "background": {
+        "kind": "solids",
+        "colors": [
+          "#131A17",
+          "#F2EEE4",
+          "#B9D69A",
+          "#F2EEE4",
+          "#131A17",
+          "#F2EEE4",
+          "#131A17",
+          "#B9D69A"
+        ]
+      },
+      "backgroundAlt": {
+        "kind": "solid",
+        "color": "#131A17"
+      },
+      "headline": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 500,
+        "scale": 1.03,
+        "lineHeight": 0.96,
+        "letterSpacing": -0.022
+      },
+      "label": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 600,
+        "transform": "lowercase",
+        "scale": 0.9,
+        "letterSpacing": 0.04
+      },
+      "emphasis": {
+        "family": "var(--font-caveat), Caveat, 'Segoe Script', cursive",
+        "color": "#D86F4B",
+        "weight": 700,
+        "scale": 1.22,
+        "rotation": -3,
+        "lineHeight": 0.88
+      },
+      "device": {
+        "bezel": "#292624",
+        "bezelStroke": "#6B625B",
+        "bezelStrokeWidth": 2,
+        "shadow": "0 38px 86px rgba(67,50,42,.28), 0 10px 24px rgba(44,41,38,.18)"
+      },
+      "decor": {
+        "grain": 0.075,
+        "aurasage": true,
+        "wordmark": true
+      }
+    }
+  ]
+}

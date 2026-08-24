@@ -14,6 +14,8 @@ import type {
 // Font stacks. The var(--font-*) names are bound in app/layout.tsx.
 export const FONTS = {
   sans: "var(--font-inter), Inter, system-ui, sans-serif",
+  dmSans: "var(--font-dm-sans), 'DM Sans', Inter, system-ui, sans-serif",
+  newsreader: "var(--font-newsreader), Newsreader, Georgia, serif",
   rounded: "var(--font-quicksand), Quicksand, Inter, system-ui, sans-serif",
   display: "var(--font-montserrat), Montserrat, Inter, system-ui, sans-serif",
   mono: "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace",
@@ -29,6 +31,8 @@ export const FONTS = {
  */
 export const FONT_CHOICES: Array<{ id: string; label: string; family: string; note?: string }> = [
   { id: "sans", label: "Inter", family: FONTS.sans, note: "Neutral sans" },
+  { id: "dm-sans", label: "DM Sans", family: FONTS.dmSans, note: "Warm, clear captions" },
+  { id: "newsreader", label: "Newsreader", family: FONTS.newsreader, note: "Editorial display serif" },
   { id: "rounded", label: "Quicksand", family: FONTS.rounded, note: "Soft rounded sans" },
   { id: "display", label: "Montserrat", family: FONTS.display, note: "Confident geometric display" },
   { id: "brand-mono", label: "JetBrains Mono", family: FONTS.mono, note: "Timers and field-note labels" },

@@ -4,6 +4,7 @@ import { Rnd } from "react-rnd";
 import { RotateCw } from "lucide-react";
 import type {
   BuiltInElementId,
+  CaptionElement,
   Device,
   ElementId,
   ElementTransform,
@@ -41,9 +42,12 @@ import {
 import { frameColorById, resolveFrame } from "@/lib/frames";
 import {
   builtInTransform,
+  captionElementKey,
   focusElementKey,
+  isCaptionElementId,
   isFocusElementId,
   localizedTransform,
+  toCaptionElementId,
   toFocusElementId,
   toTextElementId,
 } from "@/lib/elements";
@@ -116,6 +120,7 @@ type EditHandlers = {
   onLabelChange?: (v: string) => void;
   onHeadlineChange?: (v: string) => void;
   onTextElementTextChange?: (id: string, v: string) => void;
+  onCaptionElementTextChange?: (id: string, field: "label" | "headline", v: string) => void;
   onElementChange?: (id: ElementId, t: ElementTransform) => void;
   onSelectElement?: (id: ElementId | null) => void;
 };
@@ -144,6 +149,7 @@ type DeckEditHandlers = {
   onLabelChange?: (slideId: string, v: string) => void;
   onHeadlineChange?: (slideId: string, v: string) => void;
   onTextElementTextChange?: (slideId: string, id: string, v: string) => void;
+  onCaptionElementTextChange?: (slideId: string, id: string, field: "label" | "headline", v: string) => void;
   onElementChange?: (slideId: string, id: ElementId, t: ElementTransform) => void;
   onSelectElement?: (element: SelectedElement | null) => void;
   onSelectScreen?: (slideId: string) => void;
@@ -189,6 +195,12 @@ function EditableText({
   onFocus?: () => void;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
+  const [isEditing, setIsEditing] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!editable) setIsEditing(false);
+  }, [editable]);
+
   React.useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -207,12 +219,37 @@ function EditableText({
   return (
     <div
       ref={ref}
-      contentEditable={editable}
+      contentEditable={!!editable && isEditing}
       suppressContentEditableWarning
       data-placeholder={placeholder}
       onInput={handleInput}
       onFocus={() => onFocus?.()}
+      onBlur={() => setIsEditing(false)}
+      onDoubleClick={(e) => {
+        if (!editable) return;
+        e.preventDefault();
+        e.stopPropagation();
+        setIsEditing(true);
+        onFocus?.();
+        // contentEditable becomes active on the next render. Focus and select
+        // only after an intentional double-click, never during a drag.
+        requestAnimationFrame(() => {
+          const el = ref.current;
+          if (!el) return;
+          el.focus();
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        });
+      }}
       onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          e.currentTarget.blur();
+          return;
+        }
         if (!multiline && e.key === "Enter") {
           e.preventDefault();
           e.currentTarget.blur();
@@ -220,18 +257,20 @@ function EditableText({
       }}
       onMouseDown={(e) => {
         // Allow text editing without starting an Rnd drag.
-        if (editable) {
+        if (editable && isEditing) {
           e.stopPropagation();
           onFocus?.();
         }
       }}
       onPointerDown={(e) => {
-        if (editable) e.stopPropagation();
+        if (editable && isEditing) e.stopPropagation();
       }}
       style={{
         outline: "none",
         whiteSpace: multiline ? "pre-wrap" : "nowrap",
-        cursor: editable ? "text" : "default",
+        cursor: editable ? (isEditing ? "text" : "grab") : "default",
+        userSelect: isEditing ? "text" : "none",
+        WebkitUserSelect: isEditing ? "text" : "none",
         ...style,
       }}
     />
@@ -357,8 +396,7 @@ function StyledHeadline({
   const parts = value.split(/(\*[^*]+\*)/g);
   return (
     <div
-      onMouseDown={(event) => {
-        event.stopPropagation();
+      onMouseDown={() => {
         onFocus?.();
       }}
       style={{
@@ -371,6 +409,9 @@ function StyledHeadline({
         letterSpacing: size * (font.letterSpacing ?? -0.012),
         textTransform: font.transform ?? "none",
         whiteSpace: "pre-wrap",
+        cursor: onFocus ? "grab" : "default",
+        userSelect: "none",
+        WebkitUserSelect: "none",
       }}
     >
       {parts.map((part, index) =>
@@ -576,6 +617,10 @@ export function getElementTransform(
   id: ElementId,
   locale: string,
 ): ElementTransform | undefined {
+  if (isCaptionElementId(id)) {
+    const element = slide.captionElements?.find((item) => item.id === captionElementKey(id));
+    return element ? localizedTransform(element, locale) : undefined;
+  }
   if (id.startsWith("text:")) {
     const textId = id.slice("text:".length);
     const textElement = slide.textElements?.find((element) => element.id === textId);
@@ -675,6 +720,7 @@ export function SlideCanvas({
         enable3D={enable3D}
       />
       {resolveStyle(theme).decor.dreamy && <DreamyFront slideId={slide.id} cW={cW} cH={cH} />}
+      {resolveStyle(theme).decor.calmpedal && <CalmPedalFront slideId={slide.id} cW={cW} cH={cH} />}
     </div>
   );
 }
@@ -789,6 +835,8 @@ export function DeckCanvas({
               onLabelChange: (v) => edit?.onLabelChange?.(slide.id, v),
               onHeadlineChange: (v) => edit?.onHeadlineChange?.(slide.id, v),
               onTextElementTextChange: (id, v) => edit?.onTextElementTextChange?.(slide.id, id, v),
+              onCaptionElementTextChange: (id, field, v) =>
+                edit?.onCaptionElementTextChange?.(slide.id, id, field, v),
               onElementChange: (id, t) => edit?.onElementChange?.(slide.id, id, t),
               onSelectElement: (id) => {
                 edit?.onSelectScreen?.(slide.id);
@@ -857,6 +905,27 @@ export function DeckCanvas({
             </div>
           );
         })}
+      {resolveStyle(theme).decor.calmpedal &&
+        slides.map((slide, index) => {
+          if (slide.layout === "feature-graphic" || device === "feature-graphic") return null;
+          return (
+            <div
+              key={`${slide.id}-calmpedal-front`}
+              style={{
+                position: "absolute",
+                left: index * cW,
+                top: 0,
+                width: cW,
+                height: cH,
+                overflow: "hidden",
+                pointerEvents: "none",
+                zIndex: 50,
+              }}
+            >
+              <CalmPedalFront slideId={slide.id} cW={cW} cH={cH} />
+            </div>
+          );
+        })}
     </div>
   );
 }
@@ -889,6 +958,17 @@ function SlideBackground({
       }}
     >
       {decor.dreamy && <DreamyDecorations slideId={slide.id} cW={cW} cH={cH} />}
+
+      {decor.calmpedal && <CalmPedalDecorations slideId={slide.id} cW={cW} cH={cH} layer="back" />}
+
+      {decor.aurasage && (
+        <AuraSageDecorations
+          cW={cW}
+          cH={cH}
+          slideIndex={slideIndex}
+          dark={foregroundFor(theme, inverted, slideIndex, slide.background) === theme.fgAlt}
+        />
+      )}
 
       {decor.bellyclock && (
         <BellyClockDecorations
@@ -1504,6 +1584,296 @@ function DreamyFront({ slideId, cW, cH }: { slideId: string; cW: number; cH: num
   );
 }
 
+/** AuraSage uses only a few marks, each tied to the feature being shown. */
+function AuraSageDecorations({
+  cW,
+  cH,
+  slideIndex,
+  dark,
+}: {
+  cW: number;
+  cH: number;
+  slideIndex: number;
+  dark: boolean;
+}) {
+  const scene = slideIndex % 8;
+  const paper = "#F2EEE4";
+  const forestInk = "#171C17";
+  const coral = "#D86F4B";
+  const ink = dark ? paper : forestInk;
+  const readerScenes: Record<number, { edition: string; folio: string }> = {
+    0: { edition: "THE DAILY EDITION", folio: "01" },
+    2: { edition: "A WORD TO CARRY", folio: "03" },
+    4: { edition: "THE RESET PAGE", folio: "05" },
+    6: { edition: "PRIVATE BY DESIGN", folio: "07" },
+  };
+  const reader = readerScenes[scene];
+  if (![0, 1, 2, 4, 5, 6].includes(scene)) return null;
+  return (
+    <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+      {reader ? (
+        <>
+          <div style={{ position: "absolute", left: cW * 0.038, top: cH * 0.022, width: cW * 0.924, height: cH * 0.956, border: `${Math.max(1, cW * 0.0014)}px solid ${ink}`, opacity: dark ? 0.17 : 0.2 }} />
+          <div style={{ position: "absolute", left: cW * 0.061, top: cH * 0.047, bottom: cH * 0.047, width: 1, background: ink, opacity: dark ? 0.18 : 0.2 }} />
+          <div style={{ position: "absolute", left: cW * 0.071, top: cH * 0.047, bottom: cH * 0.047, width: 1, background: ink, opacity: dark ? 0.09 : 0.11 }} />
+          <div style={{ position: "absolute", right: cW * 0.065, top: cH * 0.049, color: ink, opacity: dark ? 0.52 : 0.58, fontFamily: "var(--font-inter), Inter, system-ui, sans-serif", fontSize: cW * 0.017, fontWeight: 600, letterSpacing: ".16em" }}>
+            {reader.edition}
+          </div>
+          <div style={{ position: "absolute", right: cW * 0.065, bottom: cH * 0.047, color: ink, opacity: dark ? 0.48 : 0.55, fontFamily: "var(--font-newsreader), Newsreader, Georgia, serif", fontSize: cW * 0.038, fontStyle: "italic" }}>
+            {reader.folio}
+          </div>
+        </>
+      ) : null}
+      {[0, 2, 4, 6].includes(scene) ? (
+        <>
+          <img
+            src={img("/screenshots/aurasage/logo-mark-transparent.png")}
+            alt=""
+            draggable={false}
+            style={{
+              position: "absolute",
+              right: scene === 0 ? -cW * 0.07 : scene === 2 ? cW * 0.63 : scene === 4 ? -cW * 0.035 : cW * 0.57,
+              top: scene === 0 ? cH * 0.35 : scene === 2 ? cH * 0.53 : scene === 4 ? cH * 0.52 : cH * 0.57,
+              width: scene === 0 ? cW * 0.66 : scene === 6 ? cW * 0.3 : cW * 0.28,
+              height: scene === 0 ? cW * 0.66 : scene === 6 ? cW * 0.3 : cW * 0.28,
+              objectFit: "contain",
+              opacity: scene === 0 ? 0.12 : dark ? 0.09 : 0.11,
+              transform: `rotate(${scene === 0 ? 5 : scene === 2 ? -6 : scene === 4 ? 4 : -4}deg)`,
+            }}
+          />
+          <svg width={cW} height={cH} viewBox={`0 0 ${cW} ${cH}`} style={{ position: "absolute", inset: 0 }}>
+            <ellipse
+              cx={scene === 0 ? cW * 0.77 : scene === 2 ? cW * 0.78 : scene === 4 ? cW * 0.12 : cW * 0.72}
+              cy={scene === 0 ? cH * 0.57 : scene === 2 ? cH * 0.62 : scene === 4 ? cH * 0.61 : cH * 0.66}
+              rx={scene === 0 ? cW * 0.38 : scene === 6 ? cW * 0.18 : cW * 0.17}
+              ry={scene === 0 ? cW * 0.38 : scene === 6 ? cW * 0.18 : cW * 0.17}
+              fill="none"
+              stroke={scene === 2 ? forestInk : ink}
+              strokeWidth={scene === 0 ? 2 : 1.5}
+              strokeDasharray={scene === 4 ? "8 14" : undefined}
+              opacity={scene === 0 ? 0.22 : 0.16}
+            />
+            {scene === 0 ? (
+              <ellipse cx={cW * 0.77} cy={cH * 0.57} rx={cW * 0.46} ry={cW * 0.46} fill="none" stroke={coral} strokeWidth={1.5} strokeDasharray="7 13" opacity=".2" />
+            ) : null}
+          </svg>
+        </>
+      ) : null}
+      <svg width={cW} height={cH} viewBox={`0 0 ${cW} ${cH}`} style={{ position: "absolute", inset: 0 }}>
+        {scene === 1 ? (
+          <>
+            <path d={`M${cW * 0.82} ${cH * 0.25} C${cW * 0.92} ${cH * 0.27}, ${cW * 0.91} ${cH * 0.39}, ${cW * 0.77} ${cH * 0.42}`} fill="none" stroke={ink} strokeWidth={4.2} strokeLinecap="round" />
+            <path d={`M${cW * 0.77} ${cH * 0.42} l${cW * 0.045} ${-cW * 0.004} l${-cW * 0.018} ${-cW * 0.04}`} fill="none" stroke={ink} strokeWidth={4.2} strokeLinecap="round" strokeLinejoin="round" />
+          </>
+        ) : null}
+        {scene === 5 ? (
+          <>
+            <path d={`M${cW * 0.81} ${cH * 0.27} C${cW * 0.92} ${cH * 0.32}, ${cW * 0.9} ${cH * 0.48}, ${cW * 0.76} ${cH * 0.53}`} fill="none" stroke={ink} strokeWidth={4.2} strokeLinecap="round" />
+            <path d={`M${cW * 0.76} ${cH * 0.53} l${cW * 0.046} ${-cW * 0.006} l${-cW * 0.015} ${-cW * 0.041}`} fill="none" stroke={ink} strokeWidth={4.2} strokeLinecap="round" strokeLinejoin="round" />
+          </>
+        ) : null}
+      </svg>
+    </div>
+  );
+}
+
+// CalmPedal is a decision product, so its art direction uses the rider's real
+// vocabulary instead of generic stars: cadence rings, route traces, timing
+// windows, paired-day dots and compact metric cards. Back-layer diagrams can
+// tuck behind the phone; front-layer chips deliberately overlap its edge.
+function CalmPedalDecorations({
+  slideId,
+  cW,
+  cH,
+  layer,
+}: {
+  slideId: string;
+  cW: number;
+  cH: number;
+  layer: "back" | "front";
+}) {
+  type S = React.CSSProperties;
+  const cyan = "#00D4FF";
+  const lime = "#D9FF57";
+  const coral = "#FF725E";
+  const violet = "#A78BFA";
+  const ink = "#07111F";
+
+  const chip = (
+    key: string,
+    kicker: string,
+    value: string,
+    pos: S,
+    accent = cyan,
+    rotate = 0,
+    light = false,
+  ) => (
+    <div
+      key={key}
+      style={{
+        position: "absolute",
+        ...pos,
+        minWidth: cW * 0.19,
+        padding: `${cW * 0.016}px ${cW * 0.021}px ${cW * 0.018}px`,
+        borderRadius: cW * 0.024,
+        transform: `rotate(${rotate}deg)`,
+        background: light ? "rgba(255,255,255,.92)" : "rgba(5,14,30,.9)",
+        color: light ? ink : "#F8FBFF",
+        border: `${Math.max(2, cW * 0.0025)}px solid ${accent}`,
+        boxShadow: `0 ${cW * 0.018}px ${cW * 0.045}px rgba(2,8,23,.3), inset 0 1px 0 rgba(255,255,255,.16)`,
+        backdropFilter: "blur(12px)",
+      }}
+    >
+      <div
+        style={{
+          color: accent,
+          fontFamily: "var(--font-jetbrains-mono), 'JetBrains Mono', monospace",
+          fontSize: cW * 0.017,
+          fontWeight: 600,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {kicker}
+      </div>
+      <div
+        style={{
+          marginTop: cW * 0.006,
+          fontFamily: "var(--font-montserrat), Montserrat, sans-serif",
+          fontSize: cW * 0.038,
+          fontWeight: 700,
+          letterSpacing: "-0.045em",
+          lineHeight: 0.95,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+
+  const route = (key: string, color: string, pos: S, rotate = 0) => (
+    <svg
+      key={key}
+      viewBox="0 0 420 300"
+      style={{ position: "absolute", ...pos, width: cW * 0.42, transform: `rotate(${rotate}deg)`, opacity: 0.82 }}
+    >
+      <path d="M18 247 C72 78 180 274 245 113 C278 32 350 61 399 20" fill="none" stroke="rgba(255,255,255,.16)" strokeWidth="28" strokeLinecap="round" />
+      <path d="M18 247 C72 78 180 274 245 113 C278 32 350 61 399 20" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" strokeDasharray="3 22" />
+      <circle cx="18" cy="247" r="14" fill={color} />
+      <circle cx="399" cy="20" r="14" fill="#fff" />
+    </svg>
+  );
+
+  const cadenceRing = (key: string, pos: S, color = cyan, progress = 76, size = 0.24) => (
+    <div
+      key={key}
+      style={{
+        position: "absolute",
+        ...pos,
+        width: cW * size,
+        height: cW * size,
+        borderRadius: "50%",
+        background: `conic-gradient(${color} 0 ${progress}%, rgba(255,255,255,.11) ${progress}% 100%)`,
+        boxShadow: `0 0 ${cW * 0.08}px ${color}55`,
+        transform: "rotate(-24deg)",
+      }}
+    >
+      <div style={{ position: "absolute", inset: "15%", borderRadius: "50%", background: "rgba(4,12,26,.94)", border: "1px solid rgba(255,255,255,.14)" }} />
+      {Array.from({ length: 10 }).map((_, i) => (
+        <span
+          key={i}
+          style={{
+            position: "absolute",
+            left: "48.5%",
+            top: "-5%",
+            width: "3%",
+            height: "11%",
+            borderRadius: 99,
+            background: i < 7 ? color : "rgba(255,255,255,.2)",
+            transformOrigin: `50% ${cW * size * 0.55}px`,
+            transform: `rotate(${i * 36}deg)`,
+          }}
+        />
+      ))}
+    </div>
+  );
+
+  const sleepArc = (key: string, pos: S, color = violet, rotate = 0) => (
+    <svg key={key} viewBox="0 0 260 170" style={{ position: "absolute", ...pos, width: cW * 0.27, transform: `rotate(${rotate}deg)`, filter: `drop-shadow(0 0 ${cW * 0.035}px ${color}66)` }}>
+      <path d="M22 139 C61 23 184 8 239 107" fill="none" stroke="rgba(255,255,255,.14)" strokeWidth="26" strokeLinecap="round" />
+      <path d="M22 139 C61 23 184 8 239 107" fill="none" stroke={color} strokeWidth="10" strokeLinecap="round" strokeDasharray="150 54" />
+      <circle cx="22" cy="139" r="10" fill={color} />
+      <path d="M205 33 C181 57 193 99 232 105 C197 123 159 98 162 61 C164 37 183 23 205 20 C201 25 201 29 205 33Z" fill="#F8FBFF" opacity=".9" />
+    </svg>
+  );
+
+  const pairedDays = (key: string, pos: S) => (
+    <div key={key} style={{ position: "absolute", ...pos, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: cW * 0.012, transform: "rotate(-6deg)" }}>
+      {[cyan, lime, coral, violet, lime, cyan, violet, coral, cyan, lime, coral, violet].map((color, i) => (
+        <span key={i} style={{ width: cW * 0.036, height: cW * 0.036, borderRadius: "50%", background: color, boxShadow: `0 ${cW * 0.006}px ${cW * 0.018}px ${color}66`, border: `${cW * 0.003}px solid rgba(255,255,255,.72)` }} />
+      ))}
+    </div>
+  );
+
+  const back: React.ReactNode[] = (() => {
+    switch (slideId) {
+      case "s_ms98bzyg_1b":
+        return [cadenceRing("ring", { right: "-5%", top: "29%" }, cyan, 82, 0.31), route("route", lime, { left: "-11%", top: "54%" }, -12)];
+      case "s_ms98bzyg_1c":
+        return [sleepArc("sleep", { left: "-3%", top: "35%" }, violet, -8), route("route", cyan, { right: "-17%", top: "5%" }, 18)];
+      case "s_ms98bzyg_1d":
+        return [sleepArc("sleep", { right: "-2%", top: "7%" }, lime, 8), cadenceRing("ring", { left: "-8%", top: "39%" }, coral, 61, 0.24)];
+      case "s_ms98bzyg_1e":
+        return [route("route", coral, { left: "-8%", top: "8%" }, -8), cadenceRing("ring", { right: "-7%", top: "48%" }, lime, 68, 0.24)];
+      case "s_ms98bzyg_1f":
+        return [cadenceRing("atlas", { left: "-8%", top: "37%" }, violet, 88, 0.27), route("route", cyan, { right: "-15%", top: "10%" }, 15)];
+      case "s_ms98bzyg_1g":
+        return [pairedDays("pairs", { right: "4%", top: "8%" }), sleepArc("sleep", { left: "-3%", top: "40%" }, cyan, -10)];
+      case "s_ms98bzyg_1h":
+        return [cadenceRing("privacy", { right: "-8%", top: "35%" }, cyan, 100, 0.3), route("route", violet, { left: "-14%", top: "7%" }, -18)];
+      case "s_ms98bzyg_1i":
+        return [cadenceRing("loop", { left: "7%", top: "48%" }, lime, 86, 0.29), sleepArc("sleep", { right: "4%", top: "10%" }, coral, 5), route("route", cyan, { right: "-13%", top: "59%" }, 9)];
+      default:
+        return [];
+    }
+  })();
+
+  const front: React.ReactNode[] = (() => {
+    switch (slideId) {
+      case "s_ms98bzyg_1b":
+        return [chip("score", "Recovery", "82 / 100", { right: "4%", top: "43%" }, cyan, 5), chip("call", "Today's call", "Z2 · 45 MIN", { left: "4%", top: "54%" }, lime, -5)];
+      case "s_ms98bzyg_1c":
+        return [chip("sleep", "Last night", "7H 12M", { left: "3%", top: "42%" }, violet, -6), chip("change", "Plan changed", "−18 MIN", { right: "3%", top: "52%" }, coral, 6)];
+      case "s_ms98bzyg_1d":
+        return [chip("finish", "Latest finish", "20:42", { right: "3%", top: "38%" }, lime, 5), chip("wind", "Wind-down", "22:10", { left: "4%", top: "48%" }, cyan, -5)];
+      case "s_ms98bzyg_1e":
+        return [chip("start", "Only free at", "8:00 PM", { left: "3%", top: "41%" }, coral, -6, true), chip("fit", "Reworked ride", "35 MIN · Z4", { right: "2%", top: "52%" }, lime, 6)];
+      case "s_ms98bzyg_1f":
+        return [chip("why", "Why it changed", "SLEEP + LOAD", { right: "3%", top: "42%" }, violet, 5), chip("read", "Reading", "14 DAYS", { left: "4%", top: "54%" }, cyan, -5)];
+      case "s_ms98bzyg_1g":
+        return [chip("pairs", "Personal model", "12 PAIRED DAYS", { right: "2%", top: "43%" }, lime, 6), chip("confidence", "Confidence", "BUILDING", { left: "3%", top: "54%" }, violet, -5)];
+      case "s_ms98bzyg_1h":
+        return [chip("local", "Raw health data", "ON-DEVICE", { left: "3%", top: "43%" }, cyan, -5), chip("control", "Your controls", "EXPORT · DELETE", { right: "2%", top: "53%" }, lime, 5)];
+      case "s_ms98bzyg_1i":
+        return [chip("loop", "The two-way ride", "SLEEP ↔ RIDE", { right: "4%", top: "41%" }, coral, 6, true)];
+      default:
+        return [];
+    }
+  })();
+
+  return <>{layer === "front" ? front : back}</>;
+}
+
+function CalmPedalFront({ slideId, cW, cH }: { slideId: string; cW: number; cH: number }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 50 }}>
+      <CalmPedalDecorations slideId={slideId} cW={cW} cH={cH} layer="front" />
+    </div>
+  );
+}
+
 function ScreenGuide({
   cW,
   cH,
@@ -1573,6 +1943,19 @@ function FeatureGraphicCanvas({
   edit?: EditHandlers;
   enable3D?: boolean;
 }) {
+  if (theme.id === "calmpedal-kinetic") {
+    return (
+      <CalmPedalFeatureGraphic
+        slide={slide}
+        cW={cW}
+        locale={locale}
+        appName={appName}
+        editable={editable}
+        edit={edit}
+      />
+    );
+  }
+
   if (theme.id === "speakdiary") {
     return (
       <SpeakDiaryFeatureGraphic
@@ -1595,6 +1978,21 @@ function FeatureGraphicCanvas({
   if (theme.id.startsWith("bellyclock")) {
     return (
       <BellyClockFeatureGraphic
+        slide={slide}
+        cW={cW}
+        theme={theme}
+        locale={locale}
+        appName={appName}
+        appIcon={appIcon}
+        editable={editable}
+        edit={edit}
+      />
+    );
+  }
+
+  if (theme.id === "aurasage-newsprint") {
+    return (
+      <AuraSageFeatureGraphic
         slide={slide}
         cW={cW}
         theme={theme}
@@ -1706,6 +2104,76 @@ function FeatureGraphicCanvas({
           })}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function CalmPedalFeatureGraphic({
+  slide,
+  cW,
+  locale,
+  appName,
+  editable,
+  edit,
+}: {
+  slide: Slide;
+  cW: number;
+  locale: string;
+  appName?: string;
+  editable?: boolean;
+  edit?: EditHandlers;
+}) {
+  const headline = pickText(slide.headline, locale);
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        overflow: "hidden",
+        color: "#F8FBFF",
+        background: "linear-gradient(112deg, #06101F 0%, #17204B 52%, #063F52 100%)",
+      }}
+    >
+      <div style={{ position: "absolute", inset: 0, opacity: 0.18, backgroundImage: "linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px)", backgroundSize: `${cW * 0.032}px ${cW * 0.032}px`, transform: "perspective(500px) rotateX(58deg) scale(1.45) translateY(16%)", transformOrigin: "center bottom" }} />
+
+      <svg viewBox="0 0 1024 500" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+        <path d="M-40 430 C130 50 320 490 505 182 C640 -42 810 315 1080 52" fill="none" stroke="rgba(255,255,255,.11)" strokeWidth="46" strokeLinecap="round" />
+        <path d="M-40 430 C130 50 320 490 505 182 C640 -42 810 315 1080 52" fill="none" stroke="#00D4FF" strokeWidth="10" strokeLinecap="round" strokeDasharray="4 26" />
+        <circle cx="840" cy="255" r="142" fill="none" stroke="rgba(255,255,255,.12)" strokeWidth="34" />
+        <circle cx="840" cy="255" r="142" fill="none" stroke="#D9FF57" strokeWidth="16" strokeLinecap="round" strokeDasharray="610 282" transform="rotate(-72 840 255)" />
+        <path d="M850 119 C784 166 807 284 902 303 C825 348 736 292 739 205 C742 150 783 113 850 105 C843 111 843 116 850 119Z" fill="#F8FBFF" opacity=".92" />
+      </svg>
+
+      <div style={{ position: "absolute", left: cW * 0.055, top: cW * 0.04, zIndex: 3 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: cW * 0.012 }}>
+          <span style={{ width: cW * 0.018, height: cW * 0.018, borderRadius: "50%", background: "#D9FF57", boxShadow: `0 0 ${cW * 0.025}px #D9FF57` }} />
+          <span style={{ fontFamily: "var(--font-jetbrains-mono), 'JetBrains Mono', monospace", fontSize: cW * 0.015, fontWeight: 600, letterSpacing: "0.18em", textTransform: "uppercase", color: "#00D4FF" }}>Sleep-aware cycling coach</span>
+        </div>
+        <div style={{ marginTop: cW * 0.012, fontFamily: "var(--font-montserrat), Montserrat, sans-serif", fontSize: cW * 0.044, fontWeight: 700, letterSpacing: "-0.05em" }}>{appName || "CalmPedal"}</div>
+        <EditableText
+          value={headline}
+          editable={editable}
+          multiline
+          onChange={edit?.onHeadlineChange}
+          style={{
+            width: cW * 0.46,
+            marginTop: cW * 0.018,
+            fontFamily: "var(--font-montserrat), Montserrat, sans-serif",
+            fontSize: cW * 0.052,
+            fontWeight: 700,
+            lineHeight: 0.92,
+            letterSpacing: "-0.055em",
+            color: "#F8FBFF",
+          }}
+        />
+      </div>
+
+      <div style={{ position: "absolute", right: cW * 0.047, bottom: cW * 0.035, zIndex: 4, display: "flex", gap: cW * 0.01 }}>
+        {["SLEEP", "LOAD", "TIMING"].map((item, i) => (
+          <span key={item} style={{ padding: `${cW * 0.009}px ${cW * 0.015}px`, borderRadius: 999, background: i === 1 ? "#D9FF57" : "rgba(5,14,30,.88)", color: i === 1 ? "#07111F" : "#F8FBFF", border: `${Math.max(1, cW * 0.0015)}px solid ${i === 2 ? "#FF725E" : "#00D4FF"}`, fontFamily: "var(--font-jetbrains-mono), 'JetBrains Mono', monospace", fontSize: cW * 0.012, fontWeight: 600, letterSpacing: "0.1em" }}>{item}</span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -2553,6 +3021,62 @@ function SlideElements({
     );
   }
 
+  function renderCaptionElement(element: CaptionElement, index: number) {
+    const elementId = toCaptionElementId(element.id);
+    const rect = localizedTransform(element, locale);
+    const rotation = rect.rotation ?? 0;
+    const zIndex = rect.zIndex ?? 5 + index;
+    const captionSlide: Slide = {
+      ...slide,
+      label: element.label,
+      headline: element.headline,
+      headlineFont: element.headlineFont ?? slide.headlineFont,
+      labelFont: element.labelFont ?? slide.labelFont,
+    };
+    return (
+      <Movable
+        key={element.id}
+        rect={toGlobal(rect)}
+        boundsW={boundsW}
+        boundsH={boundsH}
+        editable={editable}
+        previewScale={previewScale}
+        rotation={rotation}
+        onChange={(t) =>
+          edit?.onElementChange?.(
+            elementId,
+            toLocal({ ...t, rotation: t.rotation ?? rotation, zIndex: t.zIndex ?? zIndex }),
+          )
+        }
+        zIndex={zIndex}
+        selected={selectedElementId === elementId}
+        onSelect={() => edit?.onSelectElement?.(elementId)}
+        allowOverflow={allowCrossScreen}
+      >
+        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "flex-start" }}>
+          <Caption
+            cW={cW}
+            cH={cH}
+            slide={captionSlide}
+            theme={theme}
+            locale={locale}
+            editable={editable}
+            edit={{
+              onLabelChange: (value) =>
+                edit?.onCaptionElementTextChange?.(element.id, "label", value),
+              onHeadlineChange: (value) =>
+                edit?.onCaptionElementTextChange?.(element.id, "headline", value),
+            }}
+            align={element.align ?? "center"}
+            inverted={element.inverted ?? inverted}
+            slideIndex={slideIndex}
+            onFocus={() => edit?.onSelectElement?.(elementId)}
+          />
+        </div>
+      </Movable>
+    );
+  }
+
   function renderTextElement(textElement: TextElement, index: number) {
     const elementId = toTextElementId(textElement.id);
     const rect = localizedTransform(textElement, locale);
@@ -2723,9 +3247,95 @@ function SlideElements({
         )}
       {deviceRect && !hidePrimaryDevice && renderDevice("device", deviceRect, screenshot)}
       {renderCaption()}
+      {(slide.captionElements || []).map(renderCaptionElement)}
       {(slide.textElements || []).map(renderTextElement)}
       {focusElements.map(renderFocusElement)}
     </>
+  );
+}
+
+function AuraSageFeatureGraphic({
+  slide,
+  cW,
+  theme,
+  locale,
+  appName,
+  appIcon,
+  editable,
+  edit,
+}: {
+  slide: Slide;
+  cW: number;
+  theme: Theme;
+  locale: string;
+  appName?: string;
+  appIcon?: string;
+  editable?: boolean;
+  edit?: EditHandlers;
+}) {
+  const cH = CANVAS["feature-graphic"].h;
+  const screenshot = resolveScreenshot(slide.screenshot, locale);
+  const style = resolveStyle(theme);
+  const headline = pickText(slide.headline, locale);
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#131A17", color: "#F2EEE4" }}>
+      <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: grainCss(0.07), mixBlendMode: "multiply", opacity: 0.88 }} />
+      <svg aria-hidden width={cW} height={cH} viewBox={`0 0 ${cW} ${cH}`} style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }}>
+        <circle cx={cW * 0.76} cy={cH * 0.445} r={cW * 0.2} fill="none" stroke="#D86F4B" strokeWidth="1.5" opacity=".2" />
+        <circle cx={cW * 0.76} cy={cH * 0.445} r={cW * 0.162} fill="none" stroke="#F2EEE4" strokeWidth="1.2" strokeDasharray="7 13" opacity=".16" />
+      </svg>
+      <img src={img("/screenshots/aurasage/logo-mark-transparent.png")} alt="" draggable={false} style={{ position: "absolute", left: cW * 0.654, top: cH * 0.25, width: cW * 0.322, height: cW * 0.322, objectFit: "contain", opacity: 0.2, zIndex: 1 }} />
+      <div style={{ position: "absolute", left: cW * 0.055, top: cH * 0.08, width: cW * 0.43, zIndex: 5 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: cW * 0.015 }}>
+          {appIcon && img(appIcon) ? (
+            <div style={{ width: cW * 0.09, height: cW * 0.09, padding: cW * 0.006, background: "#F2EEE4", borderRadius: cW * 0.014, boxShadow: `0 ${cW * 0.009}px ${cW * 0.018}px rgba(4,10,7,.38)`, transform: "rotate(-2deg)" }}>
+              <img src={img(appIcon)} alt="" draggable={false} style={{ width: "100%", height: "100%", display: "block" }} />
+            </div>
+          ) : null}
+          <div style={{ fontFamily: "var(--font-inter), Inter, sans-serif", fontSize: cW * 0.028, fontWeight: 600, letterSpacing: "-.02em" }}>
+            {(appName || "AuraSage").toLowerCase()}
+          </div>
+        </div>
+        <div style={{ marginTop: cH * 0.055 }}>
+          <StyledHeadline
+            value={headline}
+            size={cW * 0.058}
+            color="#F2EEE4"
+            font={style.headline}
+            emphasis={style.emphasis!}
+            emphasisColor="#D86F4B"
+          />
+        </div>
+        <EditableText
+          value={pickText(slide.label, locale)}
+          editable={editable}
+          onChange={edit?.onLabelChange}
+          style={{ marginTop: cH * 0.055, fontFamily: "var(--font-inter), Inter, sans-serif", fontSize: cW * 0.012, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", color: "#B7C6B2" }}
+        />
+      </div>
+
+      <div style={{ position: "absolute", right: cW * 0.045, top: cH * 0.095, width: cW * 0.43, height: cH * 0.75, transform: "rotate(3deg)", zIndex: 4 }}>
+        <div style={{ position: "absolute", inset: 0, padding: cW * 0.014, background: "#F2EEE4", borderRadius: cW * 0.025, boxShadow: `0 ${cW * 0.028}px ${cW * 0.055}px rgba(4,10,7,.5), 0 ${cW * 0.007}px ${cW * 0.014}px rgba(0,0,0,.28)` }}>
+          <div style={{ position: "absolute", left: cW * 0.03, top: -cH * 0.035, width: cW * 0.12, height: cH * 0.105, background: "rgba(226,184,143,.82)", transform: "rotate(-8deg)", boxShadow: "0 2px 2px rgba(33,28,22,.2)", zIndex: 3 }} />
+          <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", borderRadius: cW * 0.017, background: "#F8F0E2" }}>
+            {screenshot && img(screenshot) ? (
+              <img src={img(screenshot)} alt="" draggable={false} style={{ width: "100%", height: "100%", display: "block", objectFit: "cover", objectPosition: "50% 27%", transform: "scale(1.16)" }} />
+            ) : null}
+          </div>
+        </div>
+        <div style={{ position: "absolute", right: -cW * 0.018, bottom: -cH * 0.03, padding: `${cH * 0.02}px ${cW * 0.018}px`, background: "#D86F4B", color: "#F2EEE4", fontFamily: "var(--font-inter), Inter, sans-serif", fontSize: cW * 0.012, fontWeight: 700, letterSpacing: ".13em", transform: "rotate(-4deg)", boxShadow: "0 3px 3px rgba(33,28,22,.24)" }}>
+          TODAY · 1 OF 7
+        </div>
+      </div>
+
+      <svg aria-hidden width={cW} height={cH} viewBox={`0 0 ${cW} ${cH}`} style={{ position: "absolute", inset: 0, zIndex: 6, pointerEvents: "none" }}>
+        <path d={`M${cW * 0.42} ${cH * 0.69} C${cW * 0.5} ${cH * 0.62}, ${cW * 0.52} ${cH * 0.49}, ${cW * 0.58} ${cH * 0.44}`} fill="none" stroke="#D86F4B" strokeWidth={4.2} strokeLinecap="round" />
+        <path d={`M${cW * 0.58} ${cH * 0.44} l${-cW * 0.012} ${cW * 0.036} l${cW * 0.038} ${-cW * 0.008}`} fill="none" stroke="#D86F4B" strokeWidth={4.2} strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <div style={{ position: "absolute", left: cW * 0.055, right: cW * 0.055, bottom: cH * 0.048, borderTop: "1px solid rgba(242,238,228,.3)", paddingTop: cH * 0.025, display: "flex", justifyContent: "space-between", color: "#B7C6B2", fontFamily: "var(--font-inter), Inter, sans-serif", fontSize: cW * 0.0095, fontWeight: 600, letterSpacing: ".16em" }}>
+        <span>SEVEN WORDS</span><span>NO STREAKS</span><span>PRIVATE BY DESIGN</span>
+      </div>
+    </div>
   );
 }
 

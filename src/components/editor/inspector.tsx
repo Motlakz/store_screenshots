@@ -8,6 +8,7 @@ import {
   ArrowUpToLine,
   ChevronDown,
   ChevronUp,
+  Copy,
   Crop,
   RotateCw,
   Smartphone,
@@ -29,15 +30,19 @@ import { LAYOUT_HINT, LAYOUT_LABEL } from "@/lib/constants";
 import { nid } from "@/lib/defaults";
 import {
   clearLocaleTransform,
+  captionElementKey,
   hasLocaleTransform,
   isBuiltInElementId,
+  isCaptionElementId,
   focusElementKey,
   isFocusElementId,
   isTextElementId,
+  localizedTransform,
   restackByLocale,
   restackElement,
   textElementKey,
   toTextElementId,
+  toCaptionElementId,
   toFocusElementId,
   writeElementTransform,
 } from "@/lib/elements";
@@ -45,6 +50,7 @@ import { img } from "@/lib/image-cache";
 import { pickText, resolveScreenshot, writeLocalized } from "@/lib/locale";
 import type {
   BuiltInElementId,
+  CaptionElement,
   Device,
   ElementId,
   ElementTransform,
@@ -306,6 +312,7 @@ function ElementTransformControls({
   const present: ElementId[] = ["caption"];
   if (slide.layout !== "no-device") present.push("device");
   if (slide.layout === "two-devices") present.push("deviceSecondary");
+  for (const element of slide.captionElements || []) present.push(toCaptionElementId(element.id));
   for (const element of slide.textElements || []) present.push(toTextElementId(element.id));
   for (const element of slide.focusElements || []) present.push(toFocusElementId(element.id));
 
@@ -317,6 +324,10 @@ function ElementTransformControls({
   const activeTextElement =
     activeId && isTextElementId(activeId)
       ? slide.textElements?.find((element) => element.id === textElementKey(activeId))
+      : null;
+  const activeCaptionElement =
+    activeId && isCaptionElementId(activeId)
+      ? slide.captionElements?.find((element) => element.id === captionElementKey(activeId))
       : null;
   const activeFocusElement =
     activeId && isFocusElementId(activeId)
@@ -385,6 +396,52 @@ function ElementTransformControls({
     };
     onChange({ textElements: [...(slide.textElements || []), element] });
     onSelectElement(toTextElementId(id));
+  }
+
+  function patchCaptionElement(id: string, patch: Partial<CaptionElement>) {
+    onChange({
+      captionElements: (slide.captionElements || []).map((element) =>
+        element.id === id ? { ...element, ...patch } : element,
+      ),
+    });
+  }
+
+  function deleteCaptionElement(element: CaptionElement) {
+    const next = (slide.captionElements || []).filter((item) => item.id !== element.id);
+    onChange({ captionElements: next.length ? next : undefined });
+    onSelectElement(null);
+  }
+
+  function duplicateCaption() {
+    const { cW, cH } = getCanvas(device, orientation);
+    const source = activeCaptionElement;
+    const sourceTransform = source
+      ? localizedTransform(source, locale)
+      : getElementTransform(slide, device, orientation, "caption", locale);
+    if (!sourceTransform) return;
+    const id = nid();
+    const zIndex =
+      Math.max(
+        5,
+        ...present.map((elementId) => getTransform(elementId)?.zIndex ?? defaultZ(elementId)),
+      ) + 1;
+    const element: CaptionElement = {
+      id,
+      label: { ...(source?.label ?? slide.label) },
+      headline: { ...(source?.headline ?? slide.headline) },
+      transform: {
+        ...sourceTransform,
+        x: Math.min(cW - sourceTransform.width * 0.25, sourceTransform.x + cW * 0.04),
+        y: Math.min(cH - sourceTransform.height * 0.25, sourceTransform.y + cH * 0.04),
+        zIndex,
+      },
+      align: source?.align ?? (slide.layout === "split-landscape" ? "left" : "center"),
+      headlineFont: source?.headlineFont ?? slide.headlineFont,
+      labelFont: source?.labelFont ?? slide.labelFont,
+      inverted: source?.inverted ?? slide.inverted,
+    };
+    onChange({ captionElements: [...(slide.captionElements || []), element] });
+    onSelectElement(toCaptionElementId(id));
   }
 
   function patchFocusElement(id: string, patch: Partial<ScreenshotFocusElement>) {
@@ -471,13 +528,19 @@ function ElementTransformControls({
     ranked.splice(target, 0, id);
     const nextTransforms = { ...(slide.transforms || {}) };
     let nextTextElements = [...(slide.textElements || [])];
+    let nextCaptionElements = [...(slide.captionElements || [])];
     let nextFocusElements = [...(slide.focusElements || [])];
     const zByBuiltIn: Partial<Record<BuiltInElementId, number>> = {};
     ranked.forEach((eid, i) => {
       const cur = getTransform(eid);
       if (!cur) return;
       const zIndex = i + 1;
-      if (isTextElementId(eid)) {
+      if (isCaptionElementId(eid)) {
+        const captionId = captionElementKey(eid);
+        nextCaptionElements = nextCaptionElements.map((element) =>
+          element.id === captionId ? restackElement(element, zIndex) : element,
+        );
+      } else if (isTextElementId(eid)) {
         const textId = textElementKey(eid);
         nextTextElements = nextTextElements.map((element) =>
           element.id === textId ? restackElement(element, zIndex) : element,
@@ -495,6 +558,7 @@ function ElementTransformControls({
     onChange({
       transforms: nextTransforms,
       transformsByLocale: restackByLocale(slide.transformsByLocale, zByBuiltIn),
+      captionElements: nextCaptionElements,
       textElements: nextTextElements,
       focusElements: nextFocusElements,
     });
@@ -537,6 +601,16 @@ function ElementTransformControls({
           </div>
         )}
         <div className="grid grid-cols-2 gap-1.5">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="col-span-2 h-8 w-full justify-center gap-1.5 px-2 text-xs"
+            onClick={duplicateCaption}
+            title="Duplicate the label and headline with their current theme styling"
+          >
+            <Copy className="h-3.5 w-3.5 shrink-0" /> Duplicate headline block
+          </Button>
           {canAddDevice && (
             <Button
               type="button"
@@ -565,6 +639,7 @@ function ElementTransformControls({
           fallbackSource={slide.screenshot}
           transform={activeTransform}
           textElement={activeTextElement || undefined}
+          captionElement={activeCaptionElement || undefined}
           focusElement={activeFocusElement || undefined}
           locale={locale}
           localePlacement={locales.length > 1 && activeHasLocalePlacement}
@@ -576,6 +651,12 @@ function ElementTransformControls({
           }}
           onTextPatch={(patch) => {
             if (activeTextElement) patchTextElement(activeTextElement.id, patch);
+          }}
+          onCaptionPatch={(patch) => {
+            if (activeCaptionElement) patchCaptionElement(activeCaptionElement.id, patch);
+          }}
+          onDeleteCaption={() => {
+            if (activeCaptionElement) deleteCaptionElement(activeCaptionElement);
           }}
           onDeleteText={() => {
             if (activeTextElement) deleteTextElement(activeTextElement);
@@ -602,6 +683,7 @@ function ActiveElementPanel({
   appId,
   fallbackSource,
   transform,
+  captionElement,
   textElement,
   focusElement,
   locale,
@@ -611,6 +693,8 @@ function ActiveElementPanel({
   onReorder,
   onTextChange,
   onTextPatch,
+  onCaptionPatch,
+  onDeleteCaption,
   onDeleteText,
   onFocusPatch,
   onDeleteFocus,
@@ -620,6 +704,7 @@ function ActiveElementPanel({
   appId: string;
   fallbackSource: string;
   transform: ElementTransform | undefined;
+  captionElement?: CaptionElement;
   textElement?: TextElement;
   focusElement?: ScreenshotFocusElement;
   locale: string;
@@ -630,6 +715,8 @@ function ActiveElementPanel({
   onReorder: (dir: "front" | "back" | "up" | "down") => void;
   onTextChange: (value: string) => void;
   onTextPatch: (patch: Partial<TextElement>) => void;
+  onCaptionPatch: (patch: Partial<CaptionElement>) => void;
+  onDeleteCaption: () => void;
   onDeleteText: () => void;
   onFocusPatch: (patch: Partial<ScreenshotFocusElement>) => void;
   onDeleteFocus: () => void;
@@ -643,6 +730,7 @@ function ActiveElementPanel({
     <div className="space-y-2 rounded border bg-background/60 p-2.5">
       <div className="flex items-center justify-between">
         <span className="flex min-w-0 items-center gap-1 text-xs font-medium">
+          {captionElement && <Type className="h-3.5 w-3.5 shrink-0" />}
           {textElement && <Type className="h-3.5 w-3.5 shrink-0" />}
           {focusElement && <Crop className="h-3.5 w-3.5 shrink-0" />}
           <span className="truncate">{label}</span>
@@ -659,19 +747,19 @@ function ActiveElementPanel({
             </button>
           )}
         </span>
-        {textElement || focusElement || onRemoveDevice ? (
+        {captionElement || textElement || focusElement || onRemoveDevice ? (
           <Button
             type="button"
             variant="ghost"
             size="icon"
             className="h-6 w-6 hover:text-destructive"
-            onClick={onRemoveDevice ? onRemoveDevice : focusElement ? onDeleteFocus : onDeleteText}
+            onClick={onRemoveDevice ? onRemoveDevice : captionElement ? onDeleteCaption : focusElement ? onDeleteFocus : onDeleteText}
             title={
               onRemoveDevice
                 ? "Remove the second device"
-                : `Delete ${focusElement ? "crop layer" : "text element"}`
+                : `Delete ${captionElement ? "headline block" : focusElement ? "crop layer" : "text element"}`
             }
-            aria-label={`Delete ${focusElement ? "crop layer" : "text element"}`}
+            aria-label={`Delete ${captionElement ? "headline block" : focusElement ? "crop layer" : "text element"}`}
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
@@ -686,6 +774,14 @@ function ActiveElementPanel({
           locale={locale}
           onTextChange={onTextChange}
           onTextPatch={onTextPatch}
+        />
+      )}
+
+      {captionElement && (
+        <CaptionElementPanel
+          element={captionElement}
+          locale={locale}
+          onPatch={onCaptionPatch}
         />
       )}
 
@@ -938,6 +1034,55 @@ function CropSlider({
   );
 }
 
+function CaptionElementPanel({
+  element,
+  locale,
+  onPatch,
+}: {
+  element: CaptionElement;
+  locale: string;
+  onPatch: (patch: Partial<CaptionElement>) => void;
+}) {
+  const label = element.label?.[locale] ?? pickText(element.label, locale);
+  const headline = element.headline?.[locale] ?? pickText(element.headline, locale);
+  return (
+    <div className="space-y-2 rounded border bg-muted/30 p-2">
+      <div className="space-y-1">
+        <Label className="text-[11px] text-muted-foreground">Label</Label>
+        <Input
+          value={label}
+          onChange={(event) =>
+            onPatch({ label: writeLocalized(element.label, locale, event.target.value) })
+          }
+          placeholder="LABEL"
+        />
+      </div>
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <Label className="text-[11px] text-muted-foreground">Headline</Label>
+          <span className="text-[10px] text-muted-foreground">*word* = emphasis</span>
+        </div>
+        <Textarea
+          value={headline}
+          rows={3}
+          onChange={(event) =>
+            onPatch({ headline: writeLocalized(element.headline, locale, event.target.value) })
+          }
+          placeholder="Headline goes here"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-1">
+        <LayerButton disabled={false} onClick={() => onPatch({ align: "left" })} label="Align left">
+          <AlignLeft className="h-3.5 w-3.5" />
+        </LayerButton>
+        <LayerButton disabled={false} onClick={() => onPatch({ align: "center" })} label="Align center">
+          <AlignCenter className="h-3.5 w-3.5" />
+        </LayerButton>
+      </div>
+    </div>
+  );
+}
+
 function TextElementPanel({
   element,
   locale,
@@ -1067,12 +1212,14 @@ function ScopeTab({
 
 function elementLabel(id: ElementId): string {
   if (isBuiltInElementId(id)) return ELEMENT_LABEL[id];
+  if (isCaptionElementId(id)) return "Headline block";
   if (isFocusElementId(id)) return "Crop layer";
   return "Text";
 }
 
 function defaultZ(id: ElementId): number {
   if (isFocusElementId(id)) return 8;
+  if (isCaptionElementId(id)) return 5;
   if (isTextElementId(id)) return 5;
   if (id === "deviceSecondary") return 2;
   if (id === "device") return 3;

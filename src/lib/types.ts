@@ -51,9 +51,10 @@ export type ElementTransform = {
 };
 
 export type BuiltInElementId = "caption" | "device" | "deviceSecondary";
+export type CaptionElementId = `captionBlock:${string}`;
 export type TextElementId = `text:${string}`;
 export type FocusElementId = `focus:${string}`;
-export type ElementId = BuiltInElementId | TextElementId | FocusElementId;
+export type ElementId = BuiltInElementId | CaptionElementId | TextElementId | FocusElementId;
 
 export type SelectedElement = {
   slideId: string;
@@ -82,6 +83,19 @@ export type TextElement = {
   fontWeight?: number;
   color?: string;
   align?: "left" | "center" | "right";
+};
+
+/** A duplicable, independently editable copy of the built-in label + headline. */
+export type CaptionElement = {
+  id: string;
+  label: LocalizedText;
+  headline: LocalizedText;
+  transform: ElementTransform;
+  transformByLocale?: LocaleTransforms;
+  align?: "left" | "center";
+  headlineFont?: string;
+  labelFont?: string;
+  inverted?: boolean;
 };
 
 export type ScreenshotFocusElement = {
@@ -143,6 +157,7 @@ export type Slide = {
   // Placement for one language only, keyed by locale then element. Wins over
   // `transforms`, so nudging the device in fr leaves en and es where they are.
   transformsByLocale?: Partial<Record<string, Partial<Record<BuiltInElementId, ElementTransform>>>>;
+  captionElements?: CaptionElement[];
   textElements?: TextElement[];
 };
 
@@ -217,6 +232,10 @@ export type ThemeDecor = {
   bellyclock?: boolean;
   /** PillBird's floating cream-and-blush capsules, blister strips and hearts. */
   pillbird?: boolean;
+  /** CalmPedal's kinetic cadence, timing, recovery and sleep illustration layer. */
+  calmpedal?: boolean;
+  /** AuraSage's landing-page cadence: forest glow, ruled paper, orbit lines, and ghost type. */
+  aurasage?: boolean;
   /** Lowercase corner wordmark, editorial style. */
   wordmark?: boolean;
 };

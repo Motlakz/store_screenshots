@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "appId": "calmpedal",
   "appName": "CalmPedal",
-  "themeId": "calmpedal-cyan",
+  "themeId": "calmpedal-kinetic",
   "connectedCanvas": true,
   "locales": [
     "en"
@@ -133,115 +133,287 @@
         "id": "s_ms98bzyg_1b",
         "layout": "hero",
         "label": {
-          "en": "MEET YOUR APP"
+          "en": "YOUR DAILY RIDE CALL"
         },
         "headline": {
-          "en": "Sell one *idea*\nper screen."
+          "en": "Know what today\ncan *take*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/calmpedal/uploaded/ffbaf38a0055f9b1.jpg",
+        "frame": {
+          "style": "3d",
+          "rotateX": 2,
+          "rotateY": -9,
+          "depth": 950,
+          "thickness": 22
+        },
+        "transforms": {
+          "device": {
+            "x": 87.7665879908852,
+            "y": 340.60749995115816,
+            "width": 880,
+            "height": 1908,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
       },
       {
         "id": "s_ms98bzyg_1c",
         "layout": "device-bottom",
         "label": {
-          "en": "FEATURE 01"
+          "en": "SLEEP TO RIDE"
         },
         "headline": {
-          "en": "Your headline\n*lives* here."
+          "en": "Last night changes\ntoday's *ride*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/calmpedal/uploaded/10f11c37c4fb342a.jpg",
+        "frame": {
+          "style": "3d",
+          "rotateX": -1,
+          "rotateY": 7,
+          "depth": 1050,
+          "thickness": 18
+        },
+        "transforms": {
+          "device": {
+            "x": 140.86363786326797,
+            "y": 460.84566302103894,
+            "width": 777,
+            "height": 1683,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
       },
       {
         "id": "s_ms98bzyg_1d",
         "layout": "device-top",
         "label": {
-          "en": "FEATURE 02"
+          "en": "RIDE TO SLEEP"
         },
         "headline": {
-          "en": "Flip it for\nvisual *rhythm*."
+          "en": "Plan tonight around\ntoday's *ride*."
         },
-        "screenshot": "",
-        "inverted": true
+        "screenshot": "/screenshots/calmpedal/uploaded/3bf3bc49a3c1ae45.jpg",
+        "inverted": true,
+        "frame": {
+          "style": "3d",
+          "rotateX": 1,
+          "rotateY": -8,
+          "depth": 980,
+          "thickness": 22
+        },
+        "transforms": {
+          "device": {
+            "x": 121.44234641370349,
+            "y": -174.12082772631481,
+            "width": 801,
+            "height": 1736,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 77.242607313196,
+            "y": 1333.468998410175,
+            "width": 907.1999999999999,
+            "height": 537.6,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
       },
       {
         "id": "s_ms98bzyg_1e",
         "layout": "two-devices",
         "label": {
-          "en": "FEATURE 03"
+          "en": "REAL-LIFE PLANNING"
         },
         "headline": {
-          "en": "Show two\n*screens* at once."
+          "en": "Only free at 8?\nMake the ride *fit*."
         },
-        "screenshot": "",
-        "screenshotSecondary": ""
+        "screenshot": "/screenshots/calmpedal/uploaded/d9b799f19ff6f419.jpg",
+        "screenshotSecondary": "/screenshots/calmpedal/uploaded/21cfe4a789dd4c85.jpg",
+        "frame": {
+          "style": "3d",
+          "rotateY": -10,
+          "depth": 950,
+          "thickness": 20
+        },
+        "frameSecondary": {
+          "style": "3d",
+          "rotateY": 10,
+          "depth": 950,
+          "thickness": 20
+        },
+        "transforms": {
+          "deviceSecondary": {
+            "x": -58.69507154213079,
+            "y": 463.6224298209045,
+            "width": 678.5844380403457,
+            "height": 1470.266282420749,
+            "rotation": 0,
+            "zIndex": 2
+          },
+          "device": {
+            "x": 448.60500735351616,
+            "y": 356.89770671162853,
+            "width": 610.7259942363112,
+            "height": 1323.239654178674,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
       },
       {
         "id": "s_ms98bzyg_1f",
         "layout": "hero",
         "label": {
-          "en": "FEATURE 04"
+          "en": "COACH ATLAS"
         },
         "headline": {
-          "en": "Lead with the\n*outcome*."
+          "en": "One clear call.\nSee the *why*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/calmpedal/uploaded/c290088a1fe71c14.jpg",
+        "frame": {
+          "style": "3d",
+          "rotateX": -2,
+          "rotateY": 8,
+          "depth": 1020,
+          "thickness": 18
+        },
+        "transforms": {
+          "device": {
+            "x": 145.76326996250555,
+            "y": 371.1321422405066,
+            "width": 804,
+            "height": 1742,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
       },
       {
         "id": "s_ms98bzyg_1g",
         "layout": "device-bottom",
         "label": {
-          "en": "FEATURE 05"
+          "en": "PERSONAL RESPONSE"
         },
         "headline": {
-          "en": "One benefit,\n*one* look."
+          "en": "Learns your pattern,\nnot just *averages*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/calmpedal/uploaded/f17f111dcd837c3e.jpg",
+        "frame": {
+          "style": "3d",
+          "rotateX": 2,
+          "rotateY": -7,
+          "depth": 1040,
+          "thickness": 18
+        },
+        "transforms": {
+          "device": {
+            "x": 161.02559110717993,
+            "y": 432.7009797799151,
+            "width": 789,
+            "height": 1709,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
       },
       {
         "id": "s_ms98bzyg_1h",
         "layout": "no-device",
         "label": {
-          "en": "WHY IT WORKS"
+          "en": "PRIVATE BY DESIGN"
         },
         "headline": {
-          "en": "Let the words\ncarry *this* one."
+          "en": "Your raw health data\nstays *yours*."
         },
-        "screenshot": "",
-        "inverted": true
+        "screenshot": "/screenshots/calmpedal/uploaded/8f3faaafd3133481.jpg",
+        "inverted": true,
+        "frame": {
+          "style": "3d",
+          "rotateX": -1,
+          "rotateY": 9,
+          "depth": 980,
+          "thickness": 30
+        },
+        "transforms": {
+          "caption": {
+            "x": 107.99999999999818,
+            "y": 1468.6931637519883,
+            "width": 864,
+            "height": 576,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "focusElements": [
+          {
+            "id": "s_mssz3grv_17",
+            "crop": {
+              "x": 0,
+              "y": 0,
+              "width": 100,
+              "height": 100
+            },
+            "transform": {
+              "x": 77.04921863529762,
+              "y": 368.87121595738546,
+              "width": 902,
+              "height": 966.1549893842887,
+              "rotation": 0,
+              "zIndex": 9
+            },
+            "borderRadius": 34,
+            "borderWidth": 7,
+            "source": "/screenshots/calmpedal/uploaded/9ee092bb72ac9559.jpg"
+          }
+        ]
       },
       {
         "id": "s_ms98bzyg_1i",
-        "layout": "device-top",
-        "label": {
-          "en": "FEATURE 06"
-        },
-        "headline": {
-          "en": "Close the loop\non the *promise*."
-        },
-        "screenshot": ""
-      },
-      {
-        "id": "s_ms98bzyg_1j",
-        "layout": "two-devices",
-        "label": {
-          "en": "FEATURE 07"
-        },
-        "headline": {
-          "en": "Pair the\n*before* and after."
-        },
-        "screenshot": "",
-        "screenshotSecondary": ""
-      },
-      {
-        "id": "s_ms98bzyg_1k",
         "layout": "no-device",
         "label": {
-          "en": "GET STARTED"
+          "en": "THE CALMPEDAL LOOP"
         },
         "headline": {
-          "en": "And so much\n*more*."
+          "en": "Ride. Recover.\nSleep. *Repeat*."
         },
-        "screenshot": ""
+        "screenshot": "",
+        "transforms": {
+          "caption": {
+            "x": 53.055684498671326,
+            "y": 372.8585335833267,
+            "width": 864,
+            "height": 301,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "focusElements": [
+          {
+            "id": "s_mssz7spl_19",
+            "crop": {
+              "x": 0,
+              "y": 21.6,
+              "width": 100,
+              "height": 52.5
+            },
+            "transform": {
+              "x": 363.46263910969446,
+              "y": 1089.5771065182837,
+              "width": 756,
+              "height": 859.95,
+              "rotation": 4,
+              "zIndex": 9
+            },
+            "borderRadius": 34,
+            "borderWidth": 7,
+            "source": "/screenshots/calmpedal/uploaded/8f3faaafd3133481.jpg",
+            "accentColor": "#f4c96c"
+          }
+        ]
       }
     ],
     "ipad": [
@@ -433,15 +605,80 @@
       {
         "id": "s_ms98bzyg_21",
         "layout": "feature-graphic",
-        "label": {},
+        "label": {
+          "en": "SLEEP-AWARE CYCLING COACH"
+        },
         "headline": {
-          "en": "Your tagline goes here."
+          "en": "Last night's sleep.\nToday's ride. Tonight's plan."
         },
         "screenshot": ""
       }
     ]
   },
   "themes": [
+    {
+      "id": "calmpedal-kinetic",
+      "name": "CalmPedal Kinetic Night Ride",
+      "bg": "#07101F",
+      "bgAlt": "#02060D",
+      "fg": "#F8FBFF",
+      "fgAlt": "#F8FBFF",
+      "accent": "#00D4FF",
+      "muted": "#8EA2BE",
+      "background": {
+        "kind": "solids",
+        "colors": [
+          "#071426",
+          "#211B49",
+          "#0A2A32",
+          "#3A1B24",
+          "#111A3F",
+          "#15342F",
+          "#06131D",
+          "#06384A"
+        ]
+      },
+      "backgroundAlt": {
+        "kind": "gradient",
+        "stops": [
+          "#02060D 0%",
+          "#081A2A 56%",
+          "#11304A 100%"
+        ],
+        "angle": 148
+      },
+      "headline": {
+        "family": "var(--font-montserrat), Montserrat, Inter, system-ui, sans-serif",
+        "weight": 700,
+        "scale": 1.05,
+        "lineHeight": 0.88,
+        "letterSpacing": -0.045
+      },
+      "label": {
+        "family": "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace",
+        "weight": 600,
+        "transform": "uppercase",
+        "scale": 0.82,
+        "letterSpacing": 0.08
+      },
+      "emphasis": {
+        "family": "var(--font-caveat), Caveat, 'Segoe Script', cursive",
+        "color": "#D9FF57",
+        "weight": 700,
+        "scale": 1.18,
+        "rotation": -2
+      },
+      "device": {
+        "bezel": "#050A12",
+        "bezelStroke": "#2F4964",
+        "bezelStrokeWidth": 2,
+        "shadow": "0 38px 90px rgba(0,0,0,.5), 0 0 44px rgba(0,212,255,.18)"
+      },
+      "decor": {
+        "grain": 0.025,
+        "calmpedal": true
+      }
+    },
     {
       "id": "calmpedal-cyan",
       "name": "CalmPedal Cyan",

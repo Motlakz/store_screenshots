@@ -29,6 +29,7 @@ type Props = {
   onLabelChange: (slide: Slide, v: string) => void;
   onHeadlineChange: (slide: Slide, v: string) => void;
   onTextElementTextChange: (slideId: string, id: string, v: string) => void;
+  onCaptionElementTextChange: (slideId: string, id: string, field: "label" | "headline", v: string) => void;
   onElementChange: (slideId: string, id: ElementId, t: ElementTransform) => void;
   onSelectElement: (element: SelectedElement | null) => void;
 };
@@ -50,6 +51,7 @@ export function PreviewStage({
   onLabelChange,
   onHeadlineChange,
   onTextElementTextChange,
+  onCaptionElementTextChange,
   onElementChange,
   onSelectElement,
 }: Props) {
@@ -154,6 +156,7 @@ export function PreviewStage({
                   if (slide) onHeadlineChange(slide, value);
                 },
                 onTextElementTextChange,
+                onCaptionElementTextChange,
                 onElementChange,
                 onSelectElement,
                 onSelectScreen: handleCanvasActiveSlideChange,

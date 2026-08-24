@@ -18,6 +18,7 @@ import {
 import { DEFAULT_PROJECT, makeDefaultProject } from "./defaults";
 import { coerceLocalized } from "./locale";
 import type {
+  CaptionElement,
   Device,
   ElementTransform,
   LocaleTransforms,
@@ -93,6 +94,26 @@ function cleanTextElement(value: unknown): TextElement | undefined {
   };
 }
 
+function cleanCaptionElement(value: unknown): CaptionElement | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const raw = value as Partial<CaptionElement>;
+  if (typeof raw.id !== "string" || !raw.id.trim()) return undefined;
+  const transform = cleanTransform(raw.transform);
+  if (!transform) return undefined;
+  const transformByLocale = cleanLocaleTransforms(raw.transformByLocale);
+  return {
+    id: raw.id,
+    label: coerceLocalized(raw.label as unknown),
+    headline: coerceLocalized(raw.headline as unknown),
+    transform,
+    ...(transformByLocale ? { transformByLocale } : {}),
+    ...(raw.align === "left" || raw.align === "center" ? { align: raw.align } : {}),
+    ...(typeof raw.headlineFont === "string" ? { headlineFont: raw.headlineFont } : {}),
+    ...(typeof raw.labelFont === "string" ? { labelFont: raw.labelFont } : {}),
+    ...(typeof raw.inverted === "boolean" ? { inverted: raw.inverted } : {}),
+  };
+}
+
 // Migrate older projects into the current schema while keeping legacy decks
 // visually stable until they explicitly opt into connected canvas.
 function migrateSlide(slide: Slide): Slide {
@@ -122,6 +143,9 @@ function migrateSlide(slide: Slide): Slide {
   const textElements = Array.isArray(slide.textElements)
     ? slide.textElements.map(cleanTextElement).filter((t): t is TextElement => !!t)
     : undefined;
+  const captionElements = Array.isArray(slide.captionElements)
+    ? slide.captionElements.map(cleanCaptionElement).filter((t): t is CaptionElement => !!t)
+    : undefined;
   const focusElements = Array.isArray(slide.focusElements)
     ? slide.focusElements.map((element) => {
         const transformByLocale = cleanLocaleTransforms(element?.transformByLocale);
@@ -140,6 +164,9 @@ function migrateSlide(slide: Slide): Slide {
       ? { transformsByLocale: transformsByLocale as Slide["transformsByLocale"] }
       : { transformsByLocale: undefined }),
     ...(textElements && textElements.length > 0 ? { textElements } : { textElements: undefined }),
+    ...(captionElements && captionElements.length > 0
+      ? { captionElements }
+      : { captionElements: undefined }),
     ...(focusElements && focusElements.length > 0 ? { focusElements } : {}),
   };
 }

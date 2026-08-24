@@ -1,5 +1,6 @@
 import type {
   BuiltInElementId,
+  CaptionElementId,
   ElementId,
   ElementTransform,
   FocusElementId,
@@ -16,6 +17,7 @@ export const BUILT_IN_ELEMENT_IDS: BuiltInElementId[] = [
 
 export const TEXT_ELEMENT_PREFIX = "text:";
 export const FOCUS_ELEMENT_PREFIX = "focus:";
+export const CAPTION_ELEMENT_PREFIX = "captionBlock:";
 
 export function isBuiltInElementId(id: ElementId | string): id is BuiltInElementId {
   return (BUILT_IN_ELEMENT_IDS as string[]).includes(id);
@@ -23,6 +25,18 @@ export function isBuiltInElementId(id: ElementId | string): id is BuiltInElement
 
 export function isTextElementId(id: ElementId | string | null | undefined): id is TextElementId {
   return typeof id === "string" && id.startsWith(TEXT_ELEMENT_PREFIX);
+}
+
+export function isCaptionElementId(id: ElementId | string | null | undefined): id is CaptionElementId {
+  return typeof id === "string" && id.startsWith(CAPTION_ELEMENT_PREFIX);
+}
+
+export function toCaptionElementId(id: string): CaptionElementId {
+  return `${CAPTION_ELEMENT_PREFIX}${id}` as CaptionElementId;
+}
+
+export function captionElementKey(id: CaptionElementId | ElementId): string {
+  return isCaptionElementId(id) ? id.slice(CAPTION_ELEMENT_PREFIX.length) : id;
 }
 
 export function toTextElementId(id: string): TextElementId {
@@ -68,6 +82,10 @@ export function localizedTransform(element: LocalizedElement, locale: string): E
 
 /** True when this element has been moved for this language specifically. */
 export function hasLocaleTransform(slide: Slide, id: ElementId, locale: string): boolean {
+  if (isCaptionElementId(id)) {
+    const key = captionElementKey(id);
+    return !!slide.captionElements?.find((e) => e.id === key)?.transformByLocale?.[locale];
+  }
   if (isTextElementId(id)) {
     const key = textElementKey(id);
     return !!slide.textElements?.find((e) => e.id === key)?.transformByLocale?.[locale];
@@ -94,6 +112,14 @@ export function writeElementTransform(
   transform: ElementTransform,
   scopeLocale: string | null,
 ): Partial<Slide> {
+  if (isCaptionElementId(elementId)) {
+    const key = captionElementKey(elementId);
+    return {
+      captionElements: (slide.captionElements || []).map((element) =>
+        element.id === key ? placeElement(element, transform, scopeLocale) : element,
+      ),
+    };
+  }
   if (isTextElementId(elementId)) {
     const key = textElementKey(elementId);
     return {
@@ -134,6 +160,14 @@ export function clearLocaleTransform(
   elementId: ElementId,
   locale: string,
 ): Partial<Slide> {
+  if (isCaptionElementId(elementId)) {
+    const key = captionElementKey(elementId);
+    return {
+      captionElements: (slide.captionElements || []).map((element) =>
+        element.id === key ? unplaceElement(element, locale) : element,
+      ),
+    };
+  }
   if (isTextElementId(elementId)) {
     const key = textElementKey(elementId);
     return {

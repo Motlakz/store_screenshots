@@ -409,6 +409,33 @@ export function ScreenshotEditor() {
     [setState],
   );
 
+  const patchCaptionElementText = React.useCallback(
+    (slideId: string, captionId: string, field: "label" | "headline", value: string) => {
+      setState(
+        (prev) => ({
+          ...prev,
+          slidesByDevice: {
+            ...prev.slidesByDevice,
+            [prev.device]: (prev.slidesByDevice[prev.device] || []).map((slide) =>
+              slide.id === slideId
+                ? {
+                    ...slide,
+                    captionElements: (slide.captionElements || []).map((element) =>
+                      element.id === captionId
+                        ? { ...element, [field]: writeLocalized(element[field], prev.locale, value) }
+                        : element,
+                    ),
+                  }
+                : slide,
+            ),
+          },
+        }),
+        { coalesce: `caption-text:${slideId}:${captionId}:${field}` },
+      );
+    },
+    [setState],
+  );
+
   const duplicateSlide = React.useCallback(
     (id: string) => {
       const newId = nid();
@@ -445,6 +472,21 @@ export function ScreenshotEditor() {
             ...element,
             id: nid(),
             text: { ...element.text },
+            transform: { ...element.transform },
+            transformByLocale: element.transformByLocale
+              ? Object.fromEntries(
+                  Object.entries(element.transformByLocale).map(([locale, transform]) => [
+                    locale,
+                    transform ? { ...transform } : transform,
+                  ]),
+                )
+              : undefined,
+          })),
+          captionElements: src.captionElements?.map((element) => ({
+            ...element,
+            id: nid(),
+            label: { ...element.label },
+            headline: { ...element.headline },
             transform: { ...element.transform },
             transformByLocale: element.transformByLocale
               ? Object.fromEntries(
@@ -872,6 +914,7 @@ export function ScreenshotEditor() {
               onLabelChange={(slide, v) => patchLocalized(slide, "label", v)}
               onHeadlineChange={(slide, v) => patchLocalized(slide, "headline", v)}
               onTextElementTextChange={patchTextElementText}
+              onCaptionElementTextChange={patchCaptionElementText}
               onElementChange={patchElementTransform}
               onSelectElement={setSelectedElement}
             />

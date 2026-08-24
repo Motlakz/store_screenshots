@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import {
   Alfa_Slab_One,
   Caveat,
+  DM_Sans,
   Inter,
   Instrument_Serif,
   JetBrains_Mono,
   Montserrat,
+  Newsreader,
   Quicksand,
 } from "next/font/google";
 import "./globals.css";
@@ -15,6 +17,13 @@ import { THEME_INIT_SCRIPT } from "@/lib/theme-mode";
 // variable, so themes name fonts declaratively (see FONTS in lib/style.ts)
 // without any component importing a font directly.
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" });
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-newsreader",
+});
 const quicksand = Quicksand({ subsets: ["latin"], variable: "--font-quicksand" });
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -44,6 +53,8 @@ const alfaSlab = Alfa_Slab_One({
 
 const fontVars = [
   inter.variable,
+  dmSans.variable,
+  newsreader.variable,
   quicksand.variable,
   montserrat.variable,
   jetbrainsMono.variable,

@@ -42,7 +42,22 @@ The spec also has an **AMOLED** mode (`#000000` / `#080808`) — that's the
 - **Sleep-recovery curve** plate, transparent PNG.
 - Optional: **bike silhouette** motif.
 
-### Still to capture
+### Capture plan — Google Play phone deck
 
-CalmPedal is still a scaffold, so there are no real screens yet. When it has a
-build: 6–8 at 1080×1920 — dashboard, ride, sleep, coach, stats, profile.
+The Android implementation is complete, but Health Connect and return-leg flows
+still need physical-device verification. Capture these populated states from the
+verified build at 1080×1920:
+
+| # | Filename | App state |
+| ---: | --- | --- |
+| 01 | `01-home-daily-call.png` | Home recovery ring + exact daily ride call |
+| 02 | `02-home-why-changed.png` | Sleep/load factors + confidence + why changed |
+| 03 | `03-tonight-plan.png` | Latest finish + wind-down + bedtime plan |
+| 04 | `04-evening-scenario.png` | 8pm scenario and recomputed ride |
+| 05 | `05-atlas-why.png` | Atlas answering “Why did that change?” |
+| 06 | `06-stats-personal-response.png` | Paired days + personal response + confidence |
+| 07 | `07-profile-data-privacy.png` | Real Health Connect state + privacy controls |
+
+Slide 08 is a no-device typographic closer composed in the editor. See
+`PLAY_STORE_LISTING.md` for the narrative, alt text, metadata, and Play Console
+setup.

@@ -8,7 +8,7 @@
     "en"
   ],
   "locale": "en",
-  "device": "android",
+  "device": "feature-graphic",
   "orientation": "portrait",
   "appIcon": "/screenshots/aurasage/app-icon.png",
   "slidesByDevice": {
@@ -329,8 +329,8 @@
         "frame": {
           "style": "3d",
           "color": "graphite",
-          "rotateX": 1,
-          "rotateY": -7,
+          "rotateX": -4,
+          "rotateY": -3,
           "depth": 1050,
           "thickness": 20
         },
@@ -371,7 +371,7 @@
           "style": "3d",
           "color": "porcelain",
           "rotateX": -1,
-          "rotateY": 7,
+          "rotateY": 3,
           "depth": 1040,
           "thickness": 18
         },
@@ -385,11 +385,11 @@
             "zIndex": 4
           },
           "device": {
-            "x": 116.2098548812346,
-            "y": 452.46582181169384,
+            "x": 107.05246219443302,
+            "y": 309.00000305175774,
             "width": 798,
             "height": 1728,
-            "rotation": 7,
+            "rotation": 0,
             "zIndex": 3
           }
         }
@@ -418,16 +418,16 @@
         },
         "transforms": {
           "device": {
-            "x": 178.52782193958683,
-            "y": -45.793322734499085,
+            "x": 126.63593004769245,
+            "y": -125.15739268680436,
             "width": 704,
             "height": 1525,
-            "rotation": -4,
+            "rotation": -1,
             "zIndex": 3
           },
           "caption": {
-            "x": 76,
-            "y": 1380,
+            "x": 48.52782193958683,
+            "y": 1425.7869634340238,
             "width": 928,
             "height": 430,
             "rotation": 0,
@@ -502,10 +502,10 @@
         "transforms": {
           "device": {
             "x": 141.5770821042206,
-            "y": -41.42925990296218,
+            "y": -41.42925990296217,
             "width": 706,
             "height": 1529,
-            "rotation": 15,
+            "rotation": 1,
             "zIndex": 3
           },
           "caption": {
@@ -535,8 +535,8 @@
         "frame": {
           "style": "3d",
           "color": "hazel",
-          "rotateX": -1,
-          "rotateY": -6,
+          "rotateX": 0,
+          "rotateY": 0,
           "depth": 1040,
           "thickness": 18
         },
@@ -554,7 +554,7 @@
             "y": 405.51829112689194,
             "width": 803,
             "height": 1739,
-            "rotation": -11,
+            "rotation": 0,
             "zIndex": 3
           }
         }
@@ -586,8 +586,8 @@
         },
         "frame": {
           "style": "3d",
-          "rotateX": 8,
-          "rotateY": -18
+          "rotateX": -1,
+          "rotateY": -1
         }
       },
       {
@@ -688,11 +688,11 @@
         "color": "#131A17"
       },
       "headline": {
-        "family": "var(--font-inter), Inter, system-ui, sans-serif",
-        "weight": 500,
-        "scale": 1.03,
-        "lineHeight": 0.96,
-        "letterSpacing": -0.022
+        "family": "var(--font-newsreader), Newsreader, Georgia, serif",
+        "weight": 600,
+        "scale": 1.04,
+        "lineHeight": 0.92,
+        "letterSpacing": -0.026
       },
       "label": {
         "family": "var(--font-inter), Inter, system-ui, sans-serif",

@@ -1584,7 +1584,11 @@ function DreamyFront({ slideId, cW, cH }: { slideId: string; cW: number; cH: num
   );
 }
 
-/** AuraSage uses only a few marks, each tied to the feature being shown. */
+/**
+ * AuraSage borrows the quiet tactility of a small Sunday paper: hairline
+ * rules, issue furniture, soft ink blooms and one useful mark per feature.
+ * Everything stays behind editable content, adding charm without visual noise.
+ */
 function AuraSageDecorations({
   cW,
   cH,
@@ -1603,14 +1607,26 @@ function AuraSageDecorations({
   const ink = dark ? paper : forestInk;
   const readerScenes: Record<number, { edition: string; folio: string }> = {
     0: { edition: "THE DAILY EDITION", folio: "01" },
+    1: { edition: "SEVEN FOR TODAY", folio: "02" },
     2: { edition: "A WORD TO CARRY", folio: "03" },
+    3: { edition: "IN YOUR OWN VOICE", folio: "04" },
     4: { edition: "THE RESET PAGE", folio: "05" },
+    5: { edition: "A GENTLE REMINDER", folio: "06" },
     6: { edition: "PRIVATE BY DESIGN", folio: "07" },
+    7: { edition: "THE RETURN PRACTICE", folio: "08" },
   };
   const reader = readerScenes[scene];
-  if (![0, 1, 2, 4, 5, 6].includes(scene)) return null;
   return (
     <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: dark
+            ? "radial-gradient(circle at 82% 24%, rgba(185,214,154,.12), transparent 31%), radial-gradient(circle at 8% 78%, rgba(216,111,75,.1), transparent 27%)"
+            : "radial-gradient(circle at 83% 22%, rgba(255,255,255,.42), transparent 29%), radial-gradient(circle at 10% 78%, rgba(216,111,75,.09), transparent 25%)",
+        }}
+      />
       {reader ? (
         <>
           <div style={{ position: "absolute", left: cW * 0.038, top: cH * 0.022, width: cW * 0.924, height: cH * 0.956, border: `${Math.max(1, cW * 0.0014)}px solid ${ink}`, opacity: dark ? 0.17 : 0.2 }} />
@@ -1621,6 +1637,10 @@ function AuraSageDecorations({
           </div>
           <div style={{ position: "absolute", right: cW * 0.065, bottom: cH * 0.047, color: ink, opacity: dark ? 0.48 : 0.55, fontFamily: "var(--font-newsreader), Newsreader, Georgia, serif", fontSize: cW * 0.038, fontStyle: "italic" }}>
             {reader.folio}
+          </div>
+          <div style={{ position: "absolute", left: cW * 0.085, right: cW * 0.065, top: cH * 0.083, height: 1, background: ink, opacity: dark ? 0.1 : 0.13 }} />
+          <div style={{ position: "absolute", left: cW * 0.086, bottom: cH * 0.052, color: ink, opacity: dark ? 0.36 : 0.43, fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: cW * 0.013, fontWeight: 700, letterSpacing: ".18em" }}>
+            AURASAGE / DAILY
           </div>
         </>
       ) : null}
@@ -1673,8 +1693,88 @@ function AuraSageDecorations({
           </>
         ) : null}
       </svg>
+      <AuraSageSceneMotif scene={scene} cW={cW} cH={cH} ink={ink} dark={dark} />
     </div>
   );
+}
+
+function AuraSageSceneMotif({
+  scene,
+  cW,
+  cH,
+  ink,
+  dark,
+}: {
+  scene: number;
+  cW: number;
+  cH: number;
+  ink: string;
+  dark: boolean;
+}) {
+  const coral = "#D86F4B";
+  const paper = "#F2EEE4";
+  const sage = "#B9D69A";
+  const thin = Math.max(1, cW * 0.0014);
+  const mid = Math.max(2.2, cW * 0.0034);
+
+  if (scene === 1) {
+    return (
+      <>
+        <div style={{ position: "absolute", left: cW * 0.075, top: cH * 0.57, color: ink, opacity: 0.07, fontFamily: "var(--font-newsreader), Newsreader, Georgia, serif", fontSize: cW * 0.46, fontWeight: 600, lineHeight: 0.7 }}>7</div>
+        <div style={{ position: "absolute", right: cW * 0.052, top: cH * 0.58, width: cW * 0.19, height: cW * 0.15, transform: "rotate(5deg)" }}>
+          {[0, 1, 2].map((i) => (
+            <div key={i} style={{ position: "absolute", top: i * cW * 0.018, left: -i * cW * 0.012, width: cW * 0.18, height: cW * 0.112, border: `${thin}px solid ${ink}`, background: i === 2 ? coral : paper, opacity: i === 2 ? 0.66 : 0.34, boxShadow: `0 ${cW * 0.008}px ${cW * 0.02}px rgba(54,45,37,.08)` }} />
+          ))}
+        </div>
+      </>
+    );
+  }
+
+  if (scene === 3) {
+    const bars = [0.18, 0.3, 0.48, 0.72, 0.42, 0.62, 0.27];
+    return (
+      <>
+        <div style={{ position: "absolute", right: cW * 0.055, top: cH * 0.58, padding: `${cW * 0.012}px ${cW * 0.018}px`, color: "#171C17", background: "rgba(242,238,228,.78)", border: `${thin}px solid rgba(23,28,23,.25)`, transform: "rotate(5deg)", boxShadow: `0 ${cW * 0.012}px ${cW * 0.03}px rgba(54,45,37,.1)`, fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: cW * 0.014, fontWeight: 700, letterSpacing: ".16em" }}>READ IT ALOUD</div>
+        <svg width={cW} height={cH} viewBox={`0 0 ${cW} ${cH}`} style={{ position: "absolute", inset: 0 }}>
+          {bars.map((height, i) => (
+            <line key={i} x1={cW * (0.073 + i * 0.029)} y1={cH * 0.61 - cW * height * 0.5} x2={cW * (0.073 + i * 0.029)} y2={cH * 0.61 + cW * height * 0.5} stroke={i === 3 ? coral : ink} strokeWidth={cW * 0.008} strokeLinecap="round" opacity={i === 3 ? 0.68 : 0.25} />
+          ))}
+          <path d={`M${cW * 0.73} ${cH * 0.7} C${cW * 0.85} ${cH * 0.65}, ${cW * 0.92} ${cH * 0.73}, ${cW * 0.82} ${cH * 0.79}`} fill="none" stroke={coral} strokeWidth={mid} strokeLinecap="round" opacity=".48" />
+        </svg>
+      </>
+    );
+  }
+
+  if (scene === 5) {
+    return (
+      <svg width={cW} height={cH} viewBox={`0 0 ${cW} ${cH}`} style={{ position: "absolute", inset: 0 }}>
+        <path d={`M${cW * 0.91} ${cH * 0.22} C${cW * 0.73} ${cH * 0.34}, ${cW * 0.96} ${cH * 0.5}, ${cW * 0.77} ${cH * 0.61} S${cW * 0.88} ${cH * 0.81}, ${cW * 0.67} ${cH * 0.87}`} fill="none" stroke={ink} strokeWidth={mid} strokeLinecap="round" strokeDasharray={`${cW * 0.003} ${cW * 0.017}`} opacity=".24" />
+        {[{ x: .91, y: .22 }, { x: .77, y: .61 }, { x: .67, y: .87 }].map((p, i) => <circle key={i} cx={cW * p.x} cy={cH * p.y} r={cW * (i === 1 ? 0.018 : 0.011)} fill={i === 1 ? coral : sage} stroke={ink} strokeWidth={thin} opacity={i === 1 ? .8 : .68} />)}
+      </svg>
+    );
+  }
+
+  if (scene === 7) {
+    return (
+      <>
+        <div style={{ position: "absolute", right: cW * 0.06, top: cH * 0.69, color: "#171C17", opacity: 0.09, fontFamily: "var(--font-newsreader), Newsreader, Georgia, serif", fontSize: cW * 0.25, fontStyle: "italic", lineHeight: 0.8 }}>again</div>
+        <svg width={cW} height={cH} viewBox={`0 0 ${cW} ${cH}`} style={{ position: "absolute", inset: 0 }}>
+          <path d={`M${cW * 0.08} ${cH * 0.82} C${cW * 0.25} ${cH * 0.73}, ${cW * 0.38} ${cH * 0.9}, ${cW * 0.55} ${cH * 0.79} S${cW * 0.8} ${cH * 0.7}, ${cW * 0.92} ${cH * 0.79}`} fill="none" stroke="#171C17" strokeWidth={mid} strokeLinecap="round" strokeDasharray={`${cW * 0.004} ${cW * 0.018}`} opacity=".28" />
+          {[{ x: .08, y: .82 }, { x: .55, y: .79 }, { x: .92, y: .79 }].map((p, i) => <circle key={i} cx={cW * p.x} cy={cH * p.y} r={cW * (i === 1 ? 0.018 : 0.011)} fill={i === 1 ? coral : paper} stroke="#171C17" strokeWidth={thin} opacity=".82" />)}
+        </svg>
+      </>
+    );
+  }
+
+  if (scene === 6 && dark) {
+    return (
+      <div style={{ position: "absolute", right: cW * 0.065, top: cH * 0.69, width: cW * 0.22, height: cW * 0.22, borderRadius: "50%", border: `${thin}px solid rgba(242,238,228,.28)`, display: "grid", placeItems: "center", boxShadow: `inset 0 0 0 ${cW * 0.012}px rgba(242,238,228,.035)` }}>
+        <div style={{ width: cW * 0.125, height: cW * 0.125, borderRadius: "50%", border: `${thin}px dashed rgba(216,111,75,.65)`, display: "grid", placeItems: "center", color: paper, fontFamily: "var(--font-newsreader), Newsreader, Georgia, serif", fontSize: cW * 0.052, fontStyle: "italic", opacity: .74 }}>a</div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 // CalmPedal is a decision product, so its art direction uses the rider's real
@@ -3277,63 +3377,92 @@ function AuraSageFeatureGraphic({
   const screenshot = resolveScreenshot(slide.screenshot, locale);
   const style = resolveStyle(theme);
   const headline = pickText(slide.headline, locale);
+  const paper = "#F2EEE4";
+  const forest = "#131A17";
+  const coral = "#D86F4B";
+  const sage = "#B9D69A";
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#131A17", color: "#F2EEE4" }}>
-      <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: grainCss(0.07), mixBlendMode: "multiply", opacity: 0.88 }} />
-      <svg aria-hidden width={cW} height={cH} viewBox={`0 0 ${cW} ${cH}`} style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }}>
-        <circle cx={cW * 0.76} cy={cH * 0.445} r={cW * 0.2} fill="none" stroke="#D86F4B" strokeWidth="1.5" opacity=".2" />
-        <circle cx={cW * 0.76} cy={cH * 0.445} r={cW * 0.162} fill="none" stroke="#F2EEE4" strokeWidth="1.2" strokeDasharray="7 13" opacity=".16" />
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        overflow: "hidden",
+        background: `radial-gradient(circle at 78% 24%, rgba(185,214,154,.19), transparent 28%), radial-gradient(circle at 8% 82%, rgba(216,111,75,.12), transparent 27%), ${forest}`,
+        color: paper,
+      }}
+    >
+      <div aria-hidden style={{ position: "absolute", inset: cW * 0.018, border: `1px solid rgba(242,238,228,.16)`, zIndex: 1 }} />
+      <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: grainCss(0.075), backgroundRepeat: "repeat", mixBlendMode: "multiply", opacity: 0.92, zIndex: 8, pointerEvents: "none" }} />
+
+      <img
+        src={img("/screenshots/aurasage/logo-mark-transparent.png")}
+        alt=""
+        draggable={false}
+        style={{ position: "absolute", left: -cW * 0.105, bottom: -cW * 0.19, width: cW * 0.47, height: cW * 0.47, objectFit: "contain", opacity: 0.055, transform: "rotate(-9deg)", zIndex: 1 }}
+      />
+
+      <svg aria-hidden width={cW} height={cH} viewBox={`0 0 ${cW} ${cH}`} style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none" }}>
+        <ellipse cx={cW * 0.775} cy={cH * 0.5} rx={cW * 0.238} ry={cW * 0.238} fill="none" stroke={coral} strokeWidth="1.5" opacity=".27" />
+        <ellipse cx={cW * 0.775} cy={cH * 0.5} rx={cW * 0.205} ry={cW * 0.205} fill="none" stroke={paper} strokeWidth="1.2" strokeDasharray="5 12" opacity=".16" />
+        <path d={`M${cW * 0.515} ${cH * 0.165} C${cW * 0.59} ${cH * 0.12}, ${cW * 0.63} ${cH * 0.15}, ${cW * 0.665} ${cH * 0.23}`} fill="none" stroke={coral} strokeWidth={3.6} strokeLinecap="round" opacity=".72" />
+        <path d={`M${cW * 0.665} ${cH * 0.23} l${-cW * 0.032} ${-cW * 0.005} l${cW * 0.012} ${-cW * 0.029}`} fill="none" stroke={coral} strokeWidth={3.6} strokeLinecap="round" strokeLinejoin="round" opacity=".72" />
       </svg>
-      <img src={img("/screenshots/aurasage/logo-mark-transparent.png")} alt="" draggable={false} style={{ position: "absolute", left: cW * 0.654, top: cH * 0.25, width: cW * 0.322, height: cW * 0.322, objectFit: "contain", opacity: 0.2, zIndex: 1 }} />
-      <div style={{ position: "absolute", left: cW * 0.055, top: cH * 0.08, width: cW * 0.43, zIndex: 5 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: cW * 0.015 }}>
+
+      <div style={{ position: "absolute", left: cW * 0.057, top: cH * 0.075, width: cW * 0.485, zIndex: 5 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: cW * 0.013 }}>
           {appIcon && img(appIcon) ? (
-            <div style={{ width: cW * 0.09, height: cW * 0.09, padding: cW * 0.006, background: "#F2EEE4", borderRadius: cW * 0.014, boxShadow: `0 ${cW * 0.009}px ${cW * 0.018}px rgba(4,10,7,.38)`, transform: "rotate(-2deg)" }}>
-              <img src={img(appIcon)} alt="" draggable={false} style={{ width: "100%", height: "100%", display: "block" }} />
+            <div style={{ width: cW * 0.057, height: cW * 0.057, padding: cW * 0.004, background: paper, borderRadius: cW * 0.011, boxShadow: `0 ${cW * 0.009}px ${cW * 0.022}px rgba(4,10,7,.34), inset 0 1px 0 rgba(255,255,255,.6)`, transform: "rotate(-2deg)" }}>
+              <img src={img(appIcon)} alt="AuraSage app icon" draggable={false} style={{ width: "100%", height: "100%", display: "block", borderRadius: cW * 0.007 }} />
             </div>
           ) : null}
-          <div style={{ fontFamily: "var(--font-inter), Inter, sans-serif", fontSize: cW * 0.028, fontWeight: 600, letterSpacing: "-.02em" }}>
-            {(appName || "AuraSage").toLowerCase()}
+          <div>
+            <div style={{ fontFamily: "var(--font-newsreader), Newsreader, Georgia, serif", fontSize: cW * 0.026, fontWeight: 600, letterSpacing: "-.025em", lineHeight: 1 }}>{(appName || "AuraSage").toLowerCase()}</div>
+            <div style={{ marginTop: cH * 0.009, color: "rgba(242,238,228,.58)", fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: cW * 0.0085, fontWeight: 700, letterSpacing: ".18em" }}>DAILY EDITION / 01</div>
           </div>
         </div>
-        <div style={{ marginTop: cH * 0.055 }}>
+        <div style={{ marginTop: cH * 0.055, maxWidth: cW * 0.45 }}>
           <StyledHeadline
             value={headline}
-            size={cW * 0.058}
-            color="#F2EEE4"
-            font={style.headline}
+            size={cW * 0.064}
+            color={paper}
+            font={{ ...style.headline, lineHeight: 0.86, letterSpacing: -0.035 }}
             emphasis={style.emphasis!}
-            emphasisColor="#D86F4B"
+            emphasisColor={coral}
           />
         </div>
-        <EditableText
-          value={pickText(slide.label, locale)}
-          editable={editable}
-          onChange={edit?.onLabelChange}
-          style={{ marginTop: cH * 0.055, fontFamily: "var(--font-inter), Inter, sans-serif", fontSize: cW * 0.012, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", color: "#B7C6B2" }}
-        />
+        <div style={{ display: "flex", alignItems: "center", gap: cW * 0.014, marginTop: cH * 0.055 }}>
+          <div aria-hidden style={{ width: cW * 0.045, height: 2, background: coral, borderRadius: 999 }} />
+          <EditableText value={pickText(slide.label, locale)} editable={editable} onChange={edit?.onLabelChange} style={{ maxWidth: cW * 0.31, fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: cW * 0.0105, fontWeight: 650, letterSpacing: ".13em", textTransform: "uppercase", color: "rgba(242,238,228,.62)", lineHeight: 1.35 }} />
+        </div>
+        <div style={{ marginTop: cH * 0.05, color: sage, fontFamily: "var(--font-caveat), Caveat, cursive", fontSize: cW * 0.027, fontWeight: 700, transform: "rotate(-2deg)", transformOrigin: "left center" }}>
+          seven words. zero pressure.
+        </div>
       </div>
 
-      <div style={{ position: "absolute", right: cW * 0.045, top: cH * 0.095, width: cW * 0.43, height: cH * 0.75, transform: "rotate(3deg)", zIndex: 4 }}>
-        <div style={{ position: "absolute", inset: 0, padding: cW * 0.014, background: "#F2EEE4", borderRadius: cW * 0.025, boxShadow: `0 ${cW * 0.028}px ${cW * 0.055}px rgba(4,10,7,.5), 0 ${cW * 0.007}px ${cW * 0.014}px rgba(0,0,0,.28)` }}>
-          <div style={{ position: "absolute", left: cW * 0.03, top: -cH * 0.035, width: cW * 0.12, height: cH * 0.105, background: "rgba(226,184,143,.82)", transform: "rotate(-8deg)", boxShadow: "0 2px 2px rgba(33,28,22,.2)", zIndex: 3 }} />
-          <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", borderRadius: cW * 0.017, background: "#F8F0E2" }}>
+      <div aria-hidden style={{ position: "absolute", right: cW * 0.048, top: -cH * 0.035, width: cW * 0.345, height: cH * 1.07, zIndex: 3 }}>
+        <div style={{ position: "absolute", left: cW * 0.005, top: cH * 0.085, width: cW * 0.285, height: cH * 0.87, background: sage, borderRadius: `${cW * 0.036}px ${cW * 0.012}px ${cW * 0.04}px ${cW * 0.015}px`, transform: "rotate(-7deg)", boxShadow: `0 ${cW * 0.035}px ${cW * 0.075}px rgba(3,11,7,.32)`, opacity: .94 }} />
+        <div style={{ position: "absolute", right: -cW * 0.012, top: cH * 0.025, width: cW * 0.245, height: cH * 0.99, padding: cW * 0.009, background: "linear-gradient(145deg, #302D2A, #171A18 58%, #403C37)", border: `1px solid rgba(242,238,228,.22)`, borderRadius: cW * 0.037, transform: "rotate(4deg)", boxShadow: `0 ${cW * 0.036}px ${cW * 0.08}px rgba(3,9,6,.58), inset 0 1px 0 rgba(255,255,255,.16)` }}>
+          <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", borderRadius: cW * 0.029, background: "#F8F0E2" }}>
             {screenshot && img(screenshot) ? (
-              <img src={img(screenshot)} alt="" draggable={false} style={{ width: "100%", height: "100%", display: "block", objectFit: "cover", objectPosition: "50% 27%", transform: "scale(1.16)" }} />
+              <img src={img(screenshot)} alt="AuraSage daily affirmation screen" draggable={false} style={{ width: "100%", height: "100%", display: "block", objectFit: "cover", objectPosition: "50% 0%" }} />
             ) : null}
+            <div style={{ position: "absolute", left: "50%", top: cH * 0.012, width: cW * 0.056, height: cH * 0.012, borderRadius: 999, background: "rgba(19,26,23,.88)", transform: "translateX(-50%)" }} />
           </div>
         </div>
-        <div style={{ position: "absolute", right: -cW * 0.018, bottom: -cH * 0.03, padding: `${cH * 0.02}px ${cW * 0.018}px`, background: "#D86F4B", color: "#F2EEE4", fontFamily: "var(--font-inter), Inter, sans-serif", fontSize: cW * 0.012, fontWeight: 700, letterSpacing: ".13em", transform: "rotate(-4deg)", boxShadow: "0 3px 3px rgba(33,28,22,.24)" }}>
-          TODAY · 1 OF 7
+        <div style={{ position: "absolute", left: -cW * 0.018, top: cH * 0.69, width: cW * 0.19, padding: `${cH * 0.022}px ${cW * 0.017}px`, background: paper, color: forest, transform: "rotate(-5deg)", boxShadow: `0 ${cW * 0.015}px ${cW * 0.035}px rgba(4,10,7,.28)` }}>
+          <div style={{ fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: cW * 0.0085, fontWeight: 750, letterSpacing: ".16em", color: "#68705F" }}>TODAY / 1 OF 7</div>
+          <div style={{ marginTop: cH * 0.012, fontFamily: "var(--font-newsreader), Newsreader, Georgia, serif", fontSize: cW * 0.018, fontWeight: 600, letterSpacing: "-.02em", lineHeight: 1.08 }}>One thought,<br />chosen slowly.</div>
+          <div style={{ position: "absolute", right: cW * 0.013, bottom: cW * 0.012, width: cW * 0.012, height: cW * 0.012, borderRadius: "50%", background: coral }} />
         </div>
       </div>
 
-      <svg aria-hidden width={cW} height={cH} viewBox={`0 0 ${cW} ${cH}`} style={{ position: "absolute", inset: 0, zIndex: 6, pointerEvents: "none" }}>
-        <path d={`M${cW * 0.42} ${cH * 0.69} C${cW * 0.5} ${cH * 0.62}, ${cW * 0.52} ${cH * 0.49}, ${cW * 0.58} ${cH * 0.44}`} fill="none" stroke="#D86F4B" strokeWidth={4.2} strokeLinecap="round" />
-        <path d={`M${cW * 0.58} ${cH * 0.44} l${-cW * 0.012} ${cW * 0.036} l${cW * 0.038} ${-cW * 0.008}`} fill="none" stroke="#D86F4B" strokeWidth={4.2} strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <div style={{ position: "absolute", left: cW * 0.055, right: cW * 0.055, bottom: cH * 0.048, borderTop: "1px solid rgba(242,238,228,.3)", paddingTop: cH * 0.025, display: "flex", justifyContent: "space-between", color: "#B7C6B2", fontFamily: "var(--font-inter), Inter, sans-serif", fontSize: cW * 0.0095, fontWeight: 600, letterSpacing: ".16em" }}>
-        <span>SEVEN WORDS</span><span>NO STREAKS</span><span>PRIVATE BY DESIGN</span>
+      <div style={{ position: "absolute", left: cW * 0.057, right: cW * 0.048, bottom: cH * 0.044, paddingTop: cH * 0.022, borderTop: "1px solid rgba(242,238,228,.18)", display: "flex", alignItems: "center", gap: cW * 0.03, color: "rgba(242,238,228,.52)", fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: cW * 0.0085, fontWeight: 700, letterSpacing: ".16em", zIndex: 5 }}>
+        <span>SEVEN WORDS</span>
+        <span style={{ width: 3, height: 3, borderRadius: "50%", background: coral }} />
+        <span>NO STREAKS</span>
+        <span style={{ width: 3, height: 3, borderRadius: "50%", background: coral }} />
+        <span>PRIVATE BY DESIGN</span>
       </div>
     </div>
   );

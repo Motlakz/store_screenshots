@@ -34,15 +34,18 @@ const SCREEN_BOTTOM_CROP = 0.055;
 function modelMetrics(device: Device, orientation: Orientation): ModelMetrics {
   if (device === "android") {
     // 75.1 × 162.6 × 8.4 mm, softened into an equal-depth curved flagship body.
-    return { width: 7.51, height: 16.26, depth: 0.92, corner: 0.9, screenInset: 0.17 };
+    return { width: 7.51, height: 16.26, depth: 0.9, corner: 1.02, screenInset: 0.15 };
   }
   if (device === "iphone") {
-    return { width: 7.25, height: 14.76, depth: 0.82, corner: 0.82, screenInset: 0.2 };
+    return { width: 7.25, height: 14.76, depth: 0.82, corner: 0.74, screenInset: 0.2 };
+  }
+  if (device === "ipad") {
+    return { width: 10.6, height: 14, depth: 0.58, corner: 0.42, screenInset: 0.34 };
   }
   const landscape = orientation === "landscape";
   return landscape
-    ? { width: 16, height: 10, depth: 0.62, corner: 0.58, screenInset: 0.26 }
-    : { width: 10, height: 14, depth: 0.62, corner: 0.58, screenInset: 0.26 };
+    ? { width: 16, height: 10, depth: 0.66, corner: 0.68, screenInset: 0.27 }
+    : { width: 10, height: 16, depth: 0.66, corner: 0.68, screenInset: 0.27 };
 }
 
 function roundedRect(width: number, height: number, radius: number): THREE.Shape {
@@ -148,24 +151,33 @@ export function Device3D({
     scene.add(group);
 
     const metrics = modelMetrics(device, orientation);
+    const isIphone = device === "iphone";
+    const isAndroidPhone = device === "android";
+    const isIos = isIphone || device === "ipad";
 
     const shellShape = roundedRect(metrics.width, metrics.height, metrics.corner);
     const shellGeometry = new THREE.ExtrudeGeometry(shellShape, {
       depth: metrics.depth,
       bevelEnabled: true,
-      bevelSegments: 6,
+      // Apple hardware gets flatter machined rails; Android keeps a softer,
+      // glass-forward curve so their silhouettes remain distinct when tilted.
+      bevelSegments: isIos ? 3 : 8,
       steps: 1,
-      bevelSize: Math.min(0.14, metrics.corner * 0.22),
-      bevelThickness: Math.min(0.14, metrics.depth * 0.24),
+      bevelSize: isIos
+        ? Math.min(0.075, metrics.corner * 0.14)
+        : Math.min(0.18, metrics.corner * 0.24),
+      bevelThickness: isIos
+        ? Math.min(0.075, metrics.depth * 0.14)
+        : Math.min(0.16, metrics.depth * 0.26),
       curveSegments: 32,
     });
     shellGeometry.translate(-metrics.width / 2, -metrics.height / 2, -metrics.depth / 2);
     const shellMaterial = new THREE.MeshPhysicalMaterial({
       color: body,
-      metalness: 0.82,
-      roughness: 0.27,
-      clearcoat: 0.72,
-      clearcoatRoughness: 0.2,
+      metalness: isIos ? 0.94 : 0.62,
+      roughness: isIos ? 0.32 : 0.2,
+      clearcoat: isIos ? 0.38 : 0.95,
+      clearcoatRoughness: isIos ? 0.3 : 0.12,
     });
     const shell = new THREE.Mesh(shellGeometry, shellMaterial);
     group.add(shell);
@@ -214,25 +226,63 @@ export function Device3D({
     rim.renderOrder = 1;
     screen.renderOrder = 2;
 
-    if (device === "android") {
-      // Honor-style centered capsule cutout, kept brand-neutral.
-      const cutoutGeometry = normalizedShapeGeometry(1.28, 0.38, 0.19);
-      const cutout = new THREE.Mesh(cutoutGeometry, new THREE.MeshBasicMaterial({ color: 0x060608 }));
-      cutout.position.set(0, innerH / 2 - 0.43, metrics.depth / 2 + 0.19);
-      cutout.renderOrder = 3;
-      group.add(cutout);
+    const keyMaterial = new THREE.MeshPhysicalMaterial({
+      color: body,
+      metalness: isIos ? 0.96 : 0.78,
+      roughness: isIos ? 0.3 : 0.2,
+      clearcoat: isIos ? 0.28 : 0.78,
+    });
+    const addSideKey = (side: -1 | 1, y: number, height: number, keyDepth = 0.3) => {
+      const key = new THREE.Mesh(new THREE.BoxGeometry(0.15, height, keyDepth), keyMaterial);
+      key.position.set(side * (metrics.width / 2 + 0.105), y, 0);
+      group.add(key);
+    };
 
-      const keyMaterial = new THREE.MeshPhysicalMaterial({
-        color: body,
-        metalness: 0.9,
-        roughness: 0.22,
-      });
-      const power = new THREE.Mesh(new THREE.BoxGeometry(0.16, 1.45, 0.3), keyMaterial);
-      power.position.set(metrics.width / 2 + 0.14, 1.15, 0.03);
-      group.add(power);
-      const volume = new THREE.Mesh(new THREE.BoxGeometry(0.16, 1.95, 0.3), keyMaterial);
-      volume.position.set(metrics.width / 2 + 0.14, 3.12, 0.03);
-      group.add(volume);
+    if (isIphone) {
+      // Dynamic Island plus asymmetric controls make iOS recognizable even
+      // in a near-front store render.
+      const islandGeometry = normalizedShapeGeometry(1.62, 0.46, 0.23);
+      const island = new THREE.Mesh(islandGeometry, new THREE.MeshBasicMaterial({ color: 0x030304 }));
+      island.position.set(0, innerH / 2 - 0.48, metrics.depth / 2 + 0.195);
+      island.renderOrder = 3;
+      group.add(island);
+
+      addSideKey(1, 1.55, 1.75, 0.32);
+      addSideKey(-1, 3.78, 0.56);
+      addSideKey(-1, 2.72, 0.82);
+      addSideKey(-1, 1.62, 0.82);
+    } else if (isAndroidPhone) {
+      // Android uses a circular punch-hole and both controls on the right.
+      const lensRing = new THREE.Mesh(
+        new THREE.RingGeometry(0.115, 0.175, 32),
+        new THREE.MeshBasicMaterial({ color: 0x24242a, side: THREE.DoubleSide }),
+      );
+      lensRing.position.set(0, innerH / 2 - 0.37, metrics.depth / 2 + 0.198);
+      lensRing.renderOrder = 3;
+      group.add(lensRing);
+      const lens = new THREE.Mesh(
+        new THREE.CircleGeometry(0.112, 32),
+        new THREE.MeshBasicMaterial({ color: 0x030305 }),
+      );
+      lens.position.copy(lensRing.position);
+      lens.position.z += 0.002;
+      lens.renderOrder = 4;
+      group.add(lens);
+
+      addSideKey(1, 0.72, 1.34, 0.32);
+      addSideKey(1, 2.72, 1.92, 0.32);
+    } else {
+      // Tablet identity comes from the flatter iPad rails versus the taller,
+      // softer Android body; both retain a quiet front camera.
+      const cameraDot = new THREE.Mesh(
+        new THREE.CircleGeometry(isIos ? 0.07 : 0.105, 24),
+        new THREE.MeshBasicMaterial({ color: 0x050507 }),
+      );
+      cameraDot.position.set(0, innerH / 2 - 0.2, metrics.depth / 2 + 0.195);
+      cameraDot.renderOrder = 3;
+      group.add(cameraDot);
+
+      addSideKey(1, metrics.height * 0.2, isIos ? 1.15 : 1.5, 0.28);
     }
 
     group.rotation.order = "XYZ";

@@ -8,7 +8,7 @@
     "en"
   ],
   "locale": "en",
-  "device": "android",
+  "device": "iphone",
   "orientation": "portrait",
   "appIcon": "",
   "slidesByDevice": {
@@ -22,7 +22,17 @@
         "headline": {
           "en": "Wake up knowing\nyou're *covered*."
         },
-        "screenshot": "/screenshots/pillbird/Screenshot_20260624_075827_com_pillbird_MainActivity.jpg"
+        "screenshot": "/screenshots/pillbird/Screenshot_20260624_075827_com_pillbird_MainActivity.jpg",
+        "transforms": {
+          "device": {
+            "x": 54.501382578512825,
+            "y": 668.3371165741471,
+            "width": 1225,
+            "height": 2495,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
       },
       {
         "id": "i02-missed",
@@ -33,7 +43,22 @@
         "headline": {
           "en": "Missed one?\n*Breathe* — here's the fix."
         },
-        "screenshot": "/screenshots/pillbird/Screenshot_20260529_141536_com_pillbird_MainActivity.jpg"
+        "screenshot": "/screenshots/pillbird/Screenshot_20260529_141536_com_pillbird_MainActivity.jpg",
+        "transforms": {
+          "device": {
+            "x": 81.99070661249971,
+            "y": 728.7296392548885,
+            "width": 1143,
+            "height": 2328,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "frame": {
+          "style": "flat",
+          "rotateX": 8,
+          "rotateY": -18
+        }
       },
       {
         "id": "i03-method",
@@ -44,7 +69,17 @@
         "headline": {
           "en": "Whatever you're on,\none *calm* routine."
         },
-        "screenshot": "/screenshots/pillbird/Screenshot_20260624_074105_com_pillbird_MainActivity.jpg"
+        "screenshot": "/screenshots/pillbird/Screenshot_20260624_074105_com_pillbird_MainActivity.jpg",
+        "transforms": {
+          "device": {
+            "x": 41.692916248161964,
+            "y": -587.9702070225239,
+            "width": 1156,
+            "height": 2356,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
       },
       {
         "id": "i04-private",
@@ -56,7 +91,17 @@
           "en": "Locked, blurred\nand *quietly* yours."
         },
         "screenshot": "/screenshots/pillbird/Screenshot_20260624_074511_com_pillbird_MainActivity.jpg",
-        "inverted": true
+        "inverted": true,
+        "transforms": {
+          "device": {
+            "x": 51.47998838155672,
+            "y": 722.9257671410871,
+            "width": 1217,
+            "height": 2480,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
       },
       {
         "id": "i05-cycle",
@@ -67,7 +112,17 @@
         "headline": {
           "en": "See what's coming\nbefore it *arrives*."
         },
-        "screenshot": "/screenshots/pillbird/Screenshot_20260624_074253_com_pillbird_MainActivity.jpg"
+        "screenshot": "/screenshots/pillbird/Screenshot_20260624_074253_com_pillbird_MainActivity.jpg",
+        "transforms": {
+          "device": {
+            "x": 81.99076432775291,
+            "y": 603.2970151414131,
+            "width": 1146,
+            "height": 2335,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
       },
       {
         "id": "i06-insights",
@@ -78,7 +133,25 @@
         "headline": {
           "en": "Finally know why\nyou *feel* like this."
         },
-        "screenshot": "/screenshots/pillbird/Screenshot_20260624_074314_com_pillbird_MainActivity.jpg"
+        "screenshot": "/screenshots/pillbird/Screenshot_20260624_074314_com_pillbird_MainActivity.jpg",
+        "transforms": {
+          "device": {
+            "x": 112.50133214150901,
+            "y": -344.4312067297433,
+            "width": 1129,
+            "height": 2301,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 108.99007092198553,
+            "y": 2104.895035460992,
+            "width": 1108.8,
+            "height": 803.0400000000001,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
       },
       {
         "id": "i07-streak",
@@ -89,7 +162,17 @@
         "headline": {
           "en": "Every pack,\n*98%* on time."
         },
-        "screenshot": "/screenshots/pillbird/Screenshot_20260624_075457_com_pillbird_MainActivity.jpg"
+        "screenshot": "/screenshots/pillbird/Screenshot_20260624_075457_com_pillbird_MainActivity.jpg",
+        "transforms": {
+          "device": {
+            "x": 61.28113126924836,
+            "y": 750.6988225324641,
+            "width": 1180,
+            "height": 2405,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
       },
       {
         "id": "i08-care",
@@ -101,7 +184,29 @@
           "en": "Someone gentle,\nalways in your *corner*."
         },
         "screenshot": "/screenshots/pillbird/Screenshot_20260624_075116_com_pillbird_MainActivity.jpg",
-        "screenshotSecondary": "/screenshots/pillbird/Screenshot_20260624_074021_com_pillbird_MainActivity.jpg"
+        "screenshotSecondary": "/screenshots/pillbird/Screenshot_20260624_074021_com_pillbird_MainActivity.jpg",
+        "transforms": {
+          "deviceSecondary": {
+            "x": -62.2496453900676,
+            "y": 1014.2183925275156,
+            "width": 871.2,
+            "height": 1774.7929549902153,
+            "rotation": 0,
+            "zIndex": 2
+          },
+          "device": {
+            "x": 408.87812774136364,
+            "y": 742.2255733285434,
+            "width": 1007,
+            "height": 2051,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "background": {
+          "kind": "solid",
+          "color": "#2E1822"
+        }
       }
     ],
     "android": [

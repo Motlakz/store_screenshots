@@ -16,10 +16,11 @@ export type ExportSize = { label: string; w: number; h: number };
 
 export const EXPORT_SIZES: Record<Device, ExportSize[]> = {
   iphone: [
-    { label: '6.9"', w: 1320, h: 2868 },
-    { label: '6.5"', w: 1284, h: 2778 },
-    { label: '6.3"', w: 1206, h: 2622 },
-    { label: '6.1"', w: 1125, h: 2436 },
+    // App Store Connect accepts these portrait dimensions for the shared
+    // iPhone 6.1" / 6.3" screenshot slot. Their rotated counterparts are
+    // valid for landscape artwork, which this portrait deck does not produce.
+    { label: '6.3" Portrait', w: 1206, h: 2622 },
+    { label: '6.1" Portrait', w: 1179, h: 2556 },
   ],
   ipad: [
     { label: '13" iPad',       w: 2064, h: 2752 },

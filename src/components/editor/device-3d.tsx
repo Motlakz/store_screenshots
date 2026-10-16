@@ -156,6 +156,9 @@ export function Device3D({
     const isIos = isIphone || device === "ipad";
 
     const shellShape = roundedRect(metrics.width, metrics.height, metrics.corner);
+    const bevelThickness = isIos
+      ? Math.min(0.075, metrics.depth * 0.14)
+      : Math.min(0.16, metrics.depth * 0.26);
     const shellGeometry = new THREE.ExtrudeGeometry(shellShape, {
       depth: metrics.depth,
       bevelEnabled: true,
@@ -166,11 +169,15 @@ export function Device3D({
       bevelSize: isIos
         ? Math.min(0.075, metrics.corner * 0.14)
         : Math.min(0.18, metrics.corner * 0.24),
-      bevelThickness: isIos
-        ? Math.min(0.075, metrics.depth * 0.14)
-        : Math.min(0.16, metrics.depth * 0.26),
+      bevelThickness,
       curveSegments: 32,
     });
+    // The bevel pushes the shell's flat front out to depth/2 + bevelThickness.
+    // Android's thicker bevel put that face exactly on the screen plane, so the
+    // two z-fought and the dark body bled through as stripes and dim patches
+    // that changed with every tilt. Lift the screen stack clear of the face;
+    // iOS already sits above it, so its lift is zero.
+    const frontLift = Math.max(0, metrics.depth / 2 + bevelThickness + 0.04 - (metrics.depth / 2 + 0.16));
     shellGeometry.translate(-metrics.width / 2, -metrics.height / 2, -metrics.depth / 2);
     const shellMaterial = new THREE.MeshPhysicalMaterial({
       color: body,
@@ -206,7 +213,7 @@ export function Device3D({
       toneMapped: false,
     });
     const screen = new THREE.Mesh(screenGeometry, screenMaterial);
-    screen.position.z = metrics.depth / 2 + 0.16;
+    screen.position.z = metrics.depth / 2 + 0.16 + frontLift;
     group.add(screen);
 
     // A very slim glossy rim makes the curved glass legible without a chunky bezel.
@@ -220,7 +227,7 @@ export function Device3D({
       side: THREE.DoubleSide,
     });
     const rim = new THREE.Mesh(rimGeometry, rimMaterial);
-    rim.position.z = metrics.depth / 2 + 0.08;
+    rim.position.z = metrics.depth / 2 + 0.08 + frontLift;
     group.add(rim);
     // Draw order places the screen over the full rim plane, leaving only its narrow border visible.
     rim.renderOrder = 1;
@@ -243,7 +250,7 @@ export function Device3D({
       // in a near-front store render.
       const islandGeometry = normalizedShapeGeometry(1.62, 0.46, 0.23);
       const island = new THREE.Mesh(islandGeometry, new THREE.MeshBasicMaterial({ color: 0x030304 }));
-      island.position.set(0, innerH / 2 - 0.48, metrics.depth / 2 + 0.195);
+      island.position.set(0, innerH / 2 - 0.48, metrics.depth / 2 + 0.195 + frontLift);
       island.renderOrder = 3;
       group.add(island);
 
@@ -257,7 +264,7 @@ export function Device3D({
         new THREE.RingGeometry(0.115, 0.175, 32),
         new THREE.MeshBasicMaterial({ color: 0x24242a, side: THREE.DoubleSide }),
       );
-      lensRing.position.set(0, innerH / 2 - 0.37, metrics.depth / 2 + 0.198);
+      lensRing.position.set(0, innerH / 2 - 0.37, metrics.depth / 2 + 0.198 + frontLift);
       lensRing.renderOrder = 3;
       group.add(lensRing);
       const lens = new THREE.Mesh(
@@ -278,7 +285,7 @@ export function Device3D({
         new THREE.CircleGeometry(isIos ? 0.07 : 0.105, 24),
         new THREE.MeshBasicMaterial({ color: 0x050507 }),
       );
-      cameraDot.position.set(0, innerH / 2 - 0.2, metrics.depth / 2 + 0.195);
+      cameraDot.position.set(0, innerH / 2 - 0.2, metrics.depth / 2 + 0.195 + frontLift);
       cameraDot.renderOrder = 3;
       group.add(cameraDot);
 

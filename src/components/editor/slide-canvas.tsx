@@ -721,6 +721,11 @@ export function SlideCanvas({
       />
       {resolveStyle(theme).decor.dreamy && <DreamyFront slideId={slide.id} cW={cW} cH={cH} />}
       {resolveStyle(theme).decor.calmpedal && <CalmPedalFront slideId={slide.id} cW={cW} cH={cH} />}
+      {resolveStyle(theme).decor.untangled && (
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 50 }}>
+          <UntangledDecorations cW={cW} cH={cH} slideIndex={0} layer="front" />
+        </div>
+      )}
     </div>
   );
 }
@@ -926,6 +931,27 @@ export function DeckCanvas({
             </div>
           );
         })}
+      {resolveStyle(theme).decor.untangled &&
+        slides.map((slide, index) => {
+          if (slide.layout === "feature-graphic" || device === "feature-graphic") return null;
+          return (
+            <div
+              key={`${slide.id}-untangled-front`}
+              style={{
+                position: "absolute",
+                left: index * cW,
+                top: 0,
+                width: cW,
+                height: cH,
+                overflow: "hidden",
+                pointerEvents: "none",
+                zIndex: 50,
+              }}
+            >
+              <UntangledDecorations cW={cW} cH={cH} slideIndex={index} layer="front" />
+            </div>
+          );
+        })}
     </div>
   );
 }
@@ -960,6 +986,8 @@ function SlideBackground({
       {decor.dreamy && <DreamyDecorations slideId={slide.id} cW={cW} cH={cH} />}
 
       {decor.calmpedal && <CalmPedalDecorations slideId={slide.id} cW={cW} cH={cH} layer="back" />}
+
+      {decor.untangled && <UntangledDecorations cW={cW} cH={cH} slideIndex={slideIndex} layer="back" />}
 
       {decor.aurasage && (
         <AuraSageDecorations
@@ -1974,6 +2002,536 @@ function CalmPedalFront({ slideId, cW, cH }: { slideId: string; cW: number; cH: 
   );
 }
 
+// ---------- Addiction Untangled ----------
+// The app lives at night, so the deck does too: a dark plum room lit only by
+// its three accents. Nothing is a generic gradient orb. The only soft shapes
+// are lava-lamp wax — an urge that swells, rises and pinches off on its own —
+// and the one recurring line is a thread that knots up and then runs straight.
+// Front chips quote the app's own words so every float is a real feature.
+
+const UNTANGLED = {
+  violet: "#9B7BFF",
+  rose: "#F472B6",
+  cyan: "#5EDCEB",
+  plum: "#16111E",
+  ink: "#F5F1FA",
+  muted: "#A79DB8",
+};
+
+type UntangledHue = "violet" | "rose" | "cyan";
+
+const UNTANGLED_WAX: Record<UntangledHue, [string, string]> = {
+  violet: ["#B9A2FF", "#6D4FE0"],
+  rose: ["#F9A8D4", "#C2417F"],
+  cyan: ["#9BEFF7", "#2A9FB3"],
+};
+
+/** A table lamp, drawn in hairline glass, with wax mid-rise inside it. */
+function UntangledLavaLamp({
+  cW,
+  x,
+  y,
+  width,
+  hue = "violet",
+  opacity = 0.5,
+  rotate = 0,
+  phase = 0,
+}: {
+  cW: number;
+  x: number;
+  y: number;
+  width: number;
+  hue?: UntangledHue;
+  opacity?: number;
+  rotate?: number;
+  /** Which moment of the rise to freeze: 0 pooled, 1 lifting, 2 broken free. */
+  phase?: 0 | 1 | 2;
+}) {
+  const id = React.useId().replace(/:/g, "");
+  const [light, deep] = UNTANGLED_WAX[hue];
+  const glass = "M70 92 L130 92 L168 392 L32 392 Z";
+  const rising =
+    phase === 0
+      ? "M88 300 C70 262 84 226 104 228 C126 230 132 268 114 300 Z"
+      : phase === 1
+        ? "M86 252 C66 206 82 160 104 160 C128 160 136 206 116 252 C110 266 112 284 120 300 L84 300 C92 284 92 266 86 252 Z"
+        : "M84 196 C66 160 82 122 102 122 C124 122 134 160 116 196 C108 212 92 212 84 196 Z";
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 200 520"
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        width,
+        height: (width * 520) / 200,
+        opacity,
+        transform: rotate ? `rotate(${rotate}deg)` : undefined,
+        overflow: "visible",
+      }}
+    >
+      <defs>
+        <linearGradient id={`${id}-wax`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={light} />
+          <stop offset="100%" stopColor={deep} />
+        </linearGradient>
+        <linearGradient id={`${id}-glass`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity=".07" />
+          <stop offset="45%" stopColor="#ffffff" stopOpacity=".015" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity=".05" />
+        </linearGradient>
+        <clipPath id={`${id}-clip`}>
+          <path d={glass} />
+        </clipPath>
+      </defs>
+      {/* cap */}
+      <path d="M78 22 L122 22 L134 92 L66 92 Z" fill="#221A2E" stroke="rgba(255,255,255,.18)" strokeWidth="2" />
+      {/* glass + wax */}
+      <path d={glass} fill={`url(#${id}-glass)`} />
+      <g clipPath={`url(#${id}-clip)`}>
+        <path d="M20 392 L20 350 C52 322 82 346 104 330 C130 312 152 332 180 322 L180 392 Z" fill={`url(#${id}-wax)`} opacity=".95" />
+        <path d={rising} fill={`url(#${id}-wax)`} />
+        <ellipse cx="128" cy={phase === 2 ? 270 : 132} rx="11" ry="13" fill={`url(#${id}-wax)`} opacity=".85" />
+        <ellipse cx="76" cy="150" rx="6" ry="7" fill={light} opacity=".55" />
+        <path d="M58 120 L50 380" stroke="#ffffff" strokeOpacity=".16" strokeWidth="5" strokeLinecap="round" />
+      </g>
+      <path d={glass} fill="none" stroke="rgba(255,255,255,.2)" strokeWidth="2" />
+      {/* base */}
+      <path d="M32 392 L168 392 L148 470 L52 470 Z" fill="#1C1526" stroke="rgba(255,255,255,.16)" strokeWidth="2" />
+      <path d="M52 470 L148 470 L162 506 L38 506 Z" fill="#241B31" stroke="rgba(255,255,255,.14)" strokeWidth="2" />
+      {/* the lamp's own glow on the table, not a decorative orb */}
+      <ellipse cx="100" cy="512" rx="92" ry="9" fill={deep} opacity=".28" />
+    </svg>
+  );
+}
+
+/** A loose drop of wax mid-pinch: one lobe letting go of another. */
+function UntangledWaxDrop({
+  cW,
+  x,
+  y,
+  size,
+  hue = "rose",
+  opacity = 0.32,
+  rotate = 0,
+}: {
+  cW: number;
+  x: number;
+  y: number;
+  size: number;
+  hue?: UntangledHue;
+  opacity?: number;
+  rotate?: number;
+}) {
+  const id = React.useId().replace(/:/g, "");
+  const [light, deep] = UNTANGLED_WAX[hue];
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 120 200"
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        width: size,
+        height: (size * 200) / 120,
+        opacity,
+        transform: rotate ? `rotate(${rotate}deg)` : undefined,
+      }}
+    >
+      <defs>
+        <linearGradient id={`${id}-d`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={light} />
+          <stop offset="100%" stopColor={deep} />
+        </linearGradient>
+      </defs>
+      <path
+        d="M60 10 C88 10 102 38 92 62 C86 76 72 82 68 96 C66 104 70 112 80 122 C100 140 102 174 80 188 C64 198 40 196 28 180 C14 162 20 136 40 122 C50 114 54 104 52 96 C48 82 32 76 26 60 C18 36 34 10 60 10 Z"
+        fill={`url(#${id}-d)`}
+      />
+      <ellipse cx="46" cy="34" rx="9" ry="13" fill="#ffffff" opacity=".28" transform="rotate(-18 46 34)" />
+      <ellipse cx="44" cy="146" rx="7" ry="10" fill="#ffffff" opacity=".2" transform="rotate(-18 44 146)" />
+    </svg>
+  );
+}
+
+/** A knot that works itself loose into one straight, calm line. */
+function UntangledThread({
+  x,
+  y,
+  width,
+  opacity = 0.5,
+  rotate = 0,
+  flip = false,
+}: {
+  x: number;
+  y: number;
+  width: number;
+  opacity?: number;
+  rotate?: number;
+  flip?: boolean;
+}) {
+  const id = React.useId().replace(/:/g, "");
+  const d =
+    "M8 112 C30 40 98 30 104 86 C110 138 46 150 50 104 C54 58 128 48 150 92 C170 132 116 160 112 124 C108 84 186 70 214 98 C240 122 210 152 196 130 C182 106 240 92 300 100 C380 110 470 100 592 100";
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 600 180"
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        width,
+        height: (width * 180) / 600,
+        opacity,
+        transform: `${flip ? "scaleX(-1) " : ""}rotate(${rotate}deg)`,
+        overflow: "visible",
+      }}
+    >
+      <defs>
+        <linearGradient id={`${id}-t`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor={UNTANGLED.rose} />
+          <stop offset="42%" stopColor={UNTANGLED.violet} />
+          <stop offset="100%" stopColor={UNTANGLED.cyan} />
+        </linearGradient>
+      </defs>
+      <path d={d} fill="none" stroke={`url(#${id}-t)`} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="592" cy="100" r="7" fill={UNTANGLED.cyan} />
+      <circle cx="592" cy="100" r="15" fill="none" stroke={UNTANGLED.cyan} strokeOpacity=".35" strokeWidth="2" />
+    </svg>
+  );
+}
+
+function UntangledDecorations({
+  cW,
+  cH,
+  slideIndex,
+  layer,
+}: {
+  cW: number;
+  cH: number;
+  slideIndex: number;
+  layer: "back" | "front";
+}) {
+  type S = React.CSSProperties;
+  const scene = slideIndex % 8;
+  const { violet, rose, cyan, ink, muted } = UNTANGLED;
+  const hair = Math.max(1.5, cW * 0.0016);
+
+  // Glass card in the app's own surface colour. `serif` sets the value in the
+  // italic the app uses for the user's note, so quotes read as quotes.
+  const chip = (key: string, kicker: string, value: string, pos: S, accent: string, rotate = 0, serif = false) => (
+    <div
+      key={key}
+      style={{
+        position: "absolute",
+        ...pos,
+        padding: `${cW * 0.019}px ${cW * 0.026}px ${cW * 0.021}px`,
+        borderRadius: cW * 0.032,
+        transform: `rotate(${rotate}deg)`,
+        background: "linear-gradient(160deg, rgba(40,31,54,.94), rgba(22,17,30,.94))",
+        border: `${hair}px solid ${accent}66`,
+        boxShadow: `0 ${cW * 0.022}px ${cW * 0.06}px rgba(6,3,12,.55), 0 0 ${cW * 0.04}px ${accent}1f, inset 0 1px 0 rgba(255,255,255,.08)`,
+        color: ink,
+        whiteSpace: "nowrap",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: cW * 0.01 }}>
+        <span style={{ width: cW * 0.011, height: cW * 0.011, borderRadius: "50%", background: accent, boxShadow: `0 0 ${cW * 0.014}px ${accent}` }} />
+        <span style={{ color: accent, fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: cW * 0.0175, fontWeight: 700, letterSpacing: ".16em", textTransform: "uppercase" }}>
+          {kicker}
+        </span>
+      </div>
+      <div
+        style={{
+          marginTop: cW * 0.008,
+          fontFamily: serif
+            ? "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif"
+            : "var(--font-inter), Inter, system-ui, sans-serif",
+          fontStyle: serif ? "italic" : "normal",
+          fontSize: serif ? cW * 0.042 : cW * 0.036,
+          fontWeight: serif ? 400 : 700,
+          letterSpacing: serif ? "-0.01em" : "-0.03em",
+          lineHeight: 1,
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+
+  // The app's risk-window strip: 24 hours, guarded hours lit rose.
+  const hourStrip = (key: string, pos: S, guarded: (h: number) => boolean, now: number, width = 0.5, rotate = 0) => (
+    <div key={key} style={{ position: "absolute", ...pos, width: cW * width, transform: `rotate(${rotate}deg)` }}>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: cW * width * 0.012, height: cW * width * 0.13 }}>
+        {Array.from({ length: 24 }).map((_, h) => (
+          <span
+            key={h}
+            style={{
+              flex: 1,
+              height: h === now ? "78%" : "100%",
+              borderRadius: cW * 0.004,
+              background: h === now ? cyan : guarded(h) ? rose : "rgba(255,255,255,.07)",
+              opacity: h === now ? 1 : guarded(h) ? 0.8 : 1,
+            }}
+          />
+        ))}
+      </div>
+      <div style={{ marginTop: cW * 0.01, display: "flex", justifyContent: "space-between", color: muted, opacity: 0.7, fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: cW * 0.016, fontWeight: 600 }}>
+        {["00", "06", "12", "18", "24"].map((t) => <span key={t}>{t}</span>)}
+      </div>
+    </div>
+  );
+
+  // A night sky as quiet as the app's home header: a few pinpricks, no glow.
+  const stars = (key: string, seed: number) => (
+    <svg key={key} aria-hidden width={cW} height={cH} viewBox={`0 0 ${cW} ${cH}`} style={{ position: "absolute", inset: 0 }}>
+      {Array.from({ length: 22 }).map((_, i) => {
+        const r = ((i * 9301 + seed * 49297) % 233280) / 233280;
+        const s = ((i * 4253 + seed * 7919 + 17) % 9973) / 9973;
+        return (
+          <circle
+            key={i}
+            cx={cW * (0.04 + r * 0.92)}
+            cy={cH * (0.02 + s * 0.96)}
+            r={Math.max(1.4, cW * (i % 5 === 0 ? 0.0028 : 0.0016))}
+            fill={i % 7 === 0 ? cyan : i % 6 === 0 ? rose : "#ffffff"}
+            opacity={i % 5 === 0 ? 0.55 : 0.28}
+          />
+        );
+      })}
+    </svg>
+  );
+
+  // Circle: the people in your corner, one of them yours.
+  const orbit = (key: string, pos: S, size: number) => (
+    <svg key={key} aria-hidden viewBox="0 0 200 200" style={{ position: "absolute", ...pos, width: cW * size, height: cW * size }}>
+      <circle cx="100" cy="100" r="78" fill="none" stroke="rgba(255,255,255,.12)" strokeWidth="1.6" strokeDasharray="2 9" strokeLinecap="round" />
+      <circle cx="100" cy="100" r="46" fill="none" stroke={violet} strokeOpacity=".28" strokeWidth="1.6" />
+      {[0, 60, 120, 180, 240, 300].map((deg, i) => {
+        const a = (deg * Math.PI) / 180;
+        return <circle key={deg} cx={100 + Math.cos(a) * 78} cy={100 + Math.sin(a) * 78} r={i === 1 ? 9 : 5} fill={i === 1 ? rose : "rgba(255,255,255,.3)"} />;
+      })}
+      <circle cx="100" cy="100" r="12" fill={cyan} opacity=".85" />
+      <path d={`M100 100 L${100 + Math.cos(Math.PI / 3) * 78} ${100 + Math.sin(Math.PI / 3) * 78}`} stroke={rose} strokeOpacity=".55" strokeWidth="1.6" strokeDasharray="3 6" />
+    </svg>
+  );
+
+  // The pact tree's legend made physical: leaves for check-ins, flowers for comebacks.
+  const petals = (key: string, seed: number) => (
+    <svg key={key} aria-hidden width={cW} height={cH} viewBox={`0 0 ${cW} ${cH}`} style={{ position: "absolute", inset: 0 }}>
+      {Array.from({ length: 9 }).map((_, i) => {
+        const r = ((i * 7919 + seed * 104729) % 1000) / 1000;
+        const s = ((i * 3571 + seed * 271) % 997) / 997;
+        const leaf = i % 3 !== 0;
+        const x = cW * (r < 0.5 ? 0.03 + r * 0.16 : 0.81 + (r - 0.5) * 0.3);
+        const y = cH * (0.34 + s * 0.6);
+        return leaf ? (
+          <ellipse key={i} cx={x} cy={y} rx={cW * 0.013} ry={cW * 0.007} fill={cyan} opacity=".42" transform={`rotate(${(i * 47) % 180} ${x} ${y})`} />
+        ) : (
+          <circle key={i} cx={x} cy={y} r={cW * 0.009} fill={rose} opacity=".5" />
+        );
+      })}
+    </svg>
+  );
+
+  const back: React.ReactNode[] = (() => {
+    switch (scene) {
+      case 0: // Home: clear-minded self on watch
+        return [
+          stars("stars", 1),
+          <UntangledLavaLamp key="lamp" cW={cW} x={-cW * 0.07} y={cH * 0.6} width={cW * 0.24} hue="violet" phase={1} opacity={0.55} rotate={-4} />,
+          <UntangledWaxDrop key="drop" cW={cW} x={cW * 0.86} y={cH * 0.3} size={cW * 0.09} hue="rose" opacity={0.3} rotate={14} />,
+        ];
+      case 1: // Ground yourself: the urge rises, peaks, passes
+        return [
+          stars("stars", 2),
+          <UntangledLavaLamp key="lamp" cW={cW} x={cW * 0.84} y={cH * 0.46} width={cW * 0.22} hue="cyan" phase={2} opacity={0.5} rotate={5} />,
+          <UntangledWaxDrop key="drop-a" cW={cW} x={cW * 0.02} y={cH * 0.42} size={cW * 0.075} hue="cyan" opacity={0.3} rotate={-10} />,
+          <UntangledWaxDrop key="drop-b" cW={cW} x={cW * 0.075} y={cH * 0.33} size={cW * 0.042} hue="violet" opacity={0.26} rotate={8} />,
+        ];
+      case 2: // Protection: guarded hours
+        return [
+          stars("stars", 3),
+          hourStrip("hours", { left: cW * 0.08, top: cH * 0.885 }, (h) => h < 2 || h > 19, 19, 0.5, 0),
+          <UntangledThread key="thread" x={cW * 0.52} y={cH * 0.86} width={cW * 0.56} opacity={0.4} rotate={-4} />,
+        ];
+      case 3: // Circuit breaker: the pact holds
+        return [
+          stars("stars", 4),
+          <UntangledLavaLamp key="lamp" cW={cW} x={-cW * 0.06} y={cH * 0.66} width={cW * 0.2} hue="rose" phase={0} opacity={0.5} rotate={-3} />,
+          <UntangledThread key="thread" x={-cW * 0.08} y={cH * 0.3} width={cW * 0.5} opacity={0.32} rotate={6} />,
+        ];
+      case 4: // My pact: every leaf is something you did
+        return [
+          stars("stars", 5),
+          petals("petals", 5),
+          <UntangledWaxDrop key="drop" cW={cW} x={cW * 0.88} y={cH * 0.72} size={cW * 0.08} hue="violet" opacity={0.28} rotate={-12} />,
+        ];
+      case 5: // Circle
+        return [
+          stars("stars", 6),
+          orbit("orbit", { right: -cW * 0.09, top: cH * 0.33 }, 0.34),
+          <UntangledWaxDrop key="drop" cW={cW} x={cW * 0.03} y={cH * 0.7} size={cW * 0.07} hue="rose" opacity={0.28} rotate={10} />,
+        ];
+      case 6: // Why it works: no zero, just coming back
+        return [
+          stars("stars", 7),
+          <UntangledThread key="thread" x={cW * 0.07} y={cH * 0.875} width={cW * 0.86} opacity={0.55} />,
+          <UntangledWaxDrop key="drop" cW={cW} x={cW * 0.87} y={cH * 0.035} size={cW * 0.05} hue="violet" opacity={0.3} rotate={10} />,
+        ];
+      case 7: // Play: a game with a clear ending
+        return [
+          stars("stars", 8),
+          <UntangledLavaLamp key="lamp" cW={cW} x={cW * 0.04} y={cH * 0.75} width={cW * 0.15} hue="rose" phase={1} opacity={0.42} rotate={-5} />,
+          <UntangledWaxDrop key="drop" cW={cW} x={cW * 0.86} y={cH * 0.8} size={cW * 0.06} hue="cyan" opacity={0.3} rotate={12} />,
+        ];
+      default:
+        return [];
+    }
+  })();
+
+  const front: React.ReactNode[] = (() => {
+    switch (scene) {
+      case 0:
+        return [
+          chip("note", "Your note", "“Keep calm and breathe”", { left: "4%", top: "29.5%" }, rose, -4, true),
+          chip("watch", "On watch", "Starts in 17m", { right: "3.5%", top: "41%" }, cyan, 4),
+        ];
+      case 1:
+        return [chip("urge", "An urge", "peaks, then passes", { right: "4%", top: "30.5%" }, cyan, 4, true)];
+      case 2:
+        return [
+          chip("window", "Risk window", "20:00 – 02:00", { left: "4%", top: "7%" }, rose, -4),
+          chip("allowance", "Daily allowance", "30m", { right: "4%", top: "52%" }, cyan, 4),
+        ];
+      case 3:
+        return [chip("lock", "Pact Lock", "72 hours", { right: "4%", top: "31%" }, rose, 4)];
+      case 4:
+        return [
+          chip("leaves", "Leaves", "Check-ins", { left: "5%", top: "29%" }, cyan, -4),
+          chip("flowers", "Flowers", "Times you came back", { right: "3%", top: "75%" }, rose, 4),
+        ];
+      case 5:
+        return [chip("told", "They see the change", "never the reason", { right: "4%", top: "68%" }, rose, 4, true)];
+      case 7:
+        return [chip("pairs", "Memory pairs", "Ends in 90 sec", { right: "4%", top: "44%" }, violet, 4)];
+      default:
+        return [];
+    }
+  })();
+
+  return (
+    <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+      {layer === "front" ? front : back}
+    </div>
+  );
+}
+
+function UntangledFeatureGraphic({
+  slide,
+  cW,
+  locale,
+  appName,
+  appIcon,
+  editable,
+  edit,
+}: {
+  slide: Slide;
+  cW: number;
+  locale: string;
+  appName?: string;
+  appIcon?: string;
+  editable?: boolean;
+  edit?: EditHandlers;
+}) {
+  const { violet, rose, cyan, ink, muted } = UNTANGLED;
+  const cH = cW * (500 / 1024);
+  const shots = [slide.screenshot, slide.screenshotSecondary, slide.screenshotTertiary]
+    .map((src) => resolveScreenshot(src, locale))
+    .filter((src): src is string => !!src && !!img(src));
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#120E18", color: ink }}>
+      <UntangledThread x={-cW * 0.02} y={cH * 0.7} width={cW * 0.62} opacity={0.5} />
+      <UntangledLavaLamp cW={cW} x={cW * 0.5} y={cH * 0.14} width={cW * 0.1} hue="violet" phase={1} opacity={0.5} rotate={-4} />
+      <UntangledWaxDrop cW={cW} x={cW * 0.04} y={cH * 0.08} size={cW * 0.03} hue="rose" opacity={0.3} rotate={10} />
+
+      <div style={{ position: "absolute", left: cW * 0.055, top: cH * 0.13, zIndex: 3, width: cW * 0.46 }}>
+        {pickText(slide.label, locale) ? (
+          <div style={{ marginBottom: cW * 0.012, color: violet, fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: cW * 0.0135, fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase" }}>
+            {pickText(slide.label, locale)}
+          </div>
+        ) : null}
+        <div style={{ display: "flex", alignItems: "center", gap: cW * 0.014 }}>
+          {appIcon && img(appIcon) ? (
+            <img src={img(appIcon)} alt="" draggable={false} style={{ width: cW * 0.058, height: cW * 0.058, borderRadius: cW * 0.014 }} />
+          ) : null}
+          <div style={{ fontFamily: "var(--font-inter), Inter, sans-serif", fontSize: cW * 0.032, fontWeight: 700, letterSpacing: "-0.03em" }}>
+            {appName || "Addiction Untangled"}
+          </div>
+        </div>
+        <EditableText
+          value={pickText(slide.headline, locale)}
+          editable={editable}
+          multiline
+          onChange={edit?.onHeadlineChange}
+          style={{
+            marginTop: cW * 0.022,
+            fontFamily: "var(--font-inter), Inter, sans-serif",
+            fontSize: cW * 0.05,
+            fontWeight: 700,
+            lineHeight: 1,
+            letterSpacing: "-0.04em",
+            color: ink,
+          }}
+        />
+        <div style={{ marginTop: cW * 0.02, display: "flex", gap: cW * 0.008 }}>
+          {[
+            ["Protection", violet],
+            ["Pact", rose],
+            ["Circle", cyan],
+          ].map(([t, c]) => (
+            <span key={t} style={{ padding: `${cW * 0.006}px ${cW * 0.013}px`, borderRadius: 999, border: `1px solid ${c}66`, color: muted, fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: cW * 0.012, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase" }}>
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {shots.slice(0, 3).map((src, i) => {
+        const pos = [
+          { left: 0.64, top: 0.17, r: -5, z: 1 },
+          { left: 0.765, top: 0.08, r: 0, z: 3 },
+          { left: 0.885, top: 0.2, r: 5, z: 2 },
+        ][i];
+        return (
+          <div
+            key={`${src}-${i}`}
+            style={{
+              position: "absolute",
+              left: cW * pos.left,
+              top: cH * pos.top,
+              width: cW * 0.165,
+              height: cW * 0.35,
+              borderRadius: cW * 0.022,
+              overflow: "hidden",
+              border: `${Math.max(2, cW * 0.004)}px solid #2A2236`,
+              boxShadow: `0 ${cW * 0.02}px ${cW * 0.05}px rgba(0,0,0,.55)`,
+              transform: `rotate(${pos.r}deg)`,
+              zIndex: pos.z,
+              background: "#16111E",
+            }}
+          >
+            <img src={img(src)} alt="" draggable={false} style={{ width: "100%", height: "auto", marginTop: -cW * 0.165 * (2340 / 1080) * 0.037, display: "block" }} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ScreenGuide({
   cW,
   cH,
@@ -2081,6 +2639,20 @@ function FeatureGraphicCanvas({
         slide={slide}
         cW={cW}
         theme={theme}
+        locale={locale}
+        appName={appName}
+        appIcon={appIcon}
+        editable={editable}
+        edit={edit}
+      />
+    );
+  }
+
+  if (theme.id === "untangled-night") {
+    return (
+      <UntangledFeatureGraphic
+        slide={slide}
+        cW={cW}
         locale={locale}
         appName={appName}
         appIcon={appIcon}

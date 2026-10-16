@@ -1,0 +1,904 @@
+{
+  "schemaVersion": 2,
+  "appId": "addiction-untangled",
+  "appName": "Addiction Untangled",
+  "themeId": "untangled-night",
+  "connectedCanvas": true,
+  "locales": [
+    "en"
+  ],
+  "locale": "en",
+  "device": "android",
+  "orientation": "portrait",
+  "appIcon": "",
+  "slidesByDevice": {
+    "iphone": [
+      {
+        "id": "au-i01",
+        "layout": "hero",
+        "label": {
+          "en": "YOUR CLEAR-MINDED SELF"
+        },
+        "headline": {
+          "en": "Decide while\nyour head is *clear*."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/d3636a0138b5f13c.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 2,
+          "rotateY": -8,
+          "depth": 1000,
+          "thickness": 18
+        }
+      },
+      {
+        "id": "au-i02",
+        "layout": "device-bottom",
+        "label": {
+          "en": "GROUND YOURSELF"
+        },
+        "headline": {
+          "en": "Ride out the urge.\nIt *passes*."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/647d302094a98498.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": -1,
+          "rotateY": 7,
+          "depth": 1050,
+          "thickness": 16
+        },
+        "focusElements": [
+          {
+            "id": "ground-cards",
+            "source": "/screenshots/addiction-untangled/uploaded/647d302094a98498.jpg",
+            "crop": {
+              "x": 3.5,
+              "y": 36.6,
+              "width": 93,
+              "height": 17.8
+            },
+            "transform": {
+              "x": 58.6422893481722,
+              "y": 1482.6709062003167,
+              "width": 1149,
+              "height": 476.4849462365591,
+              "rotation": -2,
+              "zIndex": 8
+            },
+            "borderRadius": 34,
+            "borderWidth": 3,
+            "accentColor": "#5EDCEB"
+          }
+        ]
+      },
+      {
+        "id": "au-i03",
+        "layout": "device-top",
+        "label": {
+          "en": "PROTECTION"
+        },
+        "headline": {
+          "en": "Guard the hours\nthat *pull* hardest."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/f7aa94a8b7205f15.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "inverted": true,
+        "frame": {
+          "style": "3d",
+          "rotateX": 1,
+          "rotateY": -7,
+          "depth": 980,
+          "thickness": 18
+        }
+      },
+      {
+        "id": "au-i04",
+        "layout": "two-devices",
+        "label": {
+          "en": "CIRCUIT BREAKER"
+        },
+        "headline": {
+          "en": "Your urge-state self\ngets *less* say."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/972c57ff94b882bc.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "screenshotSecondary": "/screenshots/addiction-untangled/uploaded/e4529590d0c9ee13.jpg",
+        "screenshotSecondaryCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateY": 8,
+          "depth": 1000,
+          "thickness": 16
+        },
+        "focusElements": [
+          {
+            "id": "hold-firmly",
+            "source": "/screenshots/addiction-untangled/uploaded/972c57ff94b882bc.jpg",
+            "crop": {
+              "x": 4.5,
+              "y": 55.8,
+              "width": 91,
+              "height": 29.6
+            },
+            "transform": {
+              "x": 490.1096979332224,
+              "y": 1825.817170111287,
+              "width": 880,
+              "height": 620.1904761904763,
+              "rotation": 2.5,
+              "zIndex": 8
+            },
+            "borderRadius": 34,
+            "borderWidth": 3,
+            "accentColor": "#9B7BFF"
+          }
+        ]
+      },
+      {
+        "id": "au-i05",
+        "layout": "hero",
+        "label": {
+          "en": "MY PACT"
+        },
+        "headline": {
+          "en": "Every leaf is\nsomething you *did*."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/8fe74cdecac99fda.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 2,
+          "rotateY": 8,
+          "depth": 1000,
+          "thickness": 18
+        }
+      },
+      {
+        "id": "au-i06",
+        "layout": "device-bottom",
+        "label": {
+          "en": "CIRCLE"
+        },
+        "headline": {
+          "en": "One trusted person\nin your *corner*."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/d5ad48ba0a96e6c3.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": -1,
+          "rotateY": -7,
+          "depth": 1050,
+          "thickness": 16
+        }
+      },
+      {
+        "id": "au-i07",
+        "layout": "no-device",
+        "label": {
+          "en": "WHY IT WORKS"
+        },
+        "headline": {
+          "en": "No streak to break.\nJust *coming back*."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/647d302094a98498.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "inverted": true,
+        "focusElements": [
+          {
+            "id": "showed-up",
+            "source": "/screenshots/addiction-untangled/uploaded/647d302094a98498.jpg",
+            "crop": {
+              "x": 4,
+              "y": 61,
+              "width": 92,
+              "height": 24.2
+            },
+            "transform": {
+              "x": 111.67885532591208,
+              "y": 948.0556438791738,
+              "width": 1124,
+              "height": 640.5985507246377,
+              "rotation": -2,
+              "zIndex": 8
+            },
+            "borderRadius": 34,
+            "borderWidth": 3,
+            "accentColor": "#5EDCEB"
+          },
+          {
+            "id": "tonight-check",
+            "source": "/screenshots/addiction-untangled/uploaded/647d302094a98498.jpg",
+            "crop": {
+              "x": 4,
+              "y": 5.4,
+              "width": 92,
+              "height": 24.8
+            },
+            "transform": {
+              "x": 183,
+              "y": 1927,
+              "width": 1014,
+              "height": 592.5,
+              "rotation": 2.5,
+              "zIndex": 9
+            },
+            "borderRadius": 34,
+            "borderWidth": 3,
+            "accentColor": "#9B7BFF"
+          }
+        ],
+        "transforms": {
+          "caption": {
+            "x": 93,
+            "y": 373,
+            "width": 1134,
+            "height": 627,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      },
+      {
+        "id": "au-i08",
+        "layout": "device-top",
+        "label": {
+          "en": "90-SECOND RESET"
+        },
+        "headline": {
+          "en": "Play it out.\nEvery game *ends*."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/bb6f83d4ff3903d8.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 1,
+          "rotateY": 7,
+          "depth": 980,
+          "thickness": 18
+        }
+      }
+    ],
+    "android": [
+      {
+        "id": "au-a01",
+        "layout": "hero",
+        "label": {
+          "en": "YOUR CLEAR-MINDED SELF"
+        },
+        "headline": {
+          "en": "Decide while\nyour head is *clear*."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/d3636a0138b5f13c.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 2,
+          "rotateY": -8,
+          "depth": 1000,
+          "thickness": 18
+        }
+      },
+      {
+        "id": "au-a02",
+        "layout": "device-bottom",
+        "label": {
+          "en": "GROUND YOURSELF"
+        },
+        "headline": {
+          "en": "Ride out the urge.\nIt *passes*."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/647d302094a98498.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": -1,
+          "rotateY": 7,
+          "depth": 1050,
+          "thickness": 16
+        },
+        "focusElements": [
+          {
+            "id": "ground-cards",
+            "source": "/screenshots/addiction-untangled/uploaded/647d302094a98498.jpg",
+            "crop": {
+              "x": 3.5,
+              "y": 36.6,
+              "width": 93,
+              "height": 17.8
+            },
+            "transform": {
+              "x": 85.26232114467257,
+              "y": 898.1240063592986,
+              "width": 940,
+              "height": 389.81362007168457,
+              "rotation": -2,
+              "zIndex": 8
+            },
+            "borderRadius": 34,
+            "borderWidth": 3,
+            "accentColor": "#5EDCEB"
+          }
+        ]
+      },
+      {
+        "id": "au-a03",
+        "layout": "device-top",
+        "label": {
+          "en": "PROTECTION"
+        },
+        "headline": {
+          "en": "Guard the hours\nthat *pull* hardest."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/f7aa94a8b7205f15.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "inverted": true,
+        "frame": {
+          "style": "3d",
+          "rotateX": 1,
+          "rotateY": -7,
+          "depth": 980,
+          "thickness": 18
+        }
+      },
+      {
+        "id": "au-a04",
+        "layout": "two-devices",
+        "label": {
+          "en": "CIRCUIT BREAKER"
+        },
+        "headline": {
+          "en": "Your urge-state self\ngets *less* say."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/972c57ff94b882bc.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "screenshotSecondary": "/screenshots/addiction-untangled/uploaded/e4529590d0c9ee13.jpg",
+        "screenshotSecondaryCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateY": 8,
+          "depth": 1000,
+          "thickness": 16
+        },
+        "focusElements": [
+          {
+            "id": "hold-firmly",
+            "source": "/screenshots/addiction-untangled/uploaded/972c57ff94b882bc.jpg",
+            "crop": {
+              "x": 4.5,
+              "y": 55.8,
+              "width": 91,
+              "height": 29.6
+            },
+            "transform": {
+              "x": 397.17277486911325,
+              "y": 1232.670157068063,
+              "width": 720,
+              "height": 507.42857142857144,
+              "rotation": 2.5,
+              "zIndex": 8
+            },
+            "borderRadius": 34,
+            "borderWidth": 3,
+            "accentColor": "#9B7BFF"
+          }
+        ]
+      },
+      {
+        "id": "au-a05",
+        "layout": "hero",
+        "label": {
+          "en": "MY PACT"
+        },
+        "headline": {
+          "en": "Every leaf is\nsomething you *achieved*."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/8fe74cdecac99fda.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 2,
+          "rotateY": 8,
+          "depth": 1000,
+          "thickness": 18
+        },
+        "transforms": {
+          "caption": {
+            "x": 86.39999999999964,
+            "y": 172.79999999999998,
+            "width": 907.1999999999999,
+            "height": 537.6,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      },
+      {
+        "id": "au-a06",
+        "layout": "device-bottom",
+        "label": {
+          "en": "CIRCLE"
+        },
+        "headline": {
+          "en": "One *trusted* person\nin your *circle*."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/d5ad48ba0a96e6c3.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": -1,
+          "rotateY": -7,
+          "depth": 1050,
+          "thickness": 16
+        },
+        "transforms": {
+          "caption": {
+            "x": 86.39999999999964,
+            "y": 153.6,
+            "width": 907.1999999999999,
+            "height": 537.6,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      },
+      {
+        "id": "au-a07",
+        "layout": "no-device",
+        "label": {
+          "en": "WHY IT WORKS"
+        },
+        "headline": {
+          "en": "No streak to break.\nJust *coming back*."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/647d302094a98498.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "inverted": true,
+        "focusElements": [
+          {
+            "id": "showed-up",
+            "source": "/screenshots/addiction-untangled/uploaded/647d302094a98498.jpg",
+            "crop": {
+              "x": 4,
+              "y": 61,
+              "width": 92,
+              "height": 24.2
+            },
+            "transform": {
+              "x": 67.79014308426122,
+              "y": 650.1112877583467,
+              "width": 920,
+              "height": 524.3333333333333,
+              "rotation": -2,
+              "zIndex": 8
+            },
+            "borderRadius": 34,
+            "borderWidth": 3,
+            "accentColor": "#5EDCEB"
+          },
+          {
+            "id": "tonight-check",
+            "source": "/screenshots/addiction-untangled/uploaded/647d302094a98498.jpg",
+            "crop": {
+              "x": 4,
+              "y": 5.4,
+              "width": 92,
+              "height": 24.8
+            },
+            "transform": {
+              "x": 159.1573926868041,
+              "y": 1210.6359300476938,
+              "width": 830,
+              "height": 484.768115942029,
+              "rotation": 2.5,
+              "zIndex": 9
+            },
+            "borderRadius": 34,
+            "borderWidth": 3,
+            "accentColor": "#9B7BFF"
+          }
+        ],
+        "transforms": {
+          "caption": {
+            "x": 76,
+            "y": 250,
+            "width": 928,
+            "height": 420,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      },
+      {
+        "id": "au-a08",
+        "layout": "device-top",
+        "label": {
+          "en": "90-SECOND RESET"
+        },
+        "headline": {
+          "en": "Play some games.\n*Erase* the urge."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/bb6f83d4ff3903d8.jpg",
+        "screenshotCropByLocale": {
+          "en": {
+            "top": 0.036,
+            "bottom": 0.042
+          }
+        },
+        "frame": {
+          "style": "3d",
+          "rotateX": 1,
+          "rotateY": 7,
+          "depth": 980,
+          "thickness": 18
+        },
+        "transforms": {
+          "device": {
+            "x": 200.70778097982839,
+            "y": -192,
+            "width": 678.5844380403457,
+            "height": 1470.266282420749,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 86.39999999999964,
+            "y": 1248,
+            "width": 907.1999999999999,
+            "height": 537.6,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      }
+    ],
+    "ipad": [
+      {
+        "id": "s_mvb9yob3_1l",
+        "layout": "hero",
+        "label": {
+          "en": "MEET YOUR APP"
+        },
+        "headline": {
+          "en": "Made for the\n*big* screen."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mvb9yob3_1m",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 01"
+        },
+        "headline": {
+          "en": "Built for\n*focus*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mvb9yob3_1n",
+        "layout": "device-top",
+        "label": {
+          "en": "FEATURE 02"
+        },
+        "headline": {
+          "en": "Always within\n*reach*."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_mvb9yob3_1o",
+        "layout": "hero",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Room to\n*think*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mvb9yob3_1p",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 04"
+        },
+        "headline": {
+          "en": "Every detail,\n*bigger*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mvb9yob3_1q",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Start on\n*any* device."
+        },
+        "screenshot": ""
+      }
+    ],
+    "android-7": [
+      {
+        "id": "s_mvb9yob3_1r",
+        "layout": "hero",
+        "label": {
+          "en": "MEET YOUR APP"
+        },
+        "headline": {
+          "en": "Pocket-sized\n*power*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mvb9yob3_1s",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 01"
+        },
+        "headline": {
+          "en": "Wide canvas,\nbigger *ideas*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mvb9yob3_1t",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 02"
+        },
+        "headline": {
+          "en": "See more\nat *once*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mvb9yob3_1u",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Built to\n*scale*."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_mvb9yob3_1v",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Ready when\n*you* are."
+        },
+        "screenshot": ""
+      }
+    ],
+    "android-10": [
+      {
+        "id": "s_mvb9yob3_1w",
+        "layout": "hero",
+        "label": {
+          "en": "MEET YOUR APP"
+        },
+        "headline": {
+          "en": "Made for the\n*big* screen."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mvb9yob3_1x",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 01"
+        },
+        "headline": {
+          "en": "Wide canvas,\nbigger *ideas*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mvb9yob3_1y",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 02"
+        },
+        "headline": {
+          "en": "See more\nat *once*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mvb9yob3_1z",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Built to\n*scale*."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_mvb9yob3_20",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Ready when\n*you* are."
+        },
+        "screenshot": ""
+      }
+    ],
+    "feature-graphic": [
+      {
+        "id": "s_mvb9yob3_21",
+        "layout": "feature-graphic",
+        "label": {
+          "en": "Porn Addiction Recovery support"
+        },
+        "headline": {
+          "en": "Decide while your\nhead is clear."
+        },
+        "screenshot": "/screenshots/addiction-untangled/uploaded/d3636a0138b5f13c.jpg",
+        "screenshotSecondary": "/screenshots/addiction-untangled/uploaded/647d302094a98498.jpg",
+        "screenshotTertiary": "/screenshots/addiction-untangled/uploaded/8fe74cdecac99fda.jpg"
+      }
+    ]
+  },
+  "themes": [
+    {
+      "id": "untangled-night",
+      "name": "Untangled Night",
+      "bg": "#15101C",
+      "bgAlt": "#0E0B13",
+      "fg": "#F5F1FA",
+      "fgAlt": "#F5F1FA",
+      "accent": "#9B7BFF",
+      "muted": "#A79DB8",
+      "background": {
+        "kind": "solids",
+        "colors": [
+          "#15101C",
+          "#140F1D",
+          "#12111B",
+          "#18101B",
+          "#14101D",
+          "#16101C",
+          "#110D17",
+          "#15111E"
+        ]
+      },
+      "backgroundAlt": {
+        "kind": "solid",
+        "color": "#0E0B13"
+      },
+      "headline": {
+        "family": "var(--font-inter), Inter, system-ui, sans-serif",
+        "weight": 700,
+        "lineHeight": 0.98,
+        "letterSpacing": -0.035
+      },
+      "label": {
+        "family": "var(--font-dm-sans), 'DM Sans', system-ui, sans-serif",
+        "weight": 700,
+        "transform": "uppercase",
+        "scale": 0.82,
+        "letterSpacing": 0.2
+      },
+      "emphasis": {
+        "family": "var(--font-instrument-serif), 'Instrument Serif', Georgia, serif",
+        "color": "#F9A8D4",
+        "weight": 400,
+        "italic": true,
+        "scale": 1.12,
+        "letterSpacing": -0.01
+      },
+      "device": {
+        "bezel": "#0C0A11",
+        "bezelStroke": "#352B45",
+        "bezelStrokeWidth": 2,
+        "shadow": "0 40px 90px rgba(4,2,10,.6), 0 0 60px rgba(155,123,255,.14)"
+      },
+      "decor": {
+        "grain": 0.03,
+        "untangled": true
+      }
+    }
+  ]
+}

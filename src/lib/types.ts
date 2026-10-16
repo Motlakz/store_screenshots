@@ -236,6 +236,8 @@ export type ThemeDecor = {
   calmpedal?: boolean;
   /** AuraSage's landing-page cadence: forest glow, ruled paper, orbit lines, and ghost type. */
   aurasage?: boolean;
+  /** Addiction Untangled's night layer: lava-lamp urges, a thread coming loose, and floating glass chips. */
+  untangled?: boolean;
   /** Lowercase corner wordmark, editorial style. */
   wordmark?: boolean;
 };

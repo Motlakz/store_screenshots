@@ -1,0 +1,1012 @@
+{
+  "schemaVersion": 2,
+  "appId": "heart-loop",
+  "appName": "Heart Loop",
+  "themeId": "heartloop-bloom",
+  "connectedCanvas": true,
+  "locales": [
+    "en"
+  ],
+  "locale": "en",
+  "device": "iphone",
+  "orientation": "portrait",
+  "appIcon": "",
+  "slidesByDevice": {
+    "iphone": [
+      {
+        "id": "heartloop-ios-01",
+        "layout": "hero",
+        "label": {
+          "en": "THE COUPLES APP FOR EVERY DAY"
+        },
+        "headline": {
+          "en": "Make room for\na little *more us*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/home.png",
+        "transforms": {
+          "caption": {
+            "x": 75,
+            "y": 130,
+            "width": 1170,
+            "height": 425,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 132.48648916794738,
+            "y": 506.7344897738651,
+            "width": 1087,
+            "height": 2214,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#F8EDF2",
+        "focusElements": [
+          {
+            "id": "invite-link",
+            "source": "/screenshots/heart-loop/screens/link.png",
+            "crop": {
+              "x": 0,
+              "y": 17,
+              "width": 97.2,
+              "height": 58.3
+            },
+            "transform": {
+              "x": 301.1112811185384,
+              "y": 1821.5214392025755,
+              "width": 709,
+              "height": 525.0050805263425,
+              "rotation": -7,
+              "zIndex": 9
+            },
+            "borderRadius": 38,
+            "borderWidth": 7,
+            "accentColor": "#D780B2"
+          }
+        ]
+      },
+      {
+        "id": "heartloop-ios-02",
+        "layout": "device-top",
+        "label": {
+          "en": "DATE NIGHT, DECIDED"
+        },
+        "headline": {
+          "en": "A date idea for\n*your kind of night*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/latedate.png",
+        "transforms": {
+          "caption": {
+            "x": 75,
+            "y": 2260,
+            "width": 1170,
+            "height": 460,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 214,
+            "y": 100,
+            "width": 890,
+            "height": 1816,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#241929",
+        "focusElements": [
+          {
+            "id": "date-wheel",
+            "source": "/screenshots/heart-loop/screens/spin.png",
+            "crop": {
+              "x": 7.2,
+              "y": 19,
+              "width": 85,
+              "height": 53
+            },
+            "transform": {
+              "x": 283.18439624324674,
+              "y": 1265.540523481342,
+              "width": 816,
+              "height": 946.3838258164851,
+              "rotation": 6,
+              "zIndex": 9
+            },
+            "borderRadius": 38,
+            "borderWidth": 7,
+            "accentColor": "#D780B2"
+          }
+        ],
+        "inverted": true,
+        "background": {
+          "kind": "gradient",
+          "stops": [
+            "#2E1B36 0%",
+            "#482743 58%",
+            "#241729 100%"
+          ],
+          "angle": 160
+        }
+      },
+      {
+        "id": "heartloop-ios-03",
+        "layout": "hero",
+        "label": {
+          "en": "PLAY TOGETHER"
+        },
+        "headline": {
+          "en": "Turn any moment\ninto *play*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/play.png",
+        "transforms": {
+          "caption": {
+            "x": 75,
+            "y": 130,
+            "width": 1170,
+            "height": 425,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 210,
+            "y": 680,
+            "width": 900,
+            "height": 1837,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#F9EBF2"
+      },
+      {
+        "id": "heartloop-ios-04",
+        "layout": "device-bottom",
+        "label": {
+          "en": "LITTLE WORDS, BIG FEELINGS"
+        },
+        "headline": {
+          "en": "Leave a note\nthey'll *keep*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/notes.png",
+        "transforms": {
+          "caption": {
+            "x": 75,
+            "y": 130,
+            "width": 1170,
+            "height": 425,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 164.4038383088582,
+            "y": 543.211437309636,
+            "width": 1105,
+            "height": 2251,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#F9ECF3"
+      },
+      {
+        "id": "heartloop-ios-05",
+        "layout": "device-top",
+        "label": {
+          "en": "EVERY MOMENT MATTERS"
+        },
+        "headline": {
+          "en": "Keep your favorite\ndays *close*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/memories.png",
+        "transforms": {
+          "caption": {
+            "x": 75,
+            "y": 2260,
+            "width": 1170,
+            "height": 460,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 173.11926825161663,
+            "y": 119.55006949589705,
+            "width": 1031,
+            "height": 2100,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAEAF1"
+      },
+      {
+        "id": "heartloop-ios-06",
+        "layout": "hero",
+        "label": {
+          "en": "YOUR LOVE STORY, MAPPED"
+        },
+        "headline": {
+          "en": "See where your\nstory *leads*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/lovemap.png",
+        "transforms": {
+          "caption": {
+            "x": 75,
+            "y": 130,
+            "width": 1170,
+            "height": 425,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 210,
+            "y": 680,
+            "width": 900,
+            "height": 1837,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#E4F1D3"
+      },
+      {
+        "id": "heartloop-ios-07",
+        "layout": "device-bottom",
+        "label": {
+          "en": "GROW TOGETHER"
+        },
+        "headline": {
+          "en": "A garden that grows\nwith *you*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/garden.png",
+        "transforms": {
+          "caption": {
+            "x": 75,
+            "y": 130,
+            "width": 1170,
+            "height": 425,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 210,
+            "y": 680,
+            "width": 900,
+            "height": 1837,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#F8EEF1",
+        "focusElements": [
+          {
+            "id": "first-seed",
+            "source": "/screenshots/heart-loop/screens/plant.png",
+            "crop": {
+              "x": 0,
+              "y": 15,
+              "width": 100,
+              "height": 71.9
+            },
+            "transform": {
+              "x": 186.2574346327765,
+              "y": 898.4960158335986,
+              "width": 926,
+              "height": 861.1785231259968,
+              "rotation": 0,
+              "zIndex": 9
+            },
+            "borderRadius": 38,
+            "borderWidth": 7,
+            "accentColor": "#D780B2"
+          }
+        ]
+      },
+      {
+        "id": "heartloop-ios-08",
+        "layout": "device-top",
+        "label": {
+          "en": "NIGHT MODE TOGETHER"
+        },
+        "headline": {
+          "en": "Check in when\nthe lights *go low*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/night-mode.png",
+        "transforms": {
+          "caption": {
+            "x": 75,
+            "y": 2260,
+            "width": 1170,
+            "height": 460,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 190.91722233477049,
+            "y": 232.6597763905602,
+            "width": 945,
+            "height": 1925,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#251A2C",
+        "inverted": true,
+        "background": {
+          "kind": "gradient",
+          "stops": [
+            "#25172F 0%",
+            "#3B2244 60%",
+            "#1D162B 100%"
+          ],
+          "angle": 160
+        }
+      }
+    ],
+    "android": [
+      {
+        "id": "heartloop-android-01",
+        "layout": "hero",
+        "label": {
+          "en": "THE COUPLES APP FOR EVERY DAY"
+        },
+        "headline": {
+          "en": "Make room for\na little *more us*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/home.png",
+        "transforms": {
+          "caption": {
+            "x": 55,
+            "y": 90,
+            "width": 970,
+            "height": 320,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 174,
+            "y": 430,
+            "width": 730,
+            "height": 1582,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#F8EDF2",
+        "focusElements": [
+          {
+            "id": "invite-link",
+            "source": "/screenshots/heart-loop/screens/link.png",
+            "crop": {
+              "x": 2.8,
+              "y": 17,
+              "width": 94.5,
+              "height": 72.9
+            },
+            "transform": {
+              "x": 537.895079680151,
+              "y": 1232.8760058477294,
+              "width": 491,
+              "height": 518.8948603646766,
+              "rotation": -7,
+              "zIndex": 9
+            },
+            "borderRadius": 30,
+            "borderWidth": 5,
+            "accentColor": "#D780B2"
+          }
+        ],
+        "frame": {
+          "style": "3d",
+          "color": "graphite",
+          "rotateX": 8,
+          "rotateY": -2,
+          "depth": 1550,
+          "thickness": 34
+        }
+      },
+      {
+        "id": "heartloop-android-02",
+        "layout": "device-top",
+        "label": {
+          "en": "DATE NIGHT, DECIDED"
+        },
+        "headline": {
+          "en": "A date idea for\n*your kind of night*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/latedate.png",
+        "transforms": {
+          "caption": {
+            "x": 55,
+            "y": 1530,
+            "width": 970,
+            "height": 320,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 190,
+            "y": 100,
+            "width": 700,
+            "height": 1517,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#241929",
+        "focusElements": [
+          {
+            "id": "date-wheel",
+            "source": "/screenshots/heart-loop/screens/spin.png",
+            "crop": {
+              "x": 3.3,
+              "y": 14.9,
+              "width": 91.1,
+              "height": 75.6
+            },
+            "transform": {
+              "x": 530.8982715374195,
+              "y": 778.3704394253084,
+              "width": 465,
+              "height": 717.7555810868715,
+              "rotation": 6,
+              "zIndex": 9
+            },
+            "borderRadius": 30,
+            "borderWidth": 5,
+            "accentColor": "#D780B2"
+          }
+        ],
+        "inverted": true,
+        "background": {
+          "kind": "solid",
+          "color": "#2e1822"
+        },
+        "frame": {
+          "style": "3d",
+          "color": "graphite",
+          "rotateX": 5,
+          "rotateY": 2,
+          "depth": 1550,
+          "thickness": 34
+        }
+      },
+      {
+        "id": "heartloop-android-03",
+        "layout": "hero",
+        "label": {
+          "en": "PLAY TOGETHER"
+        },
+        "headline": {
+          "en": "Turn any moment\ninto *play*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/play.png",
+        "transforms": {
+          "caption": {
+            "x": 55,
+            "y": 90,
+            "width": 970,
+            "height": 320,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 174,
+            "y": 430,
+            "width": 730,
+            "height": 1582,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#F9EBF2",
+        "frame": {
+          "style": "3d",
+          "color": "graphite",
+          "rotateX": 8,
+          "rotateY": -5,
+          "depth": 1000,
+          "thickness": 34
+        }
+      },
+      {
+        "id": "heartloop-android-04",
+        "layout": "device-bottom",
+        "label": {
+          "en": "LITTLE WORDS, BIG FEELINGS"
+        },
+        "headline": {
+          "en": "Leave a note\nthey'll *keep*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/notes.png",
+        "transforms": {
+          "caption": {
+            "x": 55,
+            "y": 90,
+            "width": 970,
+            "height": 320,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 174,
+            "y": 430,
+            "width": 730,
+            "height": 1582,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#F9ECF3",
+        "frame": {
+          "style": "3d",
+          "color": "graphite",
+          "rotateX": 9,
+          "rotateY": 16,
+          "depth": 1550,
+          "thickness": 34
+        }
+      },
+      {
+        "id": "heartloop-android-05",
+        "layout": "device-top",
+        "label": {
+          "en": "EVERY MOMENT MATTERS"
+        },
+        "headline": {
+          "en": "Keep your favorite\ndays *close*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/memories.png",
+        "transforms": {
+          "caption": {
+            "x": 55,
+            "y": 1530,
+            "width": 970,
+            "height": 320,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 190,
+            "y": 100,
+            "width": 700,
+            "height": 1517,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAEAF1",
+        "frame": {
+          "style": "3d",
+          "color": "graphite",
+          "rotateX": 5,
+          "rotateY": -5,
+          "depth": 1550,
+          "thickness": 34
+        }
+      },
+      {
+        "id": "heartloop-android-06",
+        "layout": "hero",
+        "label": {
+          "en": "YOUR STORY, MAPPED"
+        },
+        "headline": {
+          "en": "See where your\nstory *leads*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/lovemap.png",
+        "transforms": {
+          "caption": {
+            "x": 55,
+            "y": 90,
+            "width": 970,
+            "height": 320,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 174,
+            "y": 430,
+            "width": 730,
+            "height": 1582,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#E4F1D3",
+        "frame": {
+          "style": "3d",
+          "color": "graphite",
+          "rotateX": 5,
+          "rotateY": 16,
+          "depth": 1550,
+          "thickness": 34
+        }
+      },
+      {
+        "id": "heartloop-android-07",
+        "layout": "device-bottom",
+        "label": {
+          "en": "GROW TOGETHER"
+        },
+        "headline": {
+          "en": "A garden that grows\nwith *you*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/garden.png",
+        "transforms": {
+          "caption": {
+            "x": 55,
+            "y": 90,
+            "width": 970,
+            "height": 320,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 152.6327503974626,
+            "y": 304.84896661367276,
+            "width": 730,
+            "height": 1582,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#F8EEF1",
+        "focusElements": [
+          {
+            "id": "first-seed",
+            "source": "/screenshots/heart-loop/screens/plant.png",
+            "crop": {
+              "x": 0,
+              "y": 15,
+              "width": 100,
+              "height": 71.4
+            },
+            "transform": {
+              "x": 138.01279998116206,
+              "y": 681.416532146733,
+              "width": 703,
+              "height": 649.2423636363637,
+              "rotation": 1,
+              "zIndex": 9
+            },
+            "borderRadius": 30,
+            "borderWidth": 5,
+            "accentColor": "#D780B2"
+          }
+        ],
+        "frame": {
+          "style": "3d",
+          "color": "graphite",
+          "rotateX": 8,
+          "rotateY": -17,
+          "depth": 1550,
+          "thickness": 34
+        }
+      },
+      {
+        "id": "heartloop-android-08",
+        "layout": "device-top",
+        "label": {
+          "en": "NIGHT MODE TOGETHER"
+        },
+        "headline": {
+          "en": "Check in when\nthe lights *go low*."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/night-mode.png",
+        "transforms": {
+          "caption": {
+            "x": 55,
+            "y": 1530,
+            "width": 970,
+            "height": 320,
+            "rotation": 0,
+            "zIndex": 5
+          },
+          "device": {
+            "x": 190,
+            "y": 100,
+            "width": 700,
+            "height": 1517,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#251A2C",
+        "inverted": true,
+        "background": {
+          "kind": "gradient",
+          "stops": [
+            "#25172F 0%",
+            "#3B2244 60%",
+            "#1D162B 100%"
+          ],
+          "angle": 160
+        },
+        "frame": {
+          "style": "3d",
+          "color": "graphite",
+          "rotateX": 5,
+          "rotateY": 16,
+          "depth": 1550,
+          "thickness": 34
+        }
+      }
+    ],
+    "ipad": [
+      {
+        "id": "s_mwaxp0cb_1l",
+        "layout": "hero",
+        "label": {
+          "en": "MEET YOUR APP"
+        },
+        "headline": {
+          "en": "Made for the\n*big* screen."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mwaxp0cb_1m",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 01"
+        },
+        "headline": {
+          "en": "Built for\n*focus*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mwaxp0cb_1n",
+        "layout": "device-top",
+        "label": {
+          "en": "FEATURE 02"
+        },
+        "headline": {
+          "en": "Always within\n*reach*."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_mwaxp0cb_1o",
+        "layout": "hero",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Room to\n*think*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mwaxp0cb_1p",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 04"
+        },
+        "headline": {
+          "en": "Every detail,\n*bigger*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mwaxp0cb_1q",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Start on\n*any* device."
+        },
+        "screenshot": ""
+      }
+    ],
+    "android-7": [
+      {
+        "id": "s_mwaxp0cb_1r",
+        "layout": "hero",
+        "label": {
+          "en": "MEET YOUR APP"
+        },
+        "headline": {
+          "en": "Pocket-sized\n*power*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mwaxp0cb_1s",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 01"
+        },
+        "headline": {
+          "en": "Wide canvas,\nbigger *ideas*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mwaxp0cb_1t",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 02"
+        },
+        "headline": {
+          "en": "See more\nat *once*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mwaxp0cb_1u",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Built to\n*scale*."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_mwaxp0cb_1v",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Ready when\n*you* are."
+        },
+        "screenshot": ""
+      }
+    ],
+    "android-10": [
+      {
+        "id": "s_mwaxp0cb_1w",
+        "layout": "hero",
+        "label": {
+          "en": "MEET YOUR APP"
+        },
+        "headline": {
+          "en": "Made for the\n*big* screen."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mwaxp0cb_1x",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 01"
+        },
+        "headline": {
+          "en": "Wide canvas,\nbigger *ideas*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mwaxp0cb_1y",
+        "layout": "device-bottom",
+        "label": {
+          "en": "FEATURE 02"
+        },
+        "headline": {
+          "en": "See more\nat *once*."
+        },
+        "screenshot": ""
+      },
+      {
+        "id": "s_mwaxp0cb_1z",
+        "layout": "split-landscape",
+        "label": {
+          "en": "FEATURE 03"
+        },
+        "headline": {
+          "en": "Built to\n*scale*."
+        },
+        "screenshot": "",
+        "inverted": true
+      },
+      {
+        "id": "s_mwaxp0cb_20",
+        "layout": "no-device",
+        "label": {
+          "en": "GET STARTED"
+        },
+        "headline": {
+          "en": "Ready when\n*you* are."
+        },
+        "screenshot": ""
+      }
+    ],
+    "feature-graphic": [
+      {
+        "id": "heartloop-feature-graphic",
+        "layout": "feature-graphic",
+        "label": {
+          "en": "DATES · NOTES · MEMORIES"
+        },
+        "headline": {
+          "en": "A little more us, every day."
+        },
+        "screenshot": "/screenshots/heart-loop/screens/home.png",
+        "screenshotSecondary": "/screenshots/heart-loop/screens/plant.png",
+        "screenshotTertiary": "/screenshots/heart-loop/screens/memories.png"
+      }
+    ]
+  },
+  "themes": [
+    {
+      "id": "heartloop-bloom",
+      "name": "Heart Loop Bloom",
+      "bg": "#FBF3F8",
+      "bgAlt": "#25172F",
+      "fg": "#30213B",
+      "fgAlt": "#FFF8FD",
+      "accent": "#AF427D",
+      "muted": "#866A87",
+      "background": {
+        "kind": "solids",
+        "colors": [
+          "#FBF2F9",
+          "#2E1B36",
+          "#FFF4F8",
+          "#F5EAF4",
+          "#FCF0FA",
+          "#F1EAF9",
+          "#FBF2F5",
+          "#2B1A35"
+        ]
+      },
+      "backgroundAlt": {
+        "kind": "solid",
+        "color": "#2B1A35"
+      },
+      "headline": {
+        "family": "var(--font-newsreader), Newsreader, Georgia, serif",
+        "weight": 700,
+        "scale": 1.03,
+        "lineHeight": 0.96,
+        "letterSpacing": -0.032
+      },
+      "label": {
+        "family": "var(--font-dm-sans), 'DM Sans', sans-serif",
+        "weight": 750,
+        "scale": 0.84,
+        "letterSpacing": 0.14,
+        "transform": "uppercase"
+      },
+      "emphasis": {
+        "family": "var(--font-newsreader), Newsreader, Georgia, serif",
+        "color": "#B24580",
+        "weight": 700,
+        "scale": 1
+      },
+      "device": {
+        "bezel": "#36263E",
+        "bezelStroke": "#C996B5",
+        "bezelStrokeWidth": 2,
+        "shadow": "0 34px 75px rgba(74,27,77,.25)"
+      },
+      "decor": {
+        "heartloop": true,
+        "grain": 0.014
+      }
+    }
+  ]
+}

@@ -15,6 +15,8 @@ type Props = {
   fallbackBody?: string;
   fallbackEdge?: string;
   crop?: ScreenCrop;
+  fit?: "cover" | "contain";
+  matte?: string;
   children: React.ReactNode;
 };
 
@@ -38,6 +40,14 @@ function modelMetrics(device: Device, orientation: Orientation): ModelMetrics {
   }
   if (device === "iphone") {
     return { width: 7.25, height: 14.76, depth: 0.82, corner: 0.74, screenInset: 0.2 };
+  }
+  if (device === "iphone-duo-outer" || device === "iphone-duo-inner") {
+    const outer = device === "iphone-duo-outer";
+    const width = outer ? 9.8 : 14.1;
+    const height = outer ? 14.25 : 20.05;
+    return orientation === "landscape"
+      ? { width: height, height: width, depth: outer ? 1.05 : 0.72, corner: 0.68, screenInset: 0.22 }
+      : { width, height, depth: outer ? 1.05 : 0.72, corner: 0.68, screenInset: 0.22 };
   }
   if (device === "ipad") {
     return { width: 10.6, height: 14, depth: 0.58, corner: 0.42, screenInset: 0.34 };
@@ -95,6 +105,8 @@ export function Device3D({
   fallbackBody,
   fallbackEdge,
   crop,
+  fit = "cover",
+  matte = "#000000",
   children,
 }: Props) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -151,7 +163,7 @@ export function Device3D({
     scene.add(group);
 
     const metrics = modelMetrics(device, orientation);
-    const isIphone = device === "iphone";
+    const isIphone = device === "iphone" || device === "iphone-duo-outer" || device === "iphone-duo-inner";
     const isAndroidPhone = device === "android";
     const isIos = isIphone || device === "ipad";
 
@@ -193,21 +205,37 @@ export function Device3D({
     const innerH = metrics.height - metrics.screenInset * 2;
     const screenGeometry = normalizedShapeGeometry(innerW, innerH, Math.max(0.48, metrics.corner - metrics.screenInset));
     const screenUvs = screenGeometry.attributes.uv;
+    const baseUvs = Float32Array.from(screenUvs.array);
     const clampCrop = (value: number | undefined) => THREE.MathUtils.clamp(value ?? 0, 0, 0.45);
     const cropTop = clampCrop(crop?.top);
     const cropRight = clampCrop(crop?.right);
     const cropBottom = crop ? clampCrop(crop.bottom) : SCREEN_BOTTOM_CROP;
     const cropLeft = clampCrop(crop?.left);
-    const visibleU = Math.max(0.1, 1 - cropLeft - cropRight);
-    const visibleV = Math.max(0.1, 1 - cropTop - cropBottom);
-    for (let i = 0; i < screenUvs.count; i += 1) {
-      screenUvs.setXY(
-        i,
-        cropLeft + screenUvs.getX(i) * visibleU,
-        cropBottom + screenUvs.getY(i) * visibleV,
-      );
-    }
-    screenUvs.needsUpdate = true;
+    const applyScreenFit = (sourceW: number, sourceH: number) => {
+      let visibleU = Math.max(0.1, 1 - cropLeft - cropRight);
+      let visibleV = Math.max(0.1, 1 - cropTop - cropBottom);
+      let u0 = cropLeft;
+      let v0 = cropBottom;
+      // The screen mesh has a fixed phone ratio. Sampling the full source UVs
+      // would squeeze web captures into it. Match CSS object-fit: cover while
+      // preserving any explicit crop and keeping the top of tall captures.
+      const sourceAspect = sourceW / Math.max(1, sourceH);
+      const regionAspect = sourceAspect * visibleU / visibleV;
+      const screenAspect = innerW / innerH;
+      if (regionAspect > screenAspect) {
+        const fittedU = visibleU * screenAspect / regionAspect;
+        u0 += (visibleU - fittedU) / 2;
+        visibleU = fittedU;
+      } else {
+        const fittedV = visibleV * regionAspect / screenAspect;
+        v0 += visibleV - fittedV;
+        visibleV = fittedV;
+      }
+      for (let i = 0; i < screenUvs.count; i += 1) {
+        screenUvs.setXY(i, u0 + baseUvs[i * 2] * visibleU, v0 + baseUvs[i * 2 + 1] * visibleV);
+      }
+      screenUvs.needsUpdate = true;
+    };
     const screenMaterial = new THREE.MeshBasicMaterial({
       color: screenSrc ? 0xffffff : 0x101014,
       toneMapped: false,
@@ -355,7 +383,35 @@ export function Device3D({
           loaded.generateMipmaps = false;
           loaded.minFilter = THREE.LinearFilter;
           loaded.magFilter = THREE.LinearFilter;
-          screenMaterial.map = loaded;
+          const image = loaded.image as HTMLImageElement;
+          const imageW = image.naturalWidth || image.width;
+          const imageH = image.naturalHeight || image.height;
+          if (fit === "contain") {
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.max(1, imageW);
+            canvas.height = Math.max(1, Math.round(canvas.width * innerH / innerW));
+            const context = canvas.getContext("2d");
+            if (context) {
+              context.fillStyle = matte;
+              context.fillRect(0, 0, canvas.width, canvas.height);
+              const scale = Math.min(canvas.width / imageW, canvas.height / imageH);
+              const drawW = imageW * scale;
+              const drawH = imageH * scale;
+              context.drawImage(image, (canvas.width - drawW) / 2, (canvas.height - drawH) / 2, drawW, drawH);
+              const fitted = new THREE.CanvasTexture(canvas);
+              fitted.colorSpace = THREE.SRGBColorSpace;
+              fitted.generateMipmaps = false;
+              fitted.minFilter = THREE.LinearFilter;
+              fitted.magFilter = THREE.LinearFilter;
+              texture = fitted;
+              loaded.dispose();
+            } else {
+              applyScreenFit(imageW, imageH);
+            }
+          } else {
+            applyScreenFit(imageW, imageH);
+          }
+          screenMaterial.map = texture;
           screenMaterial.color.set(0xffffff);
           screenMaterial.needsUpdate = true;
 
@@ -391,7 +447,7 @@ export function Device3D({
       });
       renderer.dispose();
     };
-  }, [body, crop?.bottom, crop?.left, crop?.right, crop?.top, device, edge, enable3D, f.style, orientation, screenSrc]);
+  }, [body, crop?.bottom, crop?.left, crop?.right, crop?.top, device, edge, enable3D, f.style, fit, matte, orientation, screenSrc]);
 
   React.useEffect(() => {
     applyViewRef.current?.();

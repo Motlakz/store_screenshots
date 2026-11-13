@@ -105,7 +105,14 @@ function toCss(bg: ThemeBackground): string {
   if (bg.kind === "solid") return bg.color;
   if (bg.kind === "gradient") {
     const angle = bg.angle ?? 180;
-    return `linear-gradient(${angle}deg, ${bg.stops.join(", ")})`;
+    const base = `linear-gradient(${angle}deg, ${bg.stops.join(", ")})`;
+    if (!bg.glows?.length) return base;
+    // First glow paints on top, so list them front-to-back.
+    const pools = bg.glows.map(
+      (g) =>
+        `radial-gradient(ellipse ${g.w}% ${g.h ?? g.w / 2}% at ${g.x}% ${g.y}%, ${g.color} ${g.hold ?? 0}%, transparent 100%)`,
+    );
+    return [...pools, base].join(", ");
   }
   // "solids" is resolved per slide by backgroundCss(); this is the fallback.
   return bg.colors[0] ?? "#ffffff";

@@ -131,7 +131,7 @@ export function downloadName(
 
 /** Decks that have at least one screen, in a stable order for the dialog. */
 export function availableDecks(state: ProjectState): { device: Device; count: number }[] {
-  const order: Device[] = ["iphone", "ipad", "android", "android-7", "android-10", "feature-graphic"];
+  const order: Device[] = ["iphone", "iphone-duo-outer", "iphone-duo-inner", "ipad", "android", "android-7", "android-10", "feature-graphic"];
   return order
     .map((device) => ({ device, count: (state.slidesByDevice[device] || []).length }))
     .filter((deck) => deck.count > 0);

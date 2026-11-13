@@ -4,6 +4,8 @@ import type { Device, Orientation, SlideLayout, Theme, ThemeId } from "./types";
 // ---------- Canvas dimensions (design at largest required resolution) ----------
 export const CANVAS: Record<Device, { w: number; h: number; wL?: number; hL?: number }> = {
   iphone:        { w: 1320, h: 2868 },
+  "iphone-duo-outer": { w: 1398, h: 2034, wL: 2034, hL: 1398 },
+  "iphone-duo-inner": { w: 2007, h: 2853, wL: 2853, hL: 2007 },
   ipad:          { w: 2064, h: 2752 },
   android:       { w: 1080, h: 1920 },
   "android-7":   { w: 1200, h: 1920, wL: 1920, hL: 1200 },
@@ -14,6 +16,13 @@ export const CANVAS: Record<Device, { w: number; h: number; wL?: number; hL?: nu
 // ---------- Export sizes per device ----------
 export type ExportSize = { label: string; w: number; h: number };
 
+// App previews are videos. Keep accepted video resolutions visible in the
+// editor, but never offer them as PNG screenshot exports.
+export const IPHONE_APP_PREVIEW_SIZES = {
+  portrait: { w: 886, h: 1920 },
+  landscape: { w: 1920, h: 886 },
+} as const;
+
 export const EXPORT_SIZES: Record<Device, ExportSize[]> = {
   iphone: [
     // App Store Connect accepts these portrait dimensions for the shared
@@ -22,6 +31,8 @@ export const EXPORT_SIZES: Record<Device, ExportSize[]> = {
     { label: '6.3" Portrait', w: 1206, h: 2622 },
     { label: '6.1" Portrait', w: 1179, h: 2556 },
   ],
+  "iphone-duo-outer": [{ label: "Duo Outer Portrait", w: 1398, h: 2034 }],
+  "iphone-duo-inner": [{ label: "Duo Inner Portrait", w: 2007, h: 2853 }],
   ipad: [
     { label: '13" iPad',       w: 2064, h: 2752 },
     { label: '12.9" iPad Pro', w: 2048, h: 2732 },
@@ -32,8 +43,10 @@ export const EXPORT_SIZES: Record<Device, ExportSize[]> = {
   "feature-graphic": [{ label: "Feature Graphic", w: 1024, h: 500 }],
 };
 
-// Landscape sizes (tablets only)
+// Landscape screenshots use their own canvas proportions.
 export const EXPORT_SIZES_LANDSCAPE: Partial<Record<Device, ExportSize[]>> = {
+  "iphone-duo-outer": [{ label: "Duo Outer Landscape", w: 2034, h: 1398 }],
+  "iphone-duo-inner": [{ label: "Duo Inner Landscape", w: 2853, h: 2007 }],
   "android-7":  [{ label: '7" Landscape',  w: 1920, h: 1200 }],
   "android-10": [{ label: '10" Landscape', w: 2560, h: 1600 }],
 };
@@ -51,6 +64,8 @@ export function getExportSizes(device: Device, orientation: Orientation): Export
 
 // ---------- Frame aspect ratios ----------
 export const MK_RATIO    = 1022 / 2082; // iPhone PNG mockup
+export const DUO_OUTER_RATIO = 1398 / 2034;
+export const DUO_INNER_RATIO = 2007 / 2853;
 export const TAB_P_RATIO = 0.667;        // tablet portrait
 export const TAB_L_RATIO = 1.5;          // tablet landscape
 export const IPAD_RATIO  = 0.770;        // iPad
@@ -71,6 +86,9 @@ export function phoneW(cW: number, cH: number, clamp = 0.84) {
 }
 export function phoneWSmall(cW: number, cH: number) {
   return phoneW(cW, cH, 0.66);
+}
+export function duoW(cW: number, cH: number, ratio: number, clamp = 0.84) {
+  return Math.min(clamp, 0.72 * (cH / cW) * ratio);
 }
 export function tabletPW(cW: number, cH: number, clamp = 0.80) {
   return Math.min(clamp, 0.72 * (cH / cW) * TAB_P_RATIO);
@@ -286,6 +304,8 @@ export const PROJECT_SCHEMA_VERSION = 2;
 
 export const DEVICE_LABEL: Record<Device, string> = {
   iphone: "iPhone",
+  "iphone-duo-outer": "iPhone Duo · Outer",
+  "iphone-duo-inner": "iPhone Duo · Inner",
   ipad: "iPad",
   android: "Android Phone",
   "android-7": 'Android 7" Tablet',

@@ -8,124 +8,1138 @@
     "en"
   ],
   "locale": "en",
-  "device": "android",
+  "device": "iphone",
   "orientation": "portrait",
   "appIcon": "/screenshots/gutscribe/app-icon.png",
   "slidesByDevice": {
     "iphone": [
       {
-        "id": "s_ms98bzyg_22",
+        "id": "s_ms98bzyg_2c-ios",
         "layout": "hero",
         "label": {
-          "en": "MEET YOUR APP"
+          "en": "IBS PATTERNS, EXPLAINED"
         },
         "headline": {
-          "en": "Sell one *idea*\nper screen."
+          "en": "Find what sets\nyour gut *off*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/gutscribe/uploaded/trigger-discovery-insights-screen.jpg",
+        "frame": {
+          "style": "flat",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -6,
+          "thickness": 32
+        },
+        "focusElements": [
+          {
+            "id": "trigger-summary",
+            "crop": {
+              "x": 6.8,
+              "y": 13.42,
+              "width": 86.4,
+              "height": 26.52
+            },
+            "transform": {
+              "x": 109.86885605135572,
+              "y": 1019.5133121877539,
+              "width": 1055,
+              "height": 724.111786265432,
+              "rotation": 0,
+              "zIndex": 9
+            },
+            "borderRadius": 71,
+            "accentColor": "#E89070",
+            "borderWidth": 5
+          }
+        ],
+        "transforms": {
+          "device": {
+            "x": 120.10579597657339,
+            "y": 727.7015586463227,
+            "width": 1021,
+            "height": 2079,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 105.6,
+            "y": 331.11,
+            "width": 1108.8,
+            "height": 657.07,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
       },
       {
-        "id": "s_ms98bzyg_23",
-        "layout": "device-bottom",
-        "label": {
-          "en": "FEATURE 01"
-        },
-        "headline": {
-          "en": "Your headline\n*lives* here."
-        },
-        "screenshot": ""
-      },
-      {
-        "id": "s_ms98bzyg_24",
+        "id": "s_ms98bzyg_2d-ios",
         "layout": "device-top",
         "label": {
-          "en": "FEATURE 02"
+          "en": "COMFORT MODE"
         },
         "headline": {
-          "en": "Flip it for\nvisual *rhythm*."
+          "en": "Hard day? GutScribe\n*softens* with you."
         },
-        "screenshot": "",
-        "inverted": true
+        "screenshot": "/screenshots/gutscribe/uploaded/300a3d6521bd1323.jpg",
+        "inverted": true,
+        "frame": {
+          "style": "flat",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -1,
+          "thickness": 32
+        },
+        "transforms": {
+          "device": {
+            "x": 94.84255515376185,
+            "y": -111.88978075742558,
+            "width": 1071,
+            "height": 2182,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 97.28,
+            "y": 2127.03,
+            "width": 1108.8,
+            "height": 657.07,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
       },
       {
-        "id": "s_ms98bzyg_25",
+        "id": "s_ms98bzyg_2e-ios",
+        "layout": "device-bottom",
+        "label": {
+          "en": "LOG WITHOUT THE FUSS"
+        },
+        "headline": {
+          "en": "A meal logged\nbefore you *forget*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/0dc912ce59876f46.jpg",
+        "frame": {
+          "style": "flat",
+          "color": "white-titanium",
+          "rotateX": 0,
+          "rotateY": 0,
+          "thickness": 32
+        },
+        "transforms": {
+          "device": {
+            "x": 135.4622437076755,
+            "y": 664.0290763539587,
+            "width": 1007,
+            "height": 2051,
+            "rotation": 10,
+            "zIndex": 3
+          }
+        },
+        "focusElements": [
+          {
+            "id": "s_ms9dqz9m_12",
+            "crop": {
+              "x": 5.6,
+              "y": 23.7,
+              "width": 89,
+              "height": 19.1
+            },
+            "transform": {
+              "x": 130.5708241547777,
+              "y": 1148.6811666990677,
+              "width": 1125,
+              "height": 539.8700842696629,
+              "rotation": 10,
+              "zIndex": 9
+            },
+            "borderRadius": 34,
+            "borderWidth": 6
+          }
+        ]
+      },
+      {
+        "id": "s_ms98bzyg_2i-ios",
         "layout": "two-devices",
         "label": {
-          "en": "FEATURE 03"
+          "en": "YOUR WHOLE STORY"
         },
         "headline": {
-          "en": "Show two\n*screens* at once."
+          "en": "Remember less.\nUnderstand *more*."
         },
-        "screenshot": "",
-        "screenshotSecondary": ""
+        "screenshot": "/screenshots/gutscribe/uploaded/timeline-view.jpg",
+        "frame": {
+          "style": "flat",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -4,
+          "thickness": 32
+        },
+        "focusElements": [
+          {
+            "id": "calm-day",
+            "crop": {
+              "x": 5,
+              "y": 27.1,
+              "width": 47.9,
+              "height": 6
+            },
+            "transform": {
+              "x": 336.46000000000004,
+              "y": 1264.95,
+              "width": 766.33,
+              "height": 150.96843209232193,
+              "rotation": 0,
+              "zIndex": 4
+            },
+            "borderRadius": 120,
+            "accentColor": "#7FB8A8",
+            "borderWidth": 6
+          }
+        ],
+        "transforms": {
+          "device": {
+            "x": 452.8892283579753,
+            "y": 634.542658450715,
+            "width": 869,
+            "height": 1771,
+            "rotation": 2,
+            "zIndex": 2
+          },
+          "deviceSecondary": {
+            "x": 16.517329093800072,
+            "y": 1055.5604610492849,
+            "width": 829.38,
+            "height": 1796.99,
+            "rotation": -2,
+            "zIndex": 1
+          },
+          "caption": {
+            "x": 105.6,
+            "y": 302.43,
+            "width": 1108.8,
+            "height": 657.07,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotSecondary": "/screenshots/gutscribe/uploaded/0d4334abd573533a.jpg",
+        "frameSecondary": {
+          "style": "flat",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": 2,
+          "thickness": 32
+        }
       },
       {
-        "id": "s_ms98bzyg_26",
+        "id": "s_ms98bzyg_2f-ios",
         "layout": "hero",
         "label": {
-          "en": "FEATURE 04"
+          "en": "YOUR WEEK, MADE CLEAR"
         },
         "headline": {
-          "en": "Lead with the\n*outcome*."
+          "en": "See a calmer week\ntake *shape*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/gutscribe/uploaded/weekly-digest.jpg",
+        "frame": {
+          "style": "flat",
+          "color": "white-titanium",
+          "rotateX": -3,
+          "rotateY": -5,
+          "thickness": 32
+        },
+        "transforms": {
+          "device": {
+            "x": 14.384204236557707,
+            "y": 661.1516084566437,
+            "width": 1276,
+            "height": 2599,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
       },
       {
-        "id": "s_ms98bzyg_27",
-        "layout": "device-bottom",
-        "label": {
-          "en": "FEATURE 05"
-        },
-        "headline": {
-          "en": "One benefit,\n*one* look."
-        },
-        "screenshot": ""
-      },
-      {
-        "id": "s_ms98bzyg_28",
-        "layout": "no-device",
-        "label": {
-          "en": "WHY IT WORKS"
-        },
-        "headline": {
-          "en": "Let the words\ncarry *this* one."
-        },
-        "screenshot": "",
-        "inverted": true
-      },
-      {
-        "id": "s_ms98bzyg_29",
+        "id": "s_ms98bzyg_2g-ios",
         "layout": "device-top",
         "label": {
-          "en": "FEATURE 06"
+          "en": "DOCTOR-READY"
         },
         "headline": {
-          "en": "Close the loop\non the *promise*."
+          "en": "Walk in with\n*evidence*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/gutscribe/uploaded/doctor-report.jpg",
+        "inverted": true,
+        "frame": {
+          "style": "flat",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -2,
+          "thickness": 32,
+          "depth": 2100
+        },
+        "transforms": {
+          "device": {
+            "x": 70.87924085829218,
+            "y": 14.413433876266877,
+            "width": 1007,
+            "height": 2051,
+            "rotation": 3,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 130.56,
+            "y": 2344,
+            "width": 1108.8,
+            "height": 657.07,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
       },
       {
-        "id": "s_ms98bzyg_2a",
+        "id": "s_ms98bzyg_2h-ios",
         "layout": "two-devices",
         "label": {
-          "en": "FEATURE 07"
+          "en": "FODMAP REINTRODUCTION"
         },
         "headline": {
-          "en": "Pair the\n*before* and after."
+          "en": "Learn what your gut\ncan *handle*."
         },
-        "screenshot": "",
-        "screenshotSecondary": ""
+        "screenshot": "/screenshots/gutscribe/uploaded/reintro-screen-in-action.jpg",
+        "frame": {
+          "style": "flat",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": 6,
+          "thickness": 32
+        },
+        "transforms": {
+          "device": {
+            "x": 554.2726709061972,
+            "y": 1169.0646581876001,
+            "width": 746.44,
+            "height": 1617.29,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "deviceSecondary": {
+            "x": -2.7803730530231405,
+            "y": 731.0599811094346,
+            "width": 970,
+            "height": 1977,
+            "rotation": 0,
+            "zIndex": 2
+          }
+        },
+        "screenshotSecondary": "/screenshots/gutscribe/uploaded/93fff3ccf3116296.jpg",
+        "frameSecondary": {
+          "style": "flat",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -17,
+          "thickness": 32
+        }
       },
       {
-        "id": "s_ms98bzyg_2b",
-        "layout": "no-device",
+        "id": "s_ms98bzyg_2j-ios",
+        "layout": "device-top",
         "label": {
-          "en": "GET STARTED"
+          "en": "SUPPORT BEYOND TRACKING"
         },
         "headline": {
-          "en": "And so much\n*more*."
+          "en": "Know what to try\n*next*."
         },
-        "screenshot": ""
+        "screenshot": "/screenshots/gutscribe/uploaded/guides-screen-with-ibs-facts-gentle-exercise-routines-and-yoga-from-trusted-sources-plus-community-insights.jpg",
+        "frame": {
+          "style": "flat",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -6,
+          "thickness": 32
+        },
+        "transforms": {
+          "caption": {
+            "x": 91.73,
+            "y": 2286.36,
+            "width": 1108.8,
+            "height": 657.07,
+            "rotation": 0,
+            "zIndex": 4
+          },
+          "device": {
+            "x": 74.91454319725744,
+            "y": 32.322453936554155,
+            "width": 1066,
+            "height": 2172,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
+      }
+    ],
+    "iphone-duo-outer": [
+      {
+        "id": "s_ms98bzyg_2c-duo-out",
+        "layout": "hero",
+        "label": {
+          "en": "IBS PATTERNS, EXPLAINED"
+        },
+        "headline": {
+          "en": "Find what sets\nyour gut *off*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/trigger-discovery-insights-screen.jpg",
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -6,
+          "thickness": 32
+        },
+        "focusElements": [
+          {
+            "id": "trigger-summary",
+            "crop": {
+              "x": 6.8,
+              "y": 13.42,
+              "width": 86.4,
+              "height": 26.52
+            },
+            "transform": {
+              "x": 372.44,
+              "y": 881.12,
+              "width": 701.31,
+              "height": 481.35,
+              "rotation": 0,
+              "zIndex": 9
+            },
+            "borderRadius": 35,
+            "accentColor": "#E89070",
+            "borderWidth": 5
+          }
+        ],
+        "transforms": {
+          "device": {
+            "x": 181.36,
+            "y": 587.45,
+            "width": 1070.54,
+            "height": 1557.56,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 111.84,
+            "y": 183.06,
+            "width": 1174.32,
+            "height": 569.52,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAF7F2"
+      },
+      {
+        "id": "s_ms98bzyg_2d-duo-out",
+        "layout": "device-top",
+        "label": {
+          "en": "COMFORT MODE"
+        },
+        "headline": {
+          "en": "Hard day? GutScribe\n*softens* with you."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/300a3d6521bd1323.jpg",
+        "inverted": true,
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -1,
+          "thickness": 32
+        },
+        "transforms": {
+          "device": {
+            "x": 163.73,
+            "y": -49.53,
+            "width": 1070.54,
+            "height": 1557.56,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 103.03,
+            "y": 1456.74,
+            "width": 1174.32,
+            "height": 569.52,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#15130F"
+      },
+      {
+        "id": "s_ms98bzyg_2e-duo-out",
+        "layout": "device-bottom",
+        "label": {
+          "en": "LOG WITHOUT THE FUSS"
+        },
+        "headline": {
+          "en": "A meal logged\nbefore you *forget*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/0dc912ce59876f46.jpg",
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 0,
+          "rotateY": 0,
+          "thickness": 32
+        },
+        "transforms": {
+          "device": {
+            "x": 201.92,
+            "y": 491.05,
+            "width": 1070.54,
+            "height": 1557.56,
+            "rotation": 10,
+            "zIndex": 3
+          }
+        },
+        "focusElements": [
+          {
+            "id": "s_ms9dqz9m_12",
+            "crop": {
+              "x": 5.6,
+              "y": 23.7,
+              "width": 89,
+              "height": 19.1
+            },
+            "transform": {
+              "x": 429.11,
+              "y": 899.91,
+              "width": 706.6,
+              "height": 339.09,
+              "rotation": 10,
+              "zIndex": 9
+            },
+            "borderRadius": 34,
+            "borderWidth": 6
+          }
+        ],
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAF7F2"
+      },
+      {
+        "id": "s_ms98bzyg_2i-duo-out",
+        "layout": "two-devices",
+        "label": {
+          "en": "YOUR WHOLE STORY"
+        },
+        "headline": {
+          "en": "Remember less.\nUnderstand *more*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/timeline-view.jpg",
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -4,
+          "thickness": 32
+        },
+        "focusElements": [
+          {
+            "id": "calm-day",
+            "crop": {
+              "x": 5,
+              "y": 29.3,
+              "width": 47.9,
+              "height": 4.22
+            },
+            "transform": {
+              "x": 430.03,
+              "y": 885.22,
+              "width": 664.23,
+              "height": 130.85,
+              "rotation": 0,
+              "zIndex": 4
+            },
+            "borderRadius": 52,
+            "accentColor": "#7FB8A8",
+            "borderWidth": 6
+          }
+        ],
+        "transforms": {
+          "device": {
+            "x": 513.79,
+            "y": 454.47,
+            "width": 963.48,
+            "height": 1401.81,
+            "rotation": 0,
+            "zIndex": 2
+          },
+          "deviceSecondary": {
+            "x": -112.39,
+            "y": 526.2,
+            "width": 1070.54,
+            "height": 1557.56,
+            "rotation": 0,
+            "zIndex": 1
+          },
+          "caption": {
+            "x": 111.84,
+            "y": 162.72,
+            "width": 1174.32,
+            "height": 569.52,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotSecondary": "/screenshots/gutscribe/uploaded/0d4334abd573533a.jpg",
+        "frameSecondary": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": 2,
+          "thickness": 32
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAF7F2"
+      },
+      {
+        "id": "s_ms98bzyg_2f-duo-out",
+        "layout": "hero",
+        "label": {
+          "en": "YOUR WEEK, MADE CLEAR"
+        },
+        "headline": {
+          "en": "See a calmer week\ntake *shape*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/weekly-digest.jpg",
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": -3,
+          "rotateY": -5,
+          "thickness": 32
+        },
+        "transforms": {
+          "device": {
+            "x": 160.79,
+            "y": 512.92,
+            "width": 1070.54,
+            "height": 1557.56,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAF7F2"
+      },
+      {
+        "id": "s_ms98bzyg_2g-duo-out",
+        "layout": "device-top",
+        "label": {
+          "en": "DOCTOR-READY"
+        },
+        "headline": {
+          "en": "Walk in with\n*evidence*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/doctor-report.jpg",
+        "inverted": true,
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -2,
+          "thickness": 32,
+          "depth": 2100
+        },
+        "transforms": {
+          "device": {
+            "x": 157.86,
+            "y": 77.9,
+            "width": 1070.54,
+            "height": 1557.56,
+            "rotation": 3,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 138.28,
+            "y": 1610.61,
+            "width": 1174.32,
+            "height": 569.52,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#15130F"
+      },
+      {
+        "id": "s_ms98bzyg_2h-duo-out",
+        "layout": "two-devices",
+        "label": {
+          "en": "FODMAP REINTRODUCTION"
+        },
+        "headline": {
+          "en": "Learn what your gut\ncan *handle*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/reintro-screen-in-action.jpg",
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": 6,
+          "thickness": 32
+        },
+        "transforms": {
+          "device": {
+            "x": 534.36,
+            "y": 656.43,
+            "width": 963.48,
+            "height": 1401.81,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "deviceSecondary": {
+            "x": -80.07,
+            "y": 504.57,
+            "width": 1070.54,
+            "height": 1557.56,
+            "rotation": 0,
+            "zIndex": 2
+          }
+        },
+        "screenshotSecondary": "/screenshots/gutscribe/uploaded/93fff3ccf3116296.jpg",
+        "frameSecondary": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -17,
+          "thickness": 32
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAF7F2"
+      },
+      {
+        "id": "s_ms98bzyg_2j-duo-out",
+        "layout": "device-top",
+        "label": {
+          "en": "SUPPORT BEYOND TRACKING"
+        },
+        "headline": {
+          "en": "Know what to try\n*next*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/guides-screen-with-ibs-facts-gentle-exercise-routines-and-yoga-from-trusted-sources-plus-community-insights.jpg",
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -6,
+          "thickness": 32
+        },
+        "transforms": {
+          "caption": {
+            "x": 97.15,
+            "y": 1569.74,
+            "width": 1174.32,
+            "height": 569.52,
+            "rotation": 0,
+            "zIndex": 4
+          },
+          "device": {
+            "x": 166.67,
+            "y": -1.44,
+            "width": 1070.54,
+            "height": 1557.56,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAF7F2"
+      }
+    ],
+    "iphone-duo-inner": [
+      {
+        "id": "s_ms98bzyg_2c-duo-in",
+        "layout": "hero",
+        "label": {
+          "en": "IBS PATTERNS, EXPLAINED"
+        },
+        "headline": {
+          "en": "Find what sets\nyour gut *off*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/trigger-discovery-insights-screen.jpg",
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -6,
+          "thickness": 32
+        },
+        "focusElements": [
+          {
+            "id": "trigger-summary",
+            "crop": {
+              "x": 6.8,
+              "y": 13.42,
+              "width": 86.4,
+              "height": 26.52
+            },
+            "transform": {
+              "x": 546.24,
+              "y": 1235.91,
+              "width": 983.69,
+              "height": 675.17,
+              "rotation": 0,
+              "zIndex": 9
+            },
+            "borderRadius": 35,
+            "accentColor": "#E89070",
+            "borderWidth": 5
+          }
+        ],
+        "transforms": {
+          "device": {
+            "x": 260.36,
+            "y": 824,
+            "width": 1536.89,
+            "height": 2184.72,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 160.56,
+            "y": 256.77,
+            "width": 1685.88,
+            "height": 798.84,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAF7F2"
+      },
+      {
+        "id": "s_ms98bzyg_2d-duo-in",
+        "layout": "device-top",
+        "label": {
+          "en": "COMFORT MODE"
+        },
+        "headline": {
+          "en": "Hard day? GutScribe\n*softens* with you."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/300a3d6521bd1323.jpg",
+        "inverted": true,
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -1,
+          "thickness": 32
+        },
+        "transforms": {
+          "device": {
+            "x": 235.06,
+            "y": -69.47,
+            "width": 1536.89,
+            "height": 2184.72,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 147.91,
+            "y": 2043.3,
+            "width": 1685.88,
+            "height": 798.84,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#15130F"
+      },
+      {
+        "id": "s_ms98bzyg_2e-duo-in",
+        "layout": "device-bottom",
+        "label": {
+          "en": "LOG WITHOUT THE FUSS"
+        },
+        "headline": {
+          "en": "A meal logged\nbefore you *forget*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/0dc912ce59876f46.jpg",
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 0,
+          "rotateY": 0,
+          "thickness": 32
+        },
+        "transforms": {
+          "device": {
+            "x": 289.88,
+            "y": 688.78,
+            "width": 1536.89,
+            "height": 2184.72,
+            "rotation": 10,
+            "zIndex": 3
+          }
+        },
+        "focusElements": [
+          {
+            "id": "s_ms9dqz9m_12",
+            "crop": {
+              "x": 5.6,
+              "y": 23.7,
+              "width": 89,
+              "height": 19.1
+            },
+            "transform": {
+              "x": 627.68,
+              "y": 1262.27,
+              "width": 991.12,
+              "height": 475.62,
+              "rotation": 10,
+              "zIndex": 9
+            },
+            "borderRadius": 34,
+            "borderWidth": 6
+          }
+        ],
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAF7F2"
+      },
+      {
+        "id": "s_ms98bzyg_2i-duo-in",
+        "layout": "two-devices",
+        "label": {
+          "en": "YOUR WHOLE STORY"
+        },
+        "headline": {
+          "en": "Remember less.\nUnderstand *more*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/timeline-view.jpg",
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -4,
+          "thickness": 32
+        },
+        "focusElements": [
+          {
+            "id": "calm-day",
+            "crop": {
+              "x": 5,
+              "y": 29.3,
+              "width": 47.9,
+              "height": 4.22
+            },
+            "transform": {
+              "x": 628.31,
+              "y": 1241.65,
+              "width": 931.68,
+              "height": 183.54,
+              "rotation": 0,
+              "zIndex": 4
+            },
+            "borderRadius": 52,
+            "accentColor": "#7FB8A8",
+            "borderWidth": 6
+          }
+        ],
+        "transforms": {
+          "device": {
+            "x": 737.61,
+            "y": 637.47,
+            "width": 1383.2,
+            "height": 1966.25,
+            "rotation": 0,
+            "zIndex": 2
+          },
+          "deviceSecondary": {
+            "x": -161.34,
+            "y": 738.08,
+            "width": 1536.89,
+            "height": 2184.72,
+            "rotation": 0,
+            "zIndex": 1
+          },
+          "caption": {
+            "x": 160.56,
+            "y": 228.24,
+            "width": 1685.88,
+            "height": 798.84,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotSecondary": "/screenshots/gutscribe/uploaded/0d4334abd573533a.jpg",
+        "frameSecondary": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": 2,
+          "thickness": 32
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAF7F2"
+      },
+      {
+        "id": "s_ms98bzyg_2f-duo-in",
+        "layout": "hero",
+        "label": {
+          "en": "YOUR WEEK, MADE CLEAR"
+        },
+        "headline": {
+          "en": "See a calmer week\ntake *shape*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/weekly-digest.jpg",
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": -3,
+          "rotateY": -5,
+          "thickness": 32
+        },
+        "transforms": {
+          "device": {
+            "x": 230.84,
+            "y": 719.45,
+            "width": 1536.89,
+            "height": 2184.72,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAF7F2"
+      },
+      {
+        "id": "s_ms98bzyg_2g-duo-in",
+        "layout": "device-top",
+        "label": {
+          "en": "DOCTOR-READY"
+        },
+        "headline": {
+          "en": "Walk in with\n*evidence*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/doctor-report.jpg",
+        "inverted": true,
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -2,
+          "thickness": 32,
+          "depth": 2100
+        },
+        "transforms": {
+          "device": {
+            "x": 226.62,
+            "y": 109.26,
+            "width": 1536.89,
+            "height": 2184.72,
+            "rotation": 3,
+            "zIndex": 3
+          },
+          "caption": {
+            "x": 198.52,
+            "y": 2259.13,
+            "width": 1685.88,
+            "height": 798.84,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#15130F"
+      },
+      {
+        "id": "s_ms98bzyg_2h-duo-in",
+        "layout": "two-devices",
+        "label": {
+          "en": "FODMAP REINTRODUCTION"
+        },
+        "headline": {
+          "en": "Learn what your gut\ncan *handle*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/reintro-screen-in-action.jpg",
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": 6,
+          "thickness": 32
+        },
+        "transforms": {
+          "device": {
+            "x": 767.13,
+            "y": 920.74,
+            "width": 1383.2,
+            "height": 1966.25,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "deviceSecondary": {
+            "x": -114.95,
+            "y": 707.73,
+            "width": 1536.89,
+            "height": 2184.72,
+            "rotation": 0,
+            "zIndex": 2
+          }
+        },
+        "screenshotSecondary": "/screenshots/gutscribe/uploaded/93fff3ccf3116296.jpg",
+        "frameSecondary": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -17,
+          "thickness": 32
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAF7F2"
+      },
+      {
+        "id": "s_ms98bzyg_2j-duo-in",
+        "layout": "device-top",
+        "label": {
+          "en": "SUPPORT BEYOND TRACKING"
+        },
+        "headline": {
+          "en": "Know what to try\n*next*."
+        },
+        "screenshot": "/screenshots/gutscribe/uploaded/guides-screen-with-ibs-facts-gentle-exercise-routines-and-yoga-from-trusted-sources-plus-community-insights.jpg",
+        "frame": {
+          "style": "3d",
+          "color": "white-titanium",
+          "rotateX": 2,
+          "rotateY": -6,
+          "thickness": 32
+        },
+        "transforms": {
+          "caption": {
+            "x": 139.47,
+            "y": 2201.8,
+            "width": 1685.88,
+            "height": 798.84,
+            "rotation": 0,
+            "zIndex": 4
+          },
+          "device": {
+            "x": 239.27,
+            "y": -2.02,
+            "width": 1536.89,
+            "height": 2184.72,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        },
+        "screenshotFit": "contain",
+        "screenshotMatte": "#FAF7F2"
       }
     ],
     "android": [
@@ -338,7 +1352,6 @@
             "zIndex": 3
           }
         },
-        "textElements": [],
         "screenshotSecondary": "/screenshots/gutscribe/uploaded/0d4334abd573533a.jpg",
         "frameSecondary": {
           "style": "3d",

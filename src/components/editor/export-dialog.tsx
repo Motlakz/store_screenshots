@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DEVICE_LABEL } from "@/lib/constants";
+import { DEVICE_LABEL, IPHONE_APP_PREVIEW_SIZES } from "@/lib/constants";
 import {
   availableDecks,
   downloadName,
@@ -132,6 +132,11 @@ export function ExportDialog({
           <DialogDescription>
             Only what you pick here goes in the download — language sets stay separate.
           </DialogDescription>
+          {(state.device === "iphone" || state.device.startsWith("iphone-duo")) && (
+            <p className="text-xs text-muted-foreground">
+              Screenshot PNGs use the sizes below. App preview videos use {IPHONE_APP_PREVIEW_SIZES.portrait.w} × {IPHONE_APP_PREVIEW_SIZES.portrait.h} portrait or {IPHONE_APP_PREVIEW_SIZES.landscape.w} × {IPHONE_APP_PREVIEW_SIZES.landscape.h} landscape.
+            </p>
+          )}
         </DialogHeader>
 
         <Section label="Screens">

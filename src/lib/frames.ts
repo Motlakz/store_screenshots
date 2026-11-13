@@ -37,7 +37,7 @@ export function frameColorById(id: string | undefined): FrameColor | null {
 
 export function frameColorsFor(device: Device): FrameColor[] {
   const platform: "ios" | "android" =
-    device === "iphone" || device === "ipad" ? "ios" : "android";
+    device === "iphone" || device === "iphone-duo-outer" || device === "iphone-duo-inner" || device === "ipad" ? "ios" : "android";
   return FRAME_COLORS.filter((c) => !c.platforms || c.platforms.includes(platform));
 }
 

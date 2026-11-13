@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { Rnd } from "react-rnd";
-import { RotateCw } from "lucide-react";
+import { BookOpen, CalendarDays, Dice5, Flower2, Heart, Link2, Mail, MapPin, Moon, RotateCw, Sparkles } from "lucide-react";
 import type {
   BuiltInElementId,
   CaptionElement,
@@ -21,8 +21,11 @@ import type {
 } from "@/lib/types";
 import {
   CANVAS,
+  DUO_INNER_RATIO,
+  DUO_OUTER_RATIO,
   IPAD_RATIO,
   MK_RATIO,
+  duoW,
   ipadW,
   phoneW,
   phoneWSmall,
@@ -57,6 +60,10 @@ import {
   AndroidPhone,
   AndroidTabletL,
   AndroidTabletP,
+  DuoInner,
+  DuoInnerLandscape,
+  DuoOuter,
+  DuoOuterLandscape,
   IPad,
   Phone,
 } from "./device-frames";
@@ -71,11 +78,13 @@ type FrameComp = React.ComponentType<{
   bezelStroke?: string;
   bezelStrokeWidth?: number;
   crop?: ScreenCrop;
+  fit?: "cover" | "contain";
+  matte?: string;
 }>;
 
 export function getCanvas(device: Device, orientation: Orientation) {
   const c = CANVAS[device];
-  if ((device === "android-7" || device === "android-10") && orientation === "landscape") {
+  if ((device === "android-7" || device === "android-10" || device === "iphone-duo-outer" || device === "iphone-duo-inner") && orientation === "landscape") {
     return { cW: c.wL!, cH: c.hL! };
   }
   return { cW: c.w, cH: c.h };
@@ -85,6 +94,8 @@ export function getCanvas(device: Device, orientation: Orientation) {
 function getFrameAspect(device: Device, orientation: Orientation) {
   switch (device) {
     case "iphone":      return MK_RATIO;
+    case "iphone-duo-outer": return orientation === "landscape" ? 1 / DUO_OUTER_RATIO : DUO_OUTER_RATIO;
+    case "iphone-duo-inner": return orientation === "landscape" ? 1 / DUO_INNER_RATIO : DUO_INNER_RATIO;
     case "android":     return 9 / 19.5;
     case "ipad":        return IPAD_RATIO;
     case "android-7":
@@ -101,6 +112,14 @@ export function getFrameForDevice(device: Device, orientation: Orientation): {
   switch (device) {
     case "iphone":
       return { Comp: Phone, widthFn: phoneW, smallWidthFn: phoneWSmall };
+    case "iphone-duo-outer": {
+      const ratio = orientation === "landscape" ? 1 / DUO_OUTER_RATIO : DUO_OUTER_RATIO;
+      return { Comp: orientation === "landscape" ? DuoOuterLandscape : DuoOuter, widthFn: (w, h) => duoW(w, h, ratio), smallWidthFn: (w, h) => duoW(w, h, ratio, 0.62) };
+    }
+    case "iphone-duo-inner": {
+      const ratio = orientation === "landscape" ? 1 / DUO_INNER_RATIO : DUO_INNER_RATIO;
+      return { Comp: orientation === "landscape" ? DuoInnerLandscape : DuoInner, widthFn: (w, h) => duoW(w, h, ratio), smallWidthFn: (w, h) => duoW(w, h, ratio, 0.62) };
+    }
     case "ipad":
       return { Comp: IPad, widthFn: ipadW, smallWidthFn: (cW, cH) => ipadW(cW, cH, 0.6) };
     case "android":
@@ -985,6 +1004,8 @@ function SlideBackground({
     >
       {decor.dreamy && <DreamyDecorations slideId={slide.id} cW={cW} cH={cH} />}
 
+      {decor.heartloop && <HeartLoopDecorations cW={cW} cH={cH} slideIndex={slideIndex} />}
+
       {decor.calmpedal && <CalmPedalDecorations slideId={slide.id} cW={cW} cH={cH} layer="back" />}
 
       {decor.untangled && <UntangledDecorations cW={cW} cH={cH} slideIndex={slideIndex} layer="back" />}
@@ -1072,6 +1093,30 @@ function SlideBackground({
 // BellyClock uses hand-drawn editorial diagrams, not the shared grab-bag of
 // squiggles. Every mark explains the screen's subject: time, metabolic phase,
 // hydration, trends, journaling, community, or spiritual rhythm.
+const HEARTLOOP_ICONS = [
+  [Heart, Link2], [CalendarDays, Dice5], [Dice5, Heart], [Mail, Heart],
+  [Sparkles, BookOpen], [MapPin, Heart], [Flower2, Heart], [Moon, Heart],
+] as const;
+
+function HeartLoopDecorations({ cW, cH, slideIndex }: { cW: number; cH: number; slideIndex: number }) {
+  const [Icon, Secondary] = HEARTLOOP_ICONS[slideIndex % HEARTLOOP_ICONS.length];
+  const dark = slideIndex === 1 || slideIndex === 7;
+  const color = dark ? "#F6C6E1" : "#AE4D88";
+  const card = (left: number, top: number, size: number, rotation: number, SecondaryIcon: typeof Heart, opacity = 1) => (
+    <div aria-hidden style={{ position: "absolute", left: cW * left, top: cH * top, width: cW * size, height: cW * size, display: "grid", placeItems: "center", borderRadius: cW * 0.034, background: dark ? "rgba(247,208,234,.12)" : "rgba(255,255,255,.74)", border: `2px solid ${dark ? "rgba(255,219,238,.24)" : "rgba(172,86,143,.17)"}`, boxShadow: dark ? "0 20px 42px rgba(16,6,25,.22)" : "0 22px 48px rgba(125,57,110,.13)", transform: `rotate(${rotation}deg)`, opacity }}>
+      <SecondaryIcon size={cW * size * 0.49} strokeWidth={1.9} color={color} />
+    </div>
+  );
+  return <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+    <div style={{ position: "absolute", width: cW * 0.62, height: cW * 0.62, borderRadius: "50%", left: -cW * 0.32, top: cH * 0.42, background: dark ? "#A24492" : "#E9ABD4", filter: `blur(${cW * 0.08}px)`, opacity: dark ? .12 : .24 }} />
+    <div style={{ position: "absolute", width: cW * 0.54, height: cW * 0.54, borderRadius: "50%", right: -cW * 0.29, bottom: cH * 0.1, background: dark ? "#7957BD" : "#C6B2F1", filter: `blur(${cW * 0.085}px)`, opacity: dark ? .16 : .3 }} />
+    {card(0.045, 0.31, 0.16, -12, Icon)}
+    {card(0.785, 0.48, 0.12, 11, Secondary, .84)}
+    <Heart aria-hidden size={cW * 0.035} fill={dark ? "#F3A6CF" : "#D75B9B"} color={dark ? "#F3A6CF" : "#D75B9B"} style={{ position: "absolute", left: cW * 0.83, top: cH * 0.29, transform: "rotate(19deg)", opacity: .78 }} />
+    <Flower2 aria-hidden size={cW * 0.04} color={dark ? "#D2B6FF" : "#B595E6"} style={{ position: "absolute", left: cW * 0.09, top: cH * 0.82, transform: "rotate(-16deg)", opacity: .62 }} />
+  </div>;
+}
+
 function BellyClockDecorations({
   cW,
   cH,
@@ -1547,8 +1592,10 @@ function DreamyDecorations({
 // Front decoration overlay — draws the readable text chips above the device so
 // their words are never clipped. Non-interactive so editing/selection still
 // works through it. Only used by the dreamy-pastel theme.
-function DreamyRefinedDecorations({ slideId, cW, cH, layer }: { slideId: string; cW: number; cH: number; layer: "back" | "front" }) {
+function DreamyRefinedDecorations({ slideId: rawId, cW, cH, layer }: { slideId: string; cW: number; cH: number; layer: "back" | "front" }) {
   if (layer === "front") return null;
+  // Ported decks suffix their ids (e.g. "01-home-ios") but share the art.
+  const slideId = rawId.replace(/-(ios|ipad)$/, "");
   type S = React.CSSProperties;
   const cloud = (key: string, style: S) => <div key={key} style={{ position: "absolute", borderRadius: 999, filter: `blur(${cW * 0.012}px)`, background: "rgba(255,255,255,.38)", ...style }} />;
   const sparkle = (key: string, left: string, top: string, color = "rgba(255,255,255,.9)") => (
@@ -2580,6 +2627,35 @@ function ScreenGuide({
   );
 }
 
+function HeartLoopFeatureGraphic({ slide, cW, locale, appName, editable, edit }: { slide: Slide; cW: number; locale: string; appName?: string; editable?: boolean; edit?: EditHandlers }) {
+  const cH = CANVAS["feature-graphic"].h;
+  const card = (src: string | undefined, x: number, y: number, w: number, h: number, rotate: number, objectPosition: string, fit: "cover" | "contain" = "cover") => src && img(src) ? (
+    <div aria-hidden style={{ position: "absolute", left: x, top: y, width: w, height: h, padding: 8, borderRadius: 30, background: "#FFF8FC", boxShadow: "0 28px 55px rgba(82,37,100,.25), inset 0 0 0 1px rgba(126,80,144,.18)", transform: `rotate(${rotate}deg)`, overflow: "hidden" }}>
+      <img src={img(src)} alt="" draggable={false} style={{ display: "block", width: "100%", height: "100%", objectFit: fit, objectPosition, borderRadius: 22, background: "#F9EFF4" }} />
+    </div>
+  ) : null;
+  return <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "radial-gradient(circle at 80% 18%, #F9CBE5 0%, transparent 35%), linear-gradient(115deg, #FCF7FF 0%, #F3E8FD 55%, #FCE7F1 100%)", color: "#2C1B3C" }}>
+    <div aria-hidden style={{ position: "absolute", left: -70, bottom: -138, width: 310, height: 310, borderRadius: "50%", background: "#E9C8F6", filter: "blur(55px)", opacity: .5 }} />
+    <div aria-hidden style={{ position: "absolute", right: 34, top: 22, width: 405, height: 405, borderRadius: "50%", border: "1px solid rgba(154,79,154,.16)" }} />
+    <div style={{ position: "absolute", left: 57, top: 57, width: 485, zIndex: 5 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
+        <div style={{ width: 44, height: 44, display: "grid", placeItems: "center", borderRadius: 15, background: "#AE3E78", boxShadow: "0 12px 24px rgba(174,62,120,.2)" }}><Heart size={25} color="white" fill="white" /></div>
+        <span style={{ fontFamily: "var(--font-dm-sans), sans-serif", fontSize: 20, fontWeight: 750, letterSpacing: "-.025em" }}>{appName || "Heart Loop"}</span>
+      </div>
+      <div style={{ marginTop: 43, fontFamily: "var(--font-newsreader), Georgia, serif", fontSize: 62, lineHeight: .94, letterSpacing: "-.045em", fontWeight: 700 }}>The little things<br /><span style={{ color: "#AD3F77" }}>bring us closer.</span></div>
+      <EditableText value={pickText(slide.headline, locale)} editable={editable} onChange={edit?.onHeadlineChange} style={{ marginTop: 23, maxWidth: 430, fontFamily: "var(--font-dm-sans), sans-serif", fontSize: 23, lineHeight: 1.3, color: "#634A6C", fontWeight: 500 }} />
+      <div style={{ marginTop: 31, display: "flex", gap: 15, color: "#8D3F77", fontFamily: "var(--font-dm-sans), sans-serif", fontSize: 13, letterSpacing: ".1em", fontWeight: 750 }}><span>DATES</span><span>·</span><span>NOTES</span><span>·</span><span>MEMORIES</span></div>
+    </div>
+    <div aria-hidden style={{ position: "absolute", right: -15, top: 0, width: 480, height: 500, zIndex: 3 }}>
+      {card(slide.screenshotSecondary, 55, 112, 205, 338, -11, "50% 50%", "contain")}
+      {card(slide.screenshotTertiary, 288, 76, 190, 350, 11, "50% 23%")}
+      {card(slide.screenshot, 153, 28, 235, 422, 2, "50% 12%")}
+      <div style={{ position: "absolute", left: 30, top: 37, width: 81, height: 81, borderRadius: 24, display: "grid", placeItems: "center", background: "#FFFFFF", boxShadow: "0 15px 28px rgba(83,42,100,.14)", transform: "rotate(-11deg)" }}><Flower2 size={41} color="#B24A84" /></div>
+      <div style={{ position: "absolute", right: 2, bottom: 23, width: 69, height: 69, borderRadius: 21, display: "grid", placeItems: "center", background: "#FFFFFF", boxShadow: "0 15px 28px rgba(83,42,100,.14)", transform: "rotate(12deg)" }}><Heart size={36} fill="#E785B8" color="#E785B8" /></div>
+    </div>
+  </div>;
+}
+
 function FeatureGraphicCanvas({
   slide,
   cW,
@@ -2601,6 +2677,10 @@ function FeatureGraphicCanvas({
   edit?: EditHandlers;
   enable3D?: boolean;
 }) {
+  if (theme.id === "heartloop-bloom") {
+    return <HeartLoopFeatureGraphic slide={slide} cW={cW} locale={locale} appName={appName} editable={editable} edit={edit} />;
+  }
+
   if (theme.id === "calmpedal-kinetic") {
     return (
       <CalmPedalFeatureGraphic
@@ -3673,6 +3753,8 @@ function SlideElements({
           fallbackBody={themeDevice.bezel}
           fallbackEdge={themeDevice.bezelStroke}
           crop={crop}
+          fit={id === "device" ? slide.screenshotFit : undefined}
+          matte={id === "device" ? slide.screenshotMatte : undefined}
         >
           <Frame
             src={src}
@@ -3681,6 +3763,8 @@ function SlideElements({
             bezelStroke={themeDevice.bezelStroke}
             bezelStrokeWidth={themeDevice.bezelStrokeWidth}
             crop={crop}
+            fit={id === "device" ? slide.screenshotFit : undefined}
+            matte={id === "device" ? slide.screenshotMatte : undefined}
             style={{
               width: "100%",
               height: "100%",

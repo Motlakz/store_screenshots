@@ -1,5 +1,7 @@
 export type Device =
   | "iphone"
+  | "iphone-duo-outer"
+  | "iphone-duo-inner"
   | "ipad"
   | "android"
   | "android-7"
@@ -130,6 +132,9 @@ export type Slide = {
   headline: LocalizedText;    // multi-line; newlines are intentional, per locale
   screenshot: string;         // path under /screenshots/ — may contain {locale}
   screenshotSecondary?: string; // for two-devices layout — may contain {locale}
+  /** Preserve the whole source inside the phone when a web capture is unusually wide. */
+  screenshotFit?: "cover" | "contain";
+  screenshotMatte?: string;
   screenshotByLocale?: Partial<Record<string, string>>;
   screenshotSecondaryByLocale?: Partial<Record<string, string>>;
   screenshotTertiary?: string; // third image used by feature-graphic collages
@@ -175,10 +180,24 @@ export type ThemeId =
 
 export type ThemeBackground =
   | { kind: "solid"; color: string }
-  // Multi-stop gradient, e.g. the cotton-candy sky.
-  | { kind: "gradient"; stops: string[]; angle?: number }
+  // Multi-stop gradient, e.g. the cotton-candy sky. Optional glows layer
+  // soft light pools over it for a mesh-like depth.
+  | { kind: "gradient"; stops: string[]; angle?: number; glows?: BackgroundGlow[] }
   // One flat color per slide, cycled by slide index — the editorial look.
   | { kind: "solids"; colors: string[] };
+
+/** One soft elliptical light pool. Position and radii are % of the slide. */
+export type BackgroundGlow = {
+  color: string;
+  x: number;
+  y: number;
+  /** Horizontal radius in % of slide width. */
+  w: number;
+  /** Vertical radius in % of slide height; defaults to w / 2. */
+  h?: number;
+  /** 0–100, where the falloff to transparent begins. */
+  hold?: number;
+};
 
 export type ThemeFont = {
   /** CSS font-family stack. Use the var(--font-*) names loaded in layout.tsx. */
@@ -238,6 +257,8 @@ export type ThemeDecor = {
   aurasage?: boolean;
   /** Addiction Untangled's night layer: lava-lamp urges, a thread coming loose, and floating glass chips. */
   untangled?: boolean;
+  /** Heart Loop's floating, feature-specific love-note and garden icons. */
+  heartloop?: boolean;
   /** Lowercase corner wordmark, editorial style. */
   wordmark?: boolean;
 };

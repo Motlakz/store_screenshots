@@ -111,6 +111,8 @@ export function makeDefaultProject(appId: string, appName?: string): ProjectStat
     appIcon: "",
     slidesByDevice: {
       iphone: makeStarterSlides(),
+      "iphone-duo-outer": makeStarterSlides(),
+      "iphone-duo-inner": makeStarterSlides(),
       android: makeStarterSlides(),
       ipad: ipadStarter(),
       "android-7": tabletStarter("7"),
@@ -134,5 +136,5 @@ export function newSlide(layout: Slide["layout"] = "device-bottom"): Slide {
 }
 
 export function detectPlatform(device: Device): "ios" | "android" {
-  return device === "iphone" || device === "ipad" ? "ios" : "android";
+  return device === "iphone" || device === "iphone-duo-outer" || device === "iphone-duo-inner" || device === "ipad" ? "ios" : "android";
 }

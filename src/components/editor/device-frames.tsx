@@ -18,9 +18,11 @@ type FrameProps = {
   bezelStroke?: string;
   bezelStrokeWidth?: number;
   crop?: ScreenCrop;
+  fit?: "cover" | "contain";
+  matte?: string;
 };
 
-function croppedImageStyle(crop?: ScreenCrop): React.CSSProperties {
+function croppedImageStyle(crop?: ScreenCrop, fit: "cover" | "contain" = "cover"): React.CSSProperties {
   const clamp = (value: number | undefined) => Math.min(0.45, Math.max(0, value ?? 0));
   const top = clamp(crop?.top);
   const right = clamp(crop?.right);
@@ -35,7 +37,7 @@ function croppedImageStyle(crop?: ScreenCrop): React.CSSProperties {
     height: `${100 / visibleH}%`,
     left: `${(-left * 100) / visibleW}%`,
     top: `${(-top * 100) / visibleH}%`,
-    objectFit: "cover",
+    objectFit: fit,
     objectPosition: "top",
     maxWidth: "none",
   };
@@ -56,7 +58,7 @@ function bezelStyle(
 }
 
 // iPhone — uses pre-measured mockup.png overlay
-export function Phone({ src, alt = "", style, hideEmpty, crop }: FrameProps) {
+export function Phone({ src, alt = "", style, hideEmpty, crop, fit, matte }: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "1022 / 2082", ...style }}>
@@ -76,25 +78,78 @@ export function Phone({ src, alt = "", style, hideEmpty, crop }: FrameProps) {
           width: `${PHONE_SCREEN.W}%`,
           height: `${PHONE_SCREEN.H}%`,
           borderRadius: `${PHONE_SCREEN.RX}% / ${PHONE_SCREEN.RY}%`,
-          background: "#111",
+          background: matte || "#111",
         }}
       >
         {resolved ? (
           <img
             src={resolved}
             alt={alt}
-            style={croppedImageStyle(crop)}
+            style={croppedImageStyle(crop, fit)}
             draggable={false}
           />
         ) : hideEmpty ? null : (
           <EmptySlot />
         )}
       </div>
+      {/* Dynamic Island. mockup.png draws one, but the screen layer above
+          covers it — invisible on iOS captures (black there anyway), missing
+          on Android captures ported to the iPhone deck. Geometry is the real
+          iPhone Pro island (126×37pt, 11pt from the top of a 393pt screen). */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          zIndex: 11,
+          left: "50%",
+          top: `${(72 / 2082) * 100}%`,
+          width: `${(294 / 1022) * 100}%`,
+          height: `${(86 / 2082) * 100}%`,
+          transform: "translateX(-50%)",
+          borderRadius: 999,
+          background: "#000",
+          pointerEvents: "none",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            right: "11%",
+            top: "50%",
+            width: "13%",
+            aspectRatio: "1",
+            transform: "translateY(-50%)",
+            borderRadius: "50%",
+            background: "radial-gradient(circle at 38% 34%, #3a4a6e 0 14%, #141a2a 42%, #07080c 72%)",
+          }}
+        />
+      </div>
     </div>
   );
 }
 
-export function AndroidPhone({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth, crop }: FrameProps) {
+function DuoFrame({ src, alt = "", style, hideEmpty, crop, fit, matte, bezel, bezelStroke, bezelStrokeWidth, inner = false, landscape = false }: FrameProps & { inner?: boolean; landscape?: boolean }) {
+  const resolved = img(src);
+  const ratio = inner ? (landscape ? "2853 / 2007" : "2007 / 2853") : (landscape ? "2034 / 1398" : "1398 / 2034");
+  return (
+    <div style={{ position: "relative", aspectRatio: ratio, ...style }}>
+      <div style={{ position: "absolute", inset: 0, borderRadius: inner ? "6% / 4.5%" : "8% / 5.5%", ...bezelStyle(bezel, bezelStroke, bezelStrokeWidth, "linear-gradient(135deg, #454748, #17191a)", "0 18px 55px rgba(0,0,0,.3), inset 0 0 0 2px #9a9d9b"), overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: inner ? "1.65% 1.25%" : "1.9% 1.5%", borderRadius: inner ? "5% / 3.8%" : "7% / 4.5%", overflow: "hidden", background: matte || "#121413" }}>
+          {resolved ? <img src={resolved} alt={alt} style={croppedImageStyle(crop, fit)} draggable={false} /> : hideEmpty ? null : <EmptySlot />}
+          {inner && <div aria-hidden style={{ position: "absolute", top: 0, bottom: 0, left: "49.82%", width: "0.36%", background: "linear-gradient(90deg, rgba(0,0,0,.23), rgba(255,255,255,.13), rgba(0,0,0,.2))", pointerEvents: "none" }} />}
+        </div>
+        <div aria-hidden style={{ position: "absolute", top: inner ? "2.4%" : "2.5%", left: "50%", transform: "translateX(-50%)", width: inner ? "0.75%" : "7%", height: inner ? "0.52%" : "1.05%", borderRadius: 99, background: "#101112", boxShadow: "0 0 0 1px rgba(255,255,255,.1)" }} />
+      </div>
+    </div>
+  );
+}
+
+export const DuoOuter = (props: FrameProps) => <DuoFrame {...props} />;
+export const DuoInner = (props: FrameProps) => <DuoFrame {...props} inner />;
+export const DuoOuterLandscape = (props: FrameProps) => <DuoFrame {...props} landscape />;
+export const DuoInnerLandscape = (props: FrameProps) => <DuoFrame {...props} inner landscape />;
+
+export function AndroidPhone({ src, alt = "", style, hideEmpty, bezel, bezelStroke, bezelStrokeWidth, crop, fit, matte }: FrameProps) {
   const resolved = img(src);
   return (
     <div style={{ position: "relative", aspectRatio: "9 / 19.5", ...style }}>
@@ -133,14 +188,14 @@ export function AndroidPhone({ src, alt = "", style, hideEmpty, bezel, bezelStro
             height: "96%",
             borderRadius: "5.5% / 2.6%",
             overflow: "hidden",
-            background: "#000",
+            background: matte || "#000",
           }}
         >
           {resolved ? (
             <img
               src={resolved}
               alt={alt}
-              style={croppedImageStyle(crop)}
+              style={croppedImageStyle(crop, fit)}
               draggable={false}
             />
           ) : hideEmpty ? null : (
